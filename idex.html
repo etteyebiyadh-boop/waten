@@ -112,6 +112,9 @@ footer {
 .footer-brand { flex: 1; min-width: 200px; }
 .footer-brand .logo { font-size: 1.25rem; margin-bottom: 0.5rem; }
 .footer-brand p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.05em; }
+.footer-social { margin-top: 0.75rem; display: flex; flex-direction: column; gap: 0.25rem; }
+.footer-social a { color: var(--text-muted); text-decoration: none; font-size: 0.8rem; letter-spacing: 0.05em; }
+.footer-social a:hover { color: var(--accent); }
 .footer-links { display: flex; gap: 2rem; }
 .footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.1em; transition: color 0.25s; }
 .footer-links a:hover { color: var(--accent); }
@@ -127,6 +130,7 @@ footer {
   .cart { right: 5%; }
   footer { flex-direction: column; text-align: center; }
   .footer-links { justify-content: center; }
+  .footer-social { align-items: center; }
 }
 </style>
 </head>
@@ -172,6 +176,12 @@ footer {
 <div class="footer-brand">
 <div class="logo" id="footer-logo">WATEN</div>
 <p id="footer-tagline">Premium streetwear. Limited drops. Global reach.</p>
+<div class="footer-social" id="footer-social">
+  <a id="footer-whatsapp" href="#" target="_blank" style="display:none;">WhatsApp</a>
+  <a id="footer-instagram" href="#" target="_blank" style="display:none;">Instagram</a>
+  <a id="footer-tiktok" href="#" target="_blank" style="display:none;">TikTok</a>
+  <a id="footer-email" href="#" style="display:none;">Email</a>
+</div>
 </div>
 <nav class="footer-links" id="footer-links">
 <a href="#collection">Collection</a>
@@ -250,6 +260,32 @@ function applySiteContent(site) {
     }
     var fc = document.getElementById('footer-copyright');
     if (fc && site.footer.copyright !== undefined) fc.textContent = site.footer.copyright;
+  }
+  if (site.social) {
+    var wrap = document.getElementById('footer-social');
+    var any = false;
+    function setLink(id, url, text, isEmail) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      if (url && url.trim()) {
+        any = true;
+        var v = url.trim();
+        if (isEmail && v.indexOf('@') !== -1 && !v.startsWith('mailto:')) {
+          el.href = 'mailto:' + v;
+        } else {
+          el.href = v;
+        }
+        if (text) el.textContent = text;
+        el.style.display = 'inline-block';
+      } else {
+        el.style.display = 'none';
+      }
+    }
+    setLink('footer-whatsapp', site.social.whatsapp, 'WhatsApp', false);
+    setLink('footer-instagram', site.social.instagram, 'Instagram', false);
+    setLink('footer-tiktok', site.social.tiktok, 'TikTok', false);
+    setLink('footer-email', site.social.email, 'Email', true);
+    if (wrap) wrap.style.display = any ? 'flex' : 'none';
   }
 }
 

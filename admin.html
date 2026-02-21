@@ -246,6 +246,18 @@
         <div id="panel-settings" class="panel">
           <h2>Settings</h2>
           <div class="section-card">
+            <h3>Contact &amp; Social</h3>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:0.75rem;">Add links for WhatsApp, Instagram, TikTok and email. Leave blank to hide.</p>
+            <div class="form-row"><label>WhatsApp link (wa.me or full URL)</label><input type="text" id="site-social-whatsapp" placeholder="https://wa.me/216..."></div>
+            <div class="form-row"><label>Instagram profile URL</label><input type="text" id="site-social-instagram" placeholder="https://instagram.com/yourbrand"></div>
+            <div class="form-row"><label>TikTok profile URL</label><input type="text" id="site-social-tiktok" placeholder="https://www.tiktok.com/@yourbrand"></div>
+            <div class="form-row"><label>Email address</label><input type="text" id="site-social-email" placeholder="you@example.com"></div>
+            <div class="form-actions">
+              <button class="btn" onclick="saveSiteSection('social')">Save contact &amp; social</button>
+              <span id="status-social" class="save-status"></span>
+            </div>
+          </div>
+          <div class="section-card">
             <h3>Default product image</h3>
             <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:0.5rem;">Used when a product has no image or image fails to load.</p>
             <div class="form-row"><label>Fallback image URL</label><input type="text" id="config-fallback-image" placeholder="https://..."></div>
@@ -351,6 +363,7 @@
       if (!siteContent.collection) siteContent.collection = {};
       if (!siteContent.invest) siteContent.invest = {};
       if (!siteContent.footer) siteContent.footer = {};
+      if (!siteContent.social) siteContent.social = {};
       document.getElementById('site-meta-title').value = siteContent.meta.title || '';
       document.getElementById('site-meta-description').value = siteContent.meta.description || '';
       document.getElementById('site-header-logo').value = siteContent.header.logoText || '';
@@ -368,6 +381,10 @@
       document.getElementById('site-footer-tagline').value = siteContent.footer.tagline || '';
       document.getElementById('site-footer-copyright').value = siteContent.footer.copyright || '';
       document.getElementById('site-footer-links').value = navLinksToText(siteContent.footer.links);
+      document.getElementById('site-social-whatsapp').value = siteContent.social.whatsapp || '';
+      document.getElementById('site-social-instagram').value = siteContent.social.instagram || '';
+      document.getElementById('site-social-tiktok').value = siteContent.social.tiktok || '';
+      document.getElementById('site-social-email').value = siteContent.social.email || '';
       try {
         var cfgRes = await fetch(API + '/config', { headers: authHeaders() });
         if (cfgRes.ok) {
@@ -419,6 +436,15 @@
             links: textToNavLinks(document.getElementById('site-footer-links').value)
           }
         };
+      } else if (section === 'social') {
+        payload = {
+          social: {
+            whatsapp: document.getElementById('site-social-whatsapp').value.trim(),
+            instagram: document.getElementById('site-social-instagram').value.trim(),
+            tiktok: document.getElementById('site-social-tiktok').value.trim(),
+            email: document.getElementById('site-social-email').value.trim()
+          }
+        };
       }
       try {
         var current = getSiteContentForSave();
@@ -441,7 +467,8 @@
         hero: siteContent.hero || {},
         collection: siteContent.collection || {},
         invest: siteContent.invest || {},
-        footer: siteContent.footer || {}
+        footer: siteContent.footer || {},
+        social: siteContent.social || {}
       };
     }
 
