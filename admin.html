@@ -53,6 +53,29 @@
     .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
     .hidden { display: none !important; }
     .empty { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); }
+    .dashboard-layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
+    .dashboard-main { flex: 1; min-width: 280px; }
+    .detail-panel {
+      width: 340px; flex-shrink: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+      padding: 1.5rem; position: sticky; top: 2rem;
+    }
+    .detail-panel.hidden { display: none !important; }
+    .detail-panel h3 { font-size: 0.8rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.6); margin-bottom: 1rem; text-transform: uppercase; }
+    .detail-panel .detail-row { margin-bottom: 1rem; }
+    .detail-panel .detail-label { font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+    .detail-panel .detail-value { font-size: 0.95rem; word-break: break-all; }
+    .detail-panel .detail-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #0a0a0a; margin: 0.5rem 0 1rem; }
+    .detail-panel .detail-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
+    .stats-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #141414; border: 1px solid rgba(255,255,255,0.08); }
+    .stats-bar .stat { font-size: 0.9rem; }
+    .stats-bar .stat strong { color: #c9a227; }
+    .search-wrap { flex: 1; min-width: 200px; max-width: 320px; }
+    .search-wrap input { width: 100%; padding: 0.5rem 0.75rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.9rem; }
+    .search-wrap input::placeholder { color: rgba(255,255,255,0.4); }
+    .search-wrap input:focus { outline: none; border-color: #c9a227; }
+    .product-row { cursor: pointer; }
+    .product-row:hover { border-color: rgba(201,162,39,0.3); }
+    .product-row.selected { border-color: #c9a227; box-shadow: 0 0 0 1px #c9a227; }
   </style>
 </head>
 <body>
@@ -70,6 +93,13 @@
     <div class="header">
       <h1>WATEN Dashboard</h1>
       <a href="/idex.html" target="_blank">View site →</a>
+    </div>
+
+    <div class="stats-bar">
+      <span class="stat">Total products: <strong id="totalProducts">0</strong></span>
+      <div class="search-wrap">
+        <input type="text" id="searchProducts" placeholder="Search by name or price..." aria-label="Search products">
+      </div>
     </div>
 
     <div class="add-form">
@@ -93,8 +123,43 @@
       </div>
     </div>
 
-    <h3 style="font-size:0.95rem;margin-bottom:1rem;font-weight:500;">Your products</h3>
-    <div id="productsList" class="products-list"></div>
+    <div class="dashboard-layout">
+      <div class="dashboard-main">
+        <h3 style="font-size:0.95rem;margin-bottom:1rem;font-weight:500;">Your products — click one to see full details</h3>
+        <div id="productsList" class="products-list"></div>
+      </div>
+      <div id="detailPanel" class="detail-panel hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
+          <h3 style="margin-bottom:0;">Product details</h3>
+          <button type="button" class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick="showDetail(null); renderProductsList(allProducts);" aria-label="Close detail">×</button>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">ID</div>
+          <div class="detail-value" id="detailId">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Name</div>
+          <div class="detail-value" id="detailName">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Price (TND)</div>
+          <div class="detail-value" id="detailPrice">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Image URL</div>
+          <div class="detail-value" id="detailImageUrl">—</div>
+        </div>
+        <div class="detail-row">
+          <div class="detail-label">Image preview</div>
+          <img id="detailImagePreview" class="detail-img" alt="" src="" style="display:none;">
+          <div id="detailNoImage" class="detail-value" style="color:rgba(255,255,255,0.4);">No image</div>
+        </div>
+        <div class="detail-actions">
+          <button class="btn" onclick="editFromDetail()">Edit</button>
+          <button class="btn btn-danger" onclick="deleteFromDetail()">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 
   <div id="editModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;">
@@ -122,8 +187,11 @@
 
   <script>
     const API = '/api';
+    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
     let token = sessionStorage.getItem('waten_admin');
     let editingId = null;
+    let allProducts = [];
+    let selectedProductId = null;
 
     function authHeaders() {
       return { 'X-Admin-Password': token, 'Content-Type': 'application/json' };
@@ -157,37 +225,104 @@
       }
     }
 
-    async function loadProducts() {
-      const res = await fetch(API + '/products');
-      const products = await res.json();
+    function getSearchQuery() {
+      return (document.getElementById('searchProducts').value || '').trim().toLowerCase();
+    }
+
+    function filterProducts(products) {
+      const q = getSearchQuery();
+      if (!q) return products;
+      return products.filter(p => {
+        const name = (p.name || '').toLowerCase();
+        const priceStr = String(p.price || '');
+        return name.includes(q) || priceStr.includes(q);
+      });
+    }
+
+    function renderProductsList(products) {
       const el = document.getElementById('productsList');
-      if (!products.length) {
-        el.innerHTML = '<div class="empty">No products yet. Add one above.</div>';
+      const filtered = filterProducts(products);
+      document.getElementById('totalProducts').textContent = products.length;
+      if (!filtered.length) {
+        el.innerHTML = '<div class="empty">' + (products.length ? 'No products match your search.' : 'No products yet. Add one above.') + '</div>';
         return;
       }
-      el.innerHTML = products.map(p => `
-        <div class="product-row" data-id="${p.id}" data-name="${(p.name || '').replace(/"/g, '&quot;')}" data-price="${p.price}" data-image="${(p.image || '').replace(/"/g, '&quot;')}">
-          <img src="${(p.image || '').replace(/"/g, '&quot;')}" alt="" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
+      el.innerHTML = filtered.map(p => {
+        const nameEsc = (p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        const imageEsc = (p.image || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        const selected = p.id === selectedProductId ? ' selected' : '';
+        return `
+        <div class="product-row${selected}" data-id="${p.id}" onclick="selectProduct('${String(p.id).replace(/'/g, "\\'")}')">
+          <img src="${imageEsc}" alt="" onerror="this.src='${FALLBACK_IMG}'">
           <div class="info">
-            <div class="name">${(p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            <div class="name">${nameEsc}</div>
             <div class="price">${p.price} TND</div>
           </div>
-          <div class="actions">
+          <div class="actions" onclick="event.stopPropagation()">
             <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
-            <button class="btn btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
+            <button class="btn btn-danger" onclick="deleteProduct('${String(p.id).replace(/'/g, "\\'")}')">Delete</button>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
+    }
+
+    function showDetail(product) {
+      if (!product) {
+        document.getElementById('detailPanel').classList.add('hidden');
+        selectedProductId = null;
+        return;
+      }
+      selectedProductId = product.id;
+      document.getElementById('detailId').textContent = product.id;
+      document.getElementById('detailName').textContent = product.name || '—';
+      document.getElementById('detailPrice').textContent = (product.price != null ? product.price : '—') + ' TND';
+      const imgUrl = product.image || '';
+      document.getElementById('detailImageUrl').textContent = imgUrl || '—';
+      const preview = document.getElementById('detailImagePreview');
+      const noImg = document.getElementById('detailNoImage');
+      if (imgUrl) {
+        preview.src = imgUrl;
+        preview.style.display = 'block';
+        preview.onerror = function() { this.style.display = 'none'; noImg.style.display = 'block'; };
+        noImg.style.display = 'none';
+      } else {
+        preview.style.display = 'none';
+        noImg.style.display = 'block';
+      }
+      document.getElementById('detailPanel').classList.remove('hidden');
+      renderProductsList(allProducts);
+    }
+
+    function selectProduct(id) {
+      const p = allProducts.find(x => x.id === id);
+      showDetail(p || null);
     }
 
     function openEditFromRow(btn) {
       const row = btn.closest('.product-row');
-      openEdit(
-        row.dataset.id,
-        row.dataset.name || '',
-        parseInt(row.dataset.price) || 0,
-        row.dataset.image || ''
-      );
+      const p = allProducts.find(x => x.id === row.dataset.id);
+      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
+    }
+
+    function editFromDetail() {
+      const p = allProducts.find(x => x.id === selectedProductId);
+      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
+    }
+
+    function deleteFromDetail() {
+      if (selectedProductId) deleteProduct(selectedProductId);
+    }
+
+    async function loadProducts() {
+      const res = await fetch(API + '/products');
+      allProducts = await res.json();
+      renderProductsList(allProducts);
+      if (selectedProductId && !allProducts.find(p => p.id === selectedProductId)) {
+        selectedProductId = null;
+        document.getElementById('detailPanel').classList.add('hidden');
+      } else if (selectedProductId) {
+        showDetail(allProducts.find(p => p.id === selectedProductId));
+      }
     }
 
     async function addProduct() {
@@ -281,12 +416,25 @@
         method: 'DELETE',
         headers: authHeaders()
       });
-      if (res.ok) loadProducts();
-      else alert('Failed to delete.');
+      if (res.ok) {
+        if (selectedProductId === id) {
+          selectedProductId = null;
+          document.getElementById('detailPanel').classList.add('hidden');
+        }
+        loadProducts();
+      } else alert('Failed to delete.');
     }
 
     document.getElementById('password').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
+    });
+
+    document.getElementById('searchProducts').addEventListener('input', function() {
+      renderProductsList(allProducts);
+    });
+
+    document.getElementById('searchProducts').addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') { this.value = ''; renderProductsList(allProducts); }
     });
 
     checkAuth();

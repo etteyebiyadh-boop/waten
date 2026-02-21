@@ -12,6 +12,13 @@
 6. **Important:** Change the admin password in `config.json` before pushing.
 7. **Note:** On Render's free tier, product edits may reset when the service restarts. For persistent storage, consider adding a database later.
 
+**To update the live site:** push to GitHub and Render will redeploy automatically.
+```bash
+git add .
+git commit -m "Update store"
+git push
+```
+
 ### Option 2: Railway
 
 1. Push to GitHub.

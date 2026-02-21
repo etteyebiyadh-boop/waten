@@ -237,6 +237,13 @@ function openProductFromEl(el) {
 
 loadProducts();
 
+// Live update: refetch products when tab is visible again (e.g. after editing in dashboard)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible') loadProducts();
+});
+// Optional: refresh product list every 60s while page is open so store stays in sync
+setInterval(loadProducts, 60000);
+
 function scrollToCollection() {
   document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
 }
