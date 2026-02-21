@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="description" content="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity.">
+<meta name="description" content="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity." id="meta-description">
 <title>WATEN | Global Streetwear</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -135,25 +135,25 @@ footer {
 <div class="cart" onclick="viewCart()">Cart (<span id="cart-count">0</span>)</div>
 
 <header>
-<div class="logo">WATEN</div>
-<nav>
+<div class="logo" id="header-logo">WATEN</div>
+<nav id="header-nav">
 <a href="#collection">COLLECTION</a>
 <a href="#invest">INVEST</a>
 </nav>
 </header>
 
-<section class="hero show">
+<section class="hero show" id="hero-section">
 <div class="hero-content">
-<h1>WATEN</h1>
-<p class="tagline">Built for global dominance</p>
-<button class="btn" onclick="scrollToCollection()">Shop Now</button>
+<h1 id="hero-title">WATEN</h1>
+<p class="tagline" id="hero-tagline">Built for global dominance</p>
+<button class="btn" id="hero-cta" onclick="scrollToCollection()">Shop Now</button>
 </div>
 </section>
 
 <section id="collection">
 <div class="section-header">
-<h2>New Drop</h2>
-<p class="subtitle">Limited edition pieces — available now</p>
+<h2 id="collection-heading">New Drop</h2>
+<p class="subtitle" id="collection-subtitle">Limited edition pieces — available now</p>
 </div>
 <div class="products" id="productsContainer">
 <div class="empty-products" style="text-align:center;padding:3rem;color:rgba(255,255,255,0.5);">Loading...</div>
@@ -162,23 +162,23 @@ footer {
 
 <section id="invest">
 <div class="invest-section">
-<h2>Invest in WATEN</h2>
-<p>WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.</p>
-<button class="btn">Request Pitch Deck</button>
+<h2 id="invest-heading">Invest in WATEN</h2>
+<p id="invest-body">WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.</p>
+<button class="btn" id="invest-cta">Request Pitch Deck</button>
 </div>
 </section>
 
 <footer>
 <div class="footer-brand">
-<div class="logo">WATEN</div>
-<p>Premium streetwear. Limited drops. Global reach.</p>
+<div class="logo" id="footer-logo">WATEN</div>
+<p id="footer-tagline">Premium streetwear. Limited drops. Global reach.</p>
 </div>
-<nav class="footer-links">
+<nav class="footer-links" id="footer-links">
 <a href="#collection">Collection</a>
 <a href="#invest">Invest</a>
 </nav>
 <div class="footer-bottom">
-<span>© 2026 WATEN — Global Streetwear</span>
+<span id="footer-copyright">© 2026 WATEN — Global Streetwear</span>
 </div>
 </footer>
 
@@ -194,6 +194,74 @@ footer {
 <script>
 let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentProduct = {};
+let siteContent = null;
+
+function applySiteContent(site) {
+  if (!site) return;
+  if (site.meta) {
+    if (site.meta.title) document.title = site.meta.title;
+    var metaDesc = document.getElementById('meta-description');
+    if (metaDesc && site.meta.description) metaDesc.setAttribute('content', site.meta.description);
+  }
+  if (site.header) {
+    var logo = document.getElementById('header-logo');
+    if (logo && site.header.logoText) logo.textContent = site.header.logoText;
+    var nav = document.getElementById('header-nav');
+    if (nav && site.header.navLinks && site.header.navLinks.length) {
+      nav.innerHTML = site.header.navLinks.map(function(l) {
+        return '<a href="' + (l.href || '#').replace(/"/g, '&quot;') + '">' + (l.label || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a>';
+      }).join('');
+    }
+  }
+  if (site.hero) {
+    var heroTitle = document.getElementById('hero-title');
+    if (heroTitle && site.hero.title) heroTitle.textContent = site.hero.title;
+    var heroTag = document.getElementById('hero-tagline');
+    if (heroTag && site.hero.tagline !== undefined) heroTag.textContent = site.hero.tagline;
+    var heroCta = document.getElementById('hero-cta');
+    if (heroCta && site.hero.ctaText) heroCta.textContent = site.hero.ctaText;
+    var heroSec = document.getElementById('hero-section');
+    if (heroSec && site.hero.backgroundImage) heroSec.style.backgroundImage = "url('" + site.hero.backgroundImage.replace(/'/g, "\\'") + "')";
+  }
+  if (site.collection) {
+    var ch = document.getElementById('collection-heading');
+    if (ch && site.collection.heading !== undefined) ch.textContent = site.collection.heading;
+    var cs = document.getElementById('collection-subtitle');
+    if (cs && site.collection.subtitle !== undefined) cs.textContent = site.collection.subtitle;
+  }
+  if (site.invest) {
+    var ih = document.getElementById('invest-heading');
+    if (ih && site.invest.heading !== undefined) ih.textContent = site.invest.heading;
+    var ib = document.getElementById('invest-body');
+    if (ib && site.invest.body !== undefined) ib.textContent = site.invest.body;
+    var icta = document.getElementById('invest-cta');
+    if (icta && site.invest.ctaText !== undefined) icta.textContent = site.invest.ctaText;
+  }
+  if (site.footer) {
+    var fl = document.getElementById('footer-logo');
+    if (fl && site.footer.logoText !== undefined) fl.textContent = site.footer.logoText;
+    var ft = document.getElementById('footer-tagline');
+    if (ft && site.footer.tagline !== undefined) ft.textContent = site.footer.tagline;
+    var flinks = document.getElementById('footer-links');
+    if (flinks && site.footer.links && site.footer.links.length) {
+      flinks.innerHTML = site.footer.links.map(function(l) {
+        return '<a href="' + (l.href || '#').replace(/"/g, '&quot;') + '">' + (l.label || '').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</a>';
+      }).join('');
+    }
+    var fc = document.getElementById('footer-copyright');
+    if (fc && site.footer.copyright !== undefined) fc.textContent = site.footer.copyright;
+  }
+}
+
+async function loadSiteContent() {
+  try {
+    var res = await fetch('/api/site');
+    siteContent = await res.json();
+    if (siteContent && Object.keys(siteContent).length) applySiteContent(siteContent);
+  } catch (e) {}
+}
+
+loadSiteContent();
 
 const FALLBACK_PRODUCTS = [
   { name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },

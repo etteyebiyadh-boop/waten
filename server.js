@@ -35,6 +35,22 @@ function getConfig() {
   return JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'config.json'), 'utf8'));
 }
 
+function getSitePath() {
+  return path.join(DATA_DIR, 'site.json');
+}
+
+function getSite() {
+  try {
+    return JSON.parse(fs.readFileSync(getSitePath(), 'utf8'));
+  } catch (e) {
+    return null;
+  }
+}
+
+function saveSite(data) {
+  fs.writeFileSync(getSitePath(), JSON.stringify(data, null, 2));
+}
+
 // Simple session check (password in body or cookie)
 function isAuthenticated(req) {
   const config = getConfig();
@@ -120,6 +136,54 @@ app.post('/api/upload', (req, res, next) => {
 app.post('/api/login', (req, res) => {
   const ok = isAuthenticated(req);
   res.json({ ok });
+});
+
+// API: Get site content (public)
+app.get('/api/site', (req, res) => {
+  try {
+    const site = getSite();
+    res.json(site || {});
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load site content' });
+  }
+});
+
+// API: Update site content (admin)
+app.put('/api/site', (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const current = getSite() || {};
+    const updated = { ...current, ...req.body };
+    saveSite(updated);
+    res.json(updated);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save site content' });
+  }
+});
+
+// API: Update config (admin) — password and fallback image
+app.put('/api/config', (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const config = getConfig();
+    if (req.body.adminPassword != null) config.adminPassword = req.body.adminPassword;
+    if (req.body.fallbackImage != null) config.fallbackImage = req.body.fallbackImage;
+    fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(config, null, 2));
+    res.json({ ok: true });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save config' });
+  }
+});
+
+// API: Get config (admin only — for dashboard, non-sensitive fields)
+app.get('/api/config', (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const config = getConfig();
+    res.json({ fallbackImage: config.fallbackImage || '' });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load config' });
+  }
 });
 
 app.get('/', (req, res) => res.redirect('/idex.html'));

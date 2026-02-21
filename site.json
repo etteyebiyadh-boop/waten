@@ -1,0 +1,37 @@
+{
+  "meta": {
+    "title": "WATEN | Global Streetwear",
+    "description": "WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity."
+  },
+  "header": {
+    "logoText": "WATEN",
+    "navLinks": [
+      { "label": "COLLECTION", "href": "#collection" },
+      { "label": "INVEST", "href": "#invest" }
+    ]
+  },
+  "hero": {
+    "title": "WATEN",
+    "tagline": "Built for global dominance",
+    "ctaText": "Shop Now",
+    "backgroundImage": "https://images.unsplash.com/photo-1520975922284-1a7d61c2f6b5"
+  },
+  "collection": {
+    "heading": "New Drop",
+    "subtitle": "Limited edition pieces — available now"
+  },
+  "invest": {
+    "heading": "Invest in WATEN",
+    "body": "WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.",
+    "ctaText": "Request Pitch Deck"
+  },
+  "footer": {
+    "logoText": "WATEN",
+    "tagline": "Premium streetwear. Limited drops. Global reach.",
+    "links": [
+      { "label": "Collection", "href": "#collection" },
+      { "label": "Invest", "href": "#invest" }
+    ],
+    "copyright": "© 2026 WATEN — Global Streetwear"
+  }
+}
