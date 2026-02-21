@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity.">
+<title>WATEN | Global Streetwear</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg-dark: #0a0a0a;
+  --bg-card: #141414;
+  --accent: #c9a227;
+  --accent-hover: #d4af37;
+  --text: #f5f5f5;
+  --text-muted: rgba(255,255,255,0.65);
+  --border: rgba(255,255,255,0.08);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { background: var(--bg-dark); color: var(--text); overflow-x: hidden; font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.6; }
+html { scroll-behavior: smooth; }
+
+header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.25rem 6%; position: fixed; width: 100%;
+  background: rgba(10,10,10,0.85); backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border); z-index: 1000;
+  transition: padding 0.3s ease;
+}
+.logo { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 700; letter-spacing: 0.35em; }
+nav { display: flex; gap: 2.5rem; }
+nav a {
+  color: var(--text); text-decoration: none; font-size: 0.75rem; font-weight: 500;
+  letter-spacing: 0.2em; text-transform: uppercase; transition: color 0.25s ease;
+}
+nav a:hover { color: var(--accent); }
+
+section { padding: 7rem 6%; opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
+section.show { opacity: 1; transform: translateY(0); }
+
+.hero {
+  min-height: 100vh; background: url('https://images.unsplash.com/photo-1520975922284-1a7d61c2f6b5') center/cover no-repeat;
+  display: flex; align-items: center; justify-content: center; text-align: center; position: relative;
+}
+.hero::after {
+  content: ""; position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.85) 100%);
+}
+.hero-content { position: relative; z-index: 2; max-width: 900px; }
+.hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 10vw, 6rem); font-weight: 700; letter-spacing: 0.2em; line-height: 1.1; }
+.hero .tagline { margin-top: 1.25rem; font-size: 0.8rem; letter-spacing: 0.35em; color: var(--text-muted); font-weight: 500; }
+.btn {
+  margin-top: 2.5rem; padding: 1rem 2.5rem; background: transparent;
+  border: 1.5px solid var(--accent); color: var(--accent);
+  font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
+  cursor: pointer; transition: all 0.3s ease;
+}
+.btn:hover { background: var(--accent); color: var(--bg-dark); }
+
+.section-header { margin-bottom: 3rem; }
+.section-header h2 {
+  font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; font-weight: 600; letter-spacing: 0.15em;
+  margin-bottom: 0.5rem;
+}
+.section-header .subtitle { font-size: 0.8rem; color: var(--text-muted); letter-spacing: 0.1em; }
+
+.products { display: flex; gap: 2rem; flex-wrap: wrap; margin-top: 3rem; justify-content: center; }
+.product {
+  width: 320px; background: var(--bg-card); cursor: pointer; overflow: hidden;
+  position: relative; transition: transform 0.35s ease; border: 1px solid var(--border);
+}
+.product:hover { transform: translateY(-4px); }
+.product:hover img { transform: scale(1.05); }
+.product-image { width: 100%; aspect-ratio: 3/4; overflow: hidden; background: #1a1a1a; }
+.product img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.5s ease; }
+.product-details { padding: 1.5rem 1.25rem; }
+.product-details .name { font-size: 0.85rem; letter-spacing: 0.15em; font-weight: 600; margin-bottom: 0.35rem; }
+.product-details .price { font-size: 0.9rem; color: var(--accent); font-weight: 600; }
+
+.modal {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.92); display: none;
+  align-items: center; justify-content: center; z-index: 2000;
+  backdrop-filter: blur(8px); padding: 2rem;
+}
+.modal-content {
+  background: var(--bg-card); padding: 2.5rem; max-width: 440px; width: 100%;
+  text-align: center; border: 1px solid var(--border);
+}
+.modal-content h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: 0.1em; }
+.modal-content .price { font-size: 1.1rem; color: var(--accent); font-weight: 600; margin-bottom: 1.5rem; }
+.close {
+  cursor: pointer; margin-bottom: 1.5rem; display: inline-block; color: var(--text-muted);
+  font-size: 0.7rem; letter-spacing: 0.15em; transition: color 0.25s;
+}
+.close:hover { color: var(--accent); }
+
+.cart {
+  position: fixed; top: 1.25rem; right: 6%; background: var(--accent); color: var(--bg-dark);
+  padding: 0.6rem 1.25rem; cursor: pointer; font-weight: 600; z-index: 2000;
+  font-size: 0.7rem; letter-spacing: 0.15em; transition: background 0.25s;
+}
+.cart:hover { background: var(--accent-hover); }
+
+.invest-section { text-align: center; max-width: 640px; margin: 0 auto; }
+.invest-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; letter-spacing: 0.15em; margin-bottom: 1.25rem; }
+.invest-section p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.75; margin-bottom: 1.5rem; }
+
+footer {
+  padding: 4rem 6% 2rem; background: #050505; border-top: 1px solid var(--border);
+  display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 2rem;
+}
+.footer-brand { flex: 1; min-width: 200px; }
+.footer-brand .logo { font-size: 1.25rem; margin-bottom: 0.5rem; }
+.footer-brand p { font-size: 0.75rem; color: var(--text-muted); letter-spacing: 0.05em; }
+.footer-links { display: flex; gap: 2rem; }
+.footer-links a { color: var(--text-muted); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.1em; transition: color 0.25s; }
+.footer-links a:hover { color: var(--accent); }
+.footer-bottom { width: 100%; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid var(--border); text-align: center; }
+.footer-bottom span { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; }
+
+@media (max-width: 768px) {
+  header { padding: 1rem 5%; }
+  nav { gap: 1.5rem; }
+  .hero h1 { letter-spacing: 0.12em; }
+  .products { gap: 1.5rem; }
+  .product { width: 100%; max-width: 340px; }
+  .cart { right: 5%; }
+  footer { flex-direction: column; text-align: center; }
+  .footer-links { justify-content: center; }
+}
+</style>
+</head>
+<body>
+
+<div class="cart" onclick="viewCart()">Cart (<span id="cart-count">0</span>)</div>
+
+<header>
+<div class="logo">WATEN</div>
+<nav>
+<a href="#collection">COLLECTION</a>
+<a href="#invest">INVEST</a>
+</nav>
+</header>
+
+<section class="hero show">
+<div class="hero-content">
+<h1>WATEN</h1>
+<p class="tagline">Built for global dominance</p>
+<button class="btn" onclick="scrollToCollection()">Shop Now</button>
+</div>
+</section>
+
+<section id="collection">
+<div class="section-header">
+<h2>New Drop</h2>
+<p class="subtitle">Limited edition pieces — available now</p>
+</div>
+<div class="products" id="productsContainer">
+<div class="empty-products" style="text-align:center;padding:3rem;color:rgba(255,255,255,0.5);">Loading...</div>
+</div>
+</section>
+
+<section id="invest">
+<div class="invest-section">
+<h2>Invest in WATEN</h2>
+<p>WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.</p>
+<button class="btn">Request Pitch Deck</button>
+</div>
+</section>
+
+<footer>
+<div class="footer-brand">
+<div class="logo">WATEN</div>
+<p>Premium streetwear. Limited drops. Global reach.</p>
+</div>
+<nav class="footer-links">
+<a href="#collection">Collection</a>
+<a href="#invest">Invest</a>
+</nav>
+<div class="footer-bottom">
+<span>© 2026 WATEN — Global Streetwear</span>
+</div>
+</footer>
+
+<div class="modal" id="productModal">
+<div class="modal-content">
+<span class="close" onclick="closeProduct()">Close</span>
+<h3 id="productName"></h3>
+<p class="price" id="productPrice"></p>
+<button class="btn" onclick="addToCart()">Add to Cart</button>
+</div>
+</div>
+
+<script>
+let cart = JSON.parse(localStorage.getItem('cart')) || [];
+let currentProduct = {};
+
+const FALLBACK_PRODUCTS = [
+  { name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },
+  { name: 'Oversized Street Tee', price: 80, image: 'https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47' },
+  { name: 'Limited Varsity Jacket', price: 250, image: 'images/iyadh.jpg' },
+  { name: 'Tataouine 3200 Hoodie', price: 140, image: '12.png' }
+];
+const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
+
+async function loadProducts() {
+  const container = document.getElementById('productsContainer');
+  try {
+    const res = await fetch('/api/products');
+    const products = await res.json();
+    renderProducts(products.length ? products : FALLBACK_PRODUCTS);
+  } catch (e) {
+    renderProducts(FALLBACK_PRODUCTS);
+  }
+}
+
+function renderProducts(products) {
+  const container = document.getElementById('productsContainer');
+  container.innerHTML = products.map(p => {
+    const name = (p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const img = (p.image || FALLBACK_IMG).replace(/"/g, '&quot;');
+    const data = JSON.stringify({ name: p.name, price: p.price }).replace(/"/g, '&quot;');
+    return `<div class="product" data-product="${data}" onclick="openProductFromEl(this)">
+      <div class="product-image"><img src="${img}" alt="${name}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"></div>
+      <div class="product-details">
+        <div class="name">${name}</div>
+        <div class="price">$${p.price}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openProductFromEl(el) {
+  const p = JSON.parse(el.dataset.product);
+  openProduct(p.name, p.price);
+}
+
+loadProducts();
+
+function scrollToCollection() {
+  document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
+}
+
+function openProduct(name, price) {
+  currentProduct = { name, price };
+  document.getElementById('productName').innerText = name;
+  document.getElementById('productPrice').innerText = '$' + price;
+  document.getElementById('productModal').style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+}
+
+function closeProduct() {
+  document.getElementById('productModal').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+function addToCart() {
+  cart.push(currentProduct);
+  localStorage.setItem('cart', JSON.stringify(cart));
+  document.getElementById('cart-count').innerText = cart.length;
+  closeProduct();
+}
+
+function viewCart() {
+  if (cart.length === 0) {
+    alert('Your cart is empty.');
+    return;
+  }
+  alert('Cart Items:\n' + cart.map(p => p.name + ' — $' + p.price).join('\n'));
+}
+
+document.getElementById('cart-count').innerText = cart.length;
+
+// Close modal on backdrop click
+document.getElementById('productModal').addEventListener('click', function(e) {
+  if (e.target === this) closeProduct();
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeProduct();
+});
+
+const sections = document.querySelectorAll('section');
+window.addEventListener('scroll', function() {
+  sections.forEach(function(sec) {
+    const top = sec.getBoundingClientRect().top;
+    if (top < window.innerHeight - 100) sec.classList.add('show');
+  });
+});
+</script>
+
+</body>
+</html>

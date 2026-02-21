@@ -1,0 +1,28 @@
+{
+  "products": [
+    {
+      "id": "1",
+      "name": "Black Essential Hoodie",
+      "price": 120,
+      "image": "https://images.unsplash.com/photo-1602810319428-019690571b5b"
+    },
+    {
+      "id": "2",
+      "name": "Oversized Street Tee",
+      "price": 80,
+      "image": "https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47"
+    },
+    {
+      "id": "3",
+      "name": "Limited Varsity Jacket",
+      "price": 250,
+      "image": "images/iyadh.jpg"
+    },
+    {
+      "id": "4",
+      "name": "Tataouine 3200 Hoodie",
+      "price": 140,
+      "image": "12.png"
+    }
+  ]
+}

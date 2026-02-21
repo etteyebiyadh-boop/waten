@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WATEN Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'DM Sans', sans-serif; background: #0f0f0f; color: #f5f5f5; min-height: 100vh; }
+    .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
+    h1 { font-size: 1.5rem; margin-bottom: 2rem; letter-spacing: 0.1em; }
+    .login-box {
+      max-width: 360px; margin: 4rem auto; padding: 2rem; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .login-box h2 { font-size: 1rem; margin-bottom: 1rem; font-weight: 500; }
+    input[type="password"] {
+      width: 100%; padding: 0.75rem 1rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
+      color: #fff; font-size: 1rem; margin-bottom: 1rem;
+    }
+    input[type="password"]:focus { outline: none; border-color: #c9a227; }
+    .btn {
+      padding: 0.75rem 1.5rem; background: #c9a227; color: #0a0a0a; border: none;
+      font-weight: 600; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.05em;
+    }
+    .btn:hover { background: #d4af37; }
+    .btn-ghost { background: transparent; color: #c9a227; border: 1px solid #c9a227; }
+    .btn-ghost:hover { background: rgba(201,162,39,0.15); }
+    .btn-danger { background: #8b2635; color: #fff; }
+    .btn-danger:hover { background: #a02d3f; }
+    .error { color: #e57373; font-size: 0.85rem; margin-top: 0.5rem; }
+    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .header a { color: #c9a227; text-decoration: none; font-size: 0.85rem; }
+    .products-list { display: flex; flex-direction: column; gap: 1rem; }
+    .product-row {
+      display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: #141414;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+    .product-row img { width: 60px; height: 75px; object-fit: cover; background: #1a1a1a; }
+    .product-row .info { flex: 1; }
+    .product-row .name { font-weight: 600; margin-bottom: 0.25rem; }
+    .product-row .price { color: #c9a227; font-size: 0.9rem; }
+    .product-row .actions { display: flex; gap: 0.5rem; }
+    .product-row .actions button { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+    .add-form {
+      background: #1a1a1a; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.08);
+    }
+    .add-form h3 { font-size: 0.95rem; margin-bottom: 1rem; font-weight: 500; }
+    .form-row { margin-bottom: 1rem; }
+    .form-row label { display: block; font-size: 0.8rem; margin-bottom: 0.35rem; color: rgba(255,255,255,0.7); }
+    .form-row input { width: 100%; padding: 0.6rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; }
+    .form-row input:focus { outline: none; border-color: #c9a227; }
+    .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .hidden { display: none !important; }
+    .empty { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); }
+  </style>
+</head>
+<body>
+  <div id="loginScreen" class="container">
+    <div class="login-box">
+      <h2>WATEN Dashboard</h2>
+      <p style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Enter your admin password to manage products.</p>
+      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+      <div class="error" id="loginError"></div>
+      <button class="btn" onclick="login()">Log in</button>
+    </div>
+  </div>
+
+  <div id="dashboardScreen" class="container hidden">
+    <div class="header">
+      <h1>WATEN Dashboard</h1>
+      <a href="/idex.html" target="_blank">View site →</a>
+    </div>
+
+    <div class="add-form">
+      <h3>Add new product</h3>
+      <div class="form-row">
+        <label>Product name</label>
+        <input type="text" id="newName" placeholder="e.g. Black Essential Hoodie">
+      </div>
+      <div class="form-row">
+        <label>Price ($)</label>
+        <input type="number" id="newPrice" placeholder="120" min="0" step="1">
+      </div>
+      <div class="form-row">
+        <label>Image URL (or path like images/photo.jpg)</label>
+        <input type="text" id="newImage" placeholder="https://... or images/photo.jpg">
+      </div>
+      <div class="form-actions">
+        <button class="btn" onclick="addProduct()">Add product</button>
+      </div>
+    </div>
+
+    <h3 style="font-size:0.95rem;margin-bottom:1rem;font-weight:500;">Your products</h3>
+    <div id="productsList" class="products-list"></div>
+  </div>
+
+  <div id="editModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;">
+    <div style="background:#1a1a1a;padding:2rem;max-width:400px;width:90%;border:1px solid rgba(255,255,255,0.08);">
+      <h3 style="margin-bottom:1rem;">Edit product</h3>
+      <div class="form-row">
+        <label>Name</label>
+        <input type="text" id="editName">
+      </div>
+      <div class="form-row">
+        <label>Price ($)</label>
+        <input type="number" id="editPrice" min="0">
+      </div>
+      <div class="form-row">
+        <label>Image URL</label>
+        <input type="text" id="editImage">
+      </div>
+      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
+        <button class="btn" onclick="saveEdit()">Save</button>
+        <button class="btn btn-ghost" onclick="closeEdit()">Cancel</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API = '/api';
+    let token = sessionStorage.getItem('waten_admin');
+    let editingId = null;
+
+    function authHeaders() {
+      return { 'X-Admin-Password': token, 'Content-Type': 'application/json' };
+    }
+
+    async function login() {
+      const pwd = document.getElementById('password').value;
+      document.getElementById('loginError').textContent = '';
+      const res = await fetch(API + '/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: pwd })
+      });
+      const data = await res.json();
+      if (data.ok) {
+        token = pwd;
+        sessionStorage.setItem('waten_admin', pwd);
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboardScreen').classList.remove('hidden');
+        loadProducts();
+      } else {
+        document.getElementById('loginError').textContent = 'Wrong password.';
+      }
+    }
+
+    function checkAuth() {
+      if (token) {
+        document.getElementById('loginScreen').classList.add('hidden');
+        document.getElementById('dashboardScreen').classList.remove('hidden');
+        loadProducts();
+      }
+    }
+
+    async function loadProducts() {
+      const res = await fetch(API + '/products');
+      const products = await res.json();
+      const el = document.getElementById('productsList');
+      if (!products.length) {
+        el.innerHTML = '<div class="empty">No products yet. Add one above.</div>';
+        return;
+      }
+      el.innerHTML = products.map(p => `
+        <div class="product-row" data-id="${p.id}" data-name="${(p.name || '').replace(/"/g, '&quot;')}" data-price="${p.price}" data-image="${(p.image || '').replace(/"/g, '&quot;')}">
+          <img src="${(p.image || '').replace(/"/g, '&quot;')}" alt="" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
+          <div class="info">
+            <div class="name">${(p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            <div class="price">$${p.price}</div>
+          </div>
+          <div class="actions">
+            <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
+            <button class="btn btn-danger" onclick="deleteProduct('${p.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function openEditFromRow(btn) {
+      const row = btn.closest('.product-row');
+      openEdit(
+        row.dataset.id,
+        row.dataset.name || '',
+        parseInt(row.dataset.price) || 0,
+        row.dataset.image || ''
+      );
+    }
+
+    async function addProduct() {
+      const name = document.getElementById('newName').value.trim();
+      const price = parseInt(document.getElementById('newPrice').value) || 0;
+      const image = document.getElementById('newImage').value.trim();
+      if (!name) { alert('Enter a product name'); return; }
+      const res = await fetch(API + '/products', {
+        method: 'POST',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, price, image })
+      });
+      if (res.ok) {
+        document.getElementById('newName').value = '';
+        document.getElementById('newPrice').value = '';
+        document.getElementById('newImage').value = '';
+        loadProducts();
+      } else alert('Failed to add. Check password.');
+    }
+
+    function openEdit(id, name, price, image) {
+      editingId = id;
+      document.getElementById('editName').value = name;
+      document.getElementById('editPrice').value = price;
+      document.getElementById('editImage').value = image || '';
+      document.getElementById('editModal').classList.remove('hidden');
+    }
+
+    function closeEdit() {
+      editingId = null;
+      document.getElementById('editModal').classList.add('hidden');
+    }
+
+    async function saveEdit() {
+      const name = document.getElementById('editName').value.trim();
+      const price = parseInt(document.getElementById('editPrice').value) || 0;
+      const image = document.getElementById('editImage').value.trim();
+      const res = await fetch(API + '/products/' + editingId, {
+        method: 'PUT',
+        headers: authHeaders(),
+        body: JSON.stringify({ name, price, image })
+      });
+      if (res.ok) {
+        closeEdit();
+        loadProducts();
+      } else alert('Failed to update.');
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('Delete this product?')) return;
+      const res = await fetch(API + '/products/' + id, {
+        method: 'DELETE',
+        headers: authHeaders()
+      });
+      if (res.ok) loadProducts();
+      else alert('Failed to delete.');
+    }
+
+    document.getElementById('password').addEventListener('keydown', e => {
+      if (e.key === 'Enter') login();
+    });
+
+    checkAuth();
+  </script>
+</body>
+</html>
