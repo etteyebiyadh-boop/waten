@@ -79,12 +79,14 @@
         <input type="text" id="newName" placeholder="e.g. Black Essential Hoodie">
       </div>
       <div class="form-row">
-        <label>Price ($)</label>
+        <label>Price (TND)</label>
         <input type="number" id="newPrice" placeholder="120" min="0" step="1">
       </div>
       <div class="form-row">
-        <label>Image URL (or path like images/photo.jpg)</label>
-        <input type="text" id="newImage" placeholder="https://... or images/photo.jpg">
+        <label>Product image</label>
+        <input type="file" id="newImageFile" accept="image/*" style="padding:0.4rem 0;">
+        <small style="display:block;margin-top:0.35rem;color:rgba(255,255,255,0.5);font-size:0.75rem;">Or paste URL below</small>
+        <input type="text" id="newImage" placeholder="https://... (optional if uploading)" style="margin-top:0.5rem;">
       </div>
       <div class="form-actions">
         <button class="btn" onclick="addProduct()">Add product</button>
@@ -103,12 +105,13 @@
         <input type="text" id="editName">
       </div>
       <div class="form-row">
-        <label>Price ($)</label>
+        <label>Price (TND)</label>
         <input type="number" id="editPrice" min="0">
       </div>
       <div class="form-row">
-        <label>Image URL</label>
-        <input type="text" id="editImage">
+        <label>Product image</label>
+        <input type="file" id="editImageFile" accept="image/*" style="padding:0.4rem 0;">
+        <input type="text" id="editImage" placeholder="Or paste URL" style="margin-top:0.5rem;">
       </div>
       <div style="display:flex;gap:0.5rem;margin-top:1rem;">
         <button class="btn" onclick="saveEdit()">Save</button>
@@ -167,7 +170,7 @@
           <img src="${(p.image || '').replace(/"/g, '&quot;')}" alt="" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
           <div class="info">
             <div class="name">${(p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
-            <div class="price">$${p.price}</div>
+            <div class="price">${p.price} TND</div>
           </div>
           <div class="actions">
             <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
@@ -190,8 +193,22 @@
     async function addProduct() {
       const name = document.getElementById('newName').value.trim();
       const price = parseInt(document.getElementById('newPrice').value) || 0;
-      const image = document.getElementById('newImage').value.trim();
+      let image = document.getElementById('newImage').value.trim();
+      const fileInput = document.getElementById('newImageFile');
       if (!name) { alert('Enter a product name'); return; }
+      if (fileInput.files.length) {
+        const fd = new FormData();
+        fd.append('image', fileInput.files[0]);
+        const up = await fetch(API + '/upload', {
+          method: 'POST',
+          headers: { 'X-Admin-Password': token },
+          body: fd
+        });
+        if (!up.ok) { alert('Image upload failed'); return; }
+        const data = await up.json();
+        image = data.path;
+      }
+      if (!image) { alert('Add an image (upload or URL)'); return; }
       const res = await fetch(API + '/products', {
         method: 'POST',
         headers: authHeaders(),
@@ -201,6 +218,7 @@
         document.getElementById('newName').value = '';
         document.getElementById('newPrice').value = '';
         document.getElementById('newImage').value = '';
+        fileInput.value = '';
         loadProducts();
       } else alert('Failed to add. Check password.');
     }
@@ -210,6 +228,7 @@
       document.getElementById('editName').value = name;
       document.getElementById('editPrice').value = price;
       document.getElementById('editImage').value = image || '';
+      document.getElementById('editImageFile').value = '';
       document.getElementById('editModal').classList.remove('hidden');
     }
 
@@ -221,11 +240,26 @@
     async function saveEdit() {
       const name = document.getElementById('editName').value.trim();
       const price = parseInt(document.getElementById('editPrice').value) || 0;
-      const image = document.getElementById('editImage').value.trim();
+      let image = document.getElementById('editImage').value.trim();
+      const fileInput = document.getElementById('editImageFile');
+      if (fileInput.files.length) {
+        const fd = new FormData();
+        fd.append('image', fileInput.files[0]);
+        const up = await fetch(API + '/upload', {
+          method: 'POST',
+          headers: { 'X-Admin-Password': token },
+          body: fd
+        });
+        if (!up.ok) { alert('Image upload failed'); return; }
+        const data = await up.json();
+        image = data.path;
+      }
+      const body = { name, price };
+      if (image) body.image = image;
       const res = await fetch(API + '/products/' + editingId, {
         method: 'PUT',
         headers: authHeaders(),
-        body: JSON.stringify({ name, price, image })
+        body: JSON.stringify(body)
       });
       if (res.ok) {
         closeEdit();

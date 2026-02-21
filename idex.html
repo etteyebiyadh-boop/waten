@@ -224,7 +224,7 @@ function renderProducts(products) {
       <div class="product-image"><img src="${img}" alt="${name}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"></div>
       <div class="product-details">
         <div class="name">${name}</div>
-        <div class="price">$${p.price}</div>
+        <div class="price">${p.price} TND</div>
       </div>
     </div>`;
   }).join('');
@@ -244,7 +244,7 @@ function scrollToCollection() {
 function openProduct(name, price) {
   currentProduct = { name, price };
   document.getElementById('productName').innerText = name;
-  document.getElementById('productPrice').innerText = '$' + price;
+  document.getElementById('productPrice').innerText = price + ' TND';
   document.getElementById('productModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
 }
@@ -266,7 +266,7 @@ function viewCart() {
     alert('Your cart is empty.');
     return;
   }
-  alert('Cart Items:\n' + cart.map(p => p.name + ' — $' + p.price).join('\n'));
+  alert('Cart Items:\n' + cart.map(p => p.name + ' — ' + p.price + ' TND').join('\n'));
 }
 
 document.getElementById('cart-count').innerText = cart.length;

@@ -1,10 +1,23 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = __dirname;
+const IMAGES_DIR = path.join(DATA_DIR, 'images');
+
+if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, IMAGES_DIR),
+  filename: (req, file, cb) => {
+    const ext = (path.extname(file.originalname) || '.jpg').toLowerCase();
+    cb(null, 'img-' + Date.now() + ext);
+  }
+});
+const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB
 
 app.use(express.json());
 app.use(express.static(DATA_DIR));
@@ -83,6 +96,16 @@ app.delete('/api/products/:id', (req, res) => {
   } catch (e) {
     res.status(500).json({ error: 'Failed to delete product' });
   }
+});
+
+// API: Upload image (admin)
+app.post('/api/upload', (req, res, next) => {
+  const pwd = req.headers['x-admin-password'];
+  if (pwd !== getConfig().adminPassword) return res.status(401).json({ error: 'Unauthorized' });
+  next();
+}, upload.single('image'), (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  res.json({ path: 'images/' + req.file.filename });
 });
 
 // API: Login check
