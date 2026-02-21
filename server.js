@@ -6,12 +6,12 @@ const multer = require('multer');
 const app = express();
 const PORT = process.env.PORT || 3000;
 const DATA_DIR = __dirname;
-const IMAGES_DIR = path.join(DATA_DIR, 'images');
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 
-if (!fs.existsSync(IMAGES_DIR)) fs.mkdirSync(IMAGES_DIR, { recursive: true });
+if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, IMAGES_DIR),
+  destination: (req, file, cb) => cb(null, UPLOADS_DIR),
   filename: (req, file, cb) => {
     const ext = (path.extname(file.originalname) || '.jpg').toLowerCase();
     cb(null, 'img-' + Date.now() + ext);
@@ -103,9 +103,17 @@ app.post('/api/upload', (req, res, next) => {
   const pwd = req.headers['x-admin-password'];
   if (pwd !== getConfig().adminPassword) return res.status(401).json({ error: 'Unauthorized' });
   next();
-}, upload.single('image'), (req, res) => {
-  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
-  res.json({ path: 'images/' + req.file.filename });
+}, (req, res, next) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'File too large (max 5MB)' });
+      return res.status(500).json({ error: err.message || 'Upload failed' });
+    }
+    next();
+  });
+}, (req, res) => {
+  if (!req.file) return res.status(400).json({ error: 'No file selected' });
+  res.json({ path: 'uploads/' + req.file.filename });
 });
 
 // API: Login check

@@ -204,7 +204,11 @@
           headers: { 'X-Admin-Password': token },
           body: fd
         });
-        if (!up.ok) { alert('Image upload failed'); return; }
+        if (!up.ok) {
+          const err = await up.json().catch(() => ({}));
+          alert('Image upload failed: ' + (err.error || up.statusText));
+          return;
+        }
         const data = await up.json();
         image = data.path;
       }
@@ -250,7 +254,11 @@
           headers: { 'X-Admin-Password': token },
           body: fd
         });
-        if (!up.ok) { alert('Image upload failed'); return; }
+        if (!up.ok) {
+          const err = await up.json().catch(() => ({}));
+          alert('Image upload failed: ' + (err.error || up.statusText));
+          return;
+        }
         const data = await up.json();
         image = data.path;
       }
