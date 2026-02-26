@@ -1721,6 +1721,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }, 2000);
   };
   document.body.appendChild(testBtn);
+  
+  // Add product refresh button
+  const productRefreshBtn = document.createElement('button');
+  productRefreshBtn.innerHTML = '🔄 Refresh Products';
+  productRefreshBtn.style.cssText = `
+    position: fixed; bottom: 120px; right: 20px; background: var(--accent);
+    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
+    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
+  `;
+  productRefreshBtn.onclick = function() {
+    console.log('Manual product refresh triggered...');
+    loadProducts();
+    showNotification('Products refreshed from dashboard');
+  };
+  document.body.appendChild(productRefreshBtn);
 });
 
 // Also listen for storage changes (for real-time updates)
@@ -1852,26 +1868,225 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Update loadProducts to store all products for search and sync with dashboard
-async function loadProducts() {
-  const container = document.getElementById('productsContainer');
-  try {
-    const res = await fetch('/api/products');
-    allProducts = await res.json();
+// COMPREHENSIVE SYNC MANAGER - BULLETPROOF DASHBOARD-WEBSITE SYNC
+class SyncManager {
+  constructor() {
+    this.isInitialized = false;
+    this.syncInterval = null;
+    this.lastSyncTimes = {};
+    this.init();
+  }
+
+  init() {
+    console.log('🚀 Initializing comprehensive sync manager...');
     
-    // Save to localStorage for dashboard sync
-    localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+    // Start real-time sync listeners
+    this.setupStorageListeners();
     
-    renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
-  } catch (e) {
-    allProducts = FALLBACK_PRODUCTS;
+    // Start periodic sync as backup
+    this.startPeriodicSync();
     
-    // Save fallback products to localStorage for dashboard sync
-    localStorage.setItem('watenProducts', JSON.stringify(FALLBACK_PRODUCTS));
+    // Load all data immediately
+    this.syncAll();
     
-    renderProducts(FALLBACK_PRODUCTS);
+    // Setup tab visibility sync
+    this.setupVisibilitySync();
+    
+    this.isInitialized = true;
+    console.log('✅ Sync manager initialized successfully');
+  }
+
+  setupStorageListeners() {
+    // Listen for ALL dashboard changes
+    window.addEventListener('storage', (e) => {
+      if (!e.key) return;
+      
+      console.log(`🔄 Storage change detected: ${e.key}`);
+      
+      switch(e.key) {
+        case 'watenProducts':
+          this.syncProducts();
+          break;
+        case 'watenContent':
+          this.syncContent();
+          break;
+        case 'watenSettings':
+          this.syncSettings();
+          break;
+        case 'watenOrders':
+          this.syncOrders();
+          break;
+        default:
+          console.log(`Unknown storage key: ${e.key}`);
+      }
+    });
+  }
+
+  setupVisibilitySync() {
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible') {
+        console.log('👁️ Tab became visible, syncing all data...');
+        this.syncAll();
+      }
+    });
+  }
+
+  startPeriodicSync() {
+    // Backup sync every 30 seconds
+    this.syncInterval = setInterval(() => {
+      this.syncAll();
+    }, 30000);
+  }
+
+  syncAll() {
+    console.log('🔄 Starting comprehensive sync of all data...');
+    this.syncProducts();
+    this.syncContent();
+    this.syncSettings();
+    this.syncOrders();
+  }
+
+  syncProducts() {
+    try {
+      const storedProducts = localStorage.getItem('watenProducts');
+      if (storedProducts) {
+        const products = JSON.parse(storedProducts);
+        allProducts = products;
+        renderProducts(products);
+        console.log('✅ Products synced:', products.length, 'items');
+        this.lastSyncTimes.products = Date.now();
+      }
+    } catch (error) {
+      console.error('❌ Error syncing products:', error);
+    }
+  }
+
+  syncContent() {
+    try {
+      const storedContent = localStorage.getItem('watenContent');
+      if (storedContent) {
+        const content = JSON.parse(storedContent);
+        applySiteContent(content);
+        console.log('✅ Content synced');
+        this.lastSyncTimes.content = Date.now();
+      }
+    } catch (error) {
+      console.error('❌ Error syncing content:', error);
+    }
+  }
+
+  syncSettings() {
+    try {
+      const storedSettings = localStorage.getItem('watenSettings');
+      if (storedSettings) {
+        const settings = JSON.parse(storedSettings);
+        applySiteSettings(settings);
+        console.log('✅ Settings synced');
+        this.lastSyncTimes.settings = Date.now();
+      }
+    } catch (error) {
+      console.error('❌ Error syncing settings:', error);
+    }
+  }
+
+  syncOrders() {
+    try {
+      const storedOrders = localStorage.getItem('watenOrders');
+      if (storedOrders) {
+        const orders = JSON.parse(storedOrders);
+        console.log('✅ Orders synced:', orders.length, 'orders');
+        this.lastSyncTimes.orders = Date.now();
+      }
+    } catch (error) {
+      console.error('❌ Error syncing orders:', error);
+    }
+  }
+
+  forceSync(dataType) {
+    console.log(`🔄 Force syncing ${dataType}...`);
+    switch(dataType) {
+      case 'products': this.syncProducts(); break;
+      case 'content': this.syncContent(); break;
+      case 'settings': this.syncSettings(); break;
+      case 'orders': this.syncOrders(); break;
+      case 'all': this.syncAll(); break;
+    }
+  }
+
+  getSyncStatus() {
+    return {
+      initialized: this.isInitialized,
+      lastSyncTimes: this.lastSyncTimes,
+      productsCount: allProducts.length,
+      storageKeys: {
+        products: !!localStorage.getItem('watenProducts'),
+        content: !!localStorage.getItem('watenContent'),
+        settings: !!localStorage.getItem('watenSettings'),
+        orders: !!localStorage.getItem('watenOrders')
+      }
+    };
   }
 }
+
+// Apply settings to site
+function applySiteSettings(settings) {
+  console.log('Applying settings to site:', settings);
+  
+  // Update contact information
+  if (settings.phone) {
+    const phoneElements = document.querySelectorAll('[data-contact-phone]');
+    phoneElements.forEach(el => el.textContent = settings.phone);
+  }
+  
+  if (settings.email) {
+    const emailElements = document.querySelectorAll('[data-contact-email]');
+    emailElements.forEach(el => el.textContent = settings.email);
+  }
+  
+  if (settings.address) {
+    const addressElements = document.querySelectorAll('[data-contact-address]');
+    addressElements.forEach(el => el.textContent = settings.address);
+  }
+  
+  console.log('Settings applied successfully');
+}
+
+// Initialize sync manager when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 DOM ready, starting sync manager...');
+  window.syncManager = new SyncManager();
+  
+  // Enhanced manual sync controls
+  const syncBtn = document.createElement('button');
+  syncBtn.innerHTML = '🔄 FORCE SYNC ALL';
+  syncBtn.style.cssText = `
+    position: fixed; top: 20px; right: 20px; background: #ff4444;
+    color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px;
+    cursor: pointer; z-index: 10000; font-weight: 600; font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(255, 68, 68, 0.4);
+  `;
+  syncBtn.onclick = function() {
+    window.syncManager.syncAll();
+    showNotification('🔄 Force sync complete! All data updated from dashboard.');
+  };
+  document.body.appendChild(syncBtn);
+  
+  // Status indicator
+  const statusBtn = document.createElement('button');
+  statusBtn.innerHTML = '📊 SYNC STATUS';
+  statusBtn.style.cssText = `
+    position: fixed; top: 70px; right: 20px; background: #4444ff;
+    color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px;
+    cursor: pointer; z-index: 10000; font-weight: 600; font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(68, 68, 255, 0.4);
+  `;
+  statusBtn.onclick = function() {
+    const status = window.syncManager.getSyncStatus();
+    console.log('📊 Sync Status:', status);
+    alert(`Sync Status:\n\nProducts: ${status.productsCount} items\nContent: ${status.storageKeys.content ? '✅' : '❌'}\nSettings: ${status.storageKeys.settings ? '✅' : '❌'}\nOrders: ${status.storageKeys.orders ? '✅' : '❌'}\n\nLast sync: ${new Date(status.lastSyncTimes.products || 0).toLocaleTimeString()}`);
+  };
+  document.body.appendChild(statusBtn);
+});
 
 function renderProducts(products) {
   const container = document.getElementById('productsContainer');
@@ -2064,14 +2279,34 @@ function openProductFromEl(el) {
   openProduct(p.name, p.price);
 }
 
-loadProducts();
+// Load products - now integrated with SyncManager
+function loadProducts() {
+  console.log('🔄 loadProducts called - delegating to sync manager...');
+  if (window.syncManager) {
+    window.syncManager.syncProducts();
+  } else {
+    // Fallback if sync manager not ready yet
+    console.log('⚠️ Sync manager not ready, using fallback...');
+    try {
+      const storedProducts = localStorage.getItem('watenProducts');
+      if (storedProducts) {
+        const products = JSON.parse(storedProducts);
+        allProducts = products;
+        renderProducts(products);
+      } else {
+        allProducts = FALLBACK_PRODUCTS;
+        renderProducts(FALLBACK_PRODUCTS);
+      }
+    } catch (error) {
+      console.error('❌ Fallback load failed:', error);
+      allProducts = FALLBACK_PRODUCTS;
+      renderProducts(FALLBACK_PRODUCTS);
+    }
+  }
+}
 
-// Live update: refetch products when tab is visible again (e.g. after editing in dashboard)
-document.addEventListener('visibilitychange', function() {
-  if (document.visibilityState === 'visible') loadProducts();
-});
-// Optional: refresh product list every 60s while page is open so store stays in sync
-setInterval(loadProducts, 60000);
+// Initialize products on load
+loadProducts();
 
 function scrollToCollection() {
   document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
