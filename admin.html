@@ -170,7 +170,10 @@
     <div class="container" style="padding-bottom:0.5rem;">
       <div class="header">
         <h1>WATEN Dashboard</h1>
-        <a href="/idex.html" target="_blank">View site →</a>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <button class="btn btn-ghost" onclick="manualSync()" style="font-size: 0.75rem; padding: 0.5rem 1rem;">🔄 Sync to Site</button>
+          <a href="/idex.html" target="_blank">View site →</a>
+        </div>
       </div>
     </div>
     <div class="dashboard-wrap">
@@ -674,14 +677,26 @@
     }
 
     async function loadProducts() {
-      const res = await fetch(API + '/products');
-      allProducts = await res.json();
-      renderProductsList(allProducts);
-      if (selectedProductId && !allProducts.find(p => p.id === selectedProductId)) {
-        selectedProductId = null;
-        document.getElementById('detailPanel').classList.add('hidden');
-      } else if (selectedProductId) {
-        showDetail(allProducts.find(p => p.id === selectedProductId));
+      try {
+        const res = await fetch(API + '/products');
+        allProducts = await res.json();
+        // Save to localStorage for main site sync
+        localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+        renderProductsList(allProducts);
+        if (selectedProductId && !allProducts.find(p => p.id === selectedProductId)) {
+          selectedProductId = null;
+          document.getElementById('detailPanel').classList.add('hidden');
+        } else if (selectedProductId) {
+          showDetail(allProducts.find(p => p.id === selectedProductId));
+        }
+      } catch (e) {
+        console.error('Failed to load products:', e);
+        // Fallback to localStorage
+        const savedProducts = localStorage.getItem('watenProducts');
+        if (savedProducts) {
+          allProducts = JSON.parse(savedProducts);
+          renderProductsList(allProducts);
+        }
       }
     }
 
@@ -719,6 +734,11 @@
         document.getElementById('newImage').value = '';
         fileInput.value = '';
         loadProducts();
+        // Trigger storage event for main site sync
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'watenProducts',
+          newValue: localStorage.getItem('watenProducts')
+        }));
       } else alert('Failed to add. Check password.');
     }
 
@@ -767,6 +787,11 @@
       if (res.ok) {
         closeEdit();
         loadProducts();
+        // Trigger storage event for main site sync
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'watenProducts',
+          newValue: localStorage.getItem('watenProducts')
+        }));
       } else alert('Failed to update.');
     }
 
@@ -782,6 +807,11 @@
           document.getElementById('detailPanel').classList.add('hidden');
         }
         loadProducts();
+        // Trigger storage event for main site sync
+        window.dispatchEvent(new StorageEvent('storage', {
+          key: 'watenProducts',
+          newValue: localStorage.getItem('watenProducts')
+        }));
       } else alert('Failed to delete.');
     }
 
@@ -924,6 +954,43 @@
 
     // Add search functionality for orders
     document.getElementById('searchOrders')?.addEventListener('input', renderOrdersList);
+
+    // Manual sync function
+    function manualSync() {
+      console.log('🔄 Manual sync triggered');
+      loadProducts(); // This will save to localStorage and trigger events
+      showNotification('Sync completed! Check main site.', 'success');
+    }
+
+    // Notification function
+    function showNotification(message, type = 'success') {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 15px 20px;
+        border-radius: 8px; color: white; z-index: 10000;
+        font-size: 0.9rem; font-weight: 500;
+        animation: slideIn 0.3s ease;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      `;
+      
+      if (type === 'success') {
+        notification.style.background = 'linear-gradient(135deg, #27ae60, #2ecc71)';
+      } else if (type === 'error') {
+        notification.style.background = 'linear-gradient(135deg, #e74c3c, #c0392b)';
+      }
+      
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
 
     document.getElementById('password').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
