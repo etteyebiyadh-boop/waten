@@ -1511,68 +1511,204 @@ function applySiteContent(site) {
   }
 }
 
-async function loadSiteContent() {
-  try {
-    var res = await fetch('/api/site');
-    siteContent = await res.json();
-    if (siteContent && Object.keys(siteContent).length) applySiteContent(siteContent);
-  } catch (e) {}
-}
-
 // Load and apply content from dashboard
 function loadSiteContent() {
+  console.log('Loading site content from dashboard...');
   const storedContent = localStorage.getItem('watenContent');
   if (storedContent) {
-    const content = JSON.parse(storedContent);
-    applySiteContent(content);
+    try {
+      const content = JSON.parse(storedContent);
+      console.log('Content loaded:', content);
+      applySiteContent(content);
+    } catch (error) {
+      console.error('Error parsing content:', error);
+    }
+  } else {
+    console.log('No stored content found');
   }
 }
 
 function applySiteContent(content) {
-  // Update page title and meta
-  if (content.metaTitle) document.title = content.metaTitle;
-  const metaDesc = document.querySelector('meta[name="description"]');
-  if (metaDesc && content.metaDescription) metaDesc.setAttribute('content', content.metaDescription);
+  console.log('Applying content to site:', content);
   
-  // Update all content elements
-  updateSiteElement('header-logo', content.logo);
-  updateSiteElement('hero-title', content.heroTitle);
-  updateSiteElement('hero-tagline', content.heroTagline);
-  updateSiteElement('hero-cta', content.heroCta);
-  updateSiteElement('collection-heading', content.collectionHeading);
-  updateSiteElement('collection-subtitle', content.collectionSubtitle);
-  updateSiteElement('invest-heading', content.investHeading);
-  updateSiteElement('invest-body', content.investBody);
-  updateSiteElement('invest-cta', content.investCta);
-  updateSiteElement('footer-logo', content.footerLogo);
-  updateSiteElement('footer-tagline', content.footerTagline);
-  updateSiteElement('footer-copyright', content.footerCopyright);
+  // Update page title and meta
+  if (content.metaTitle) {
+    document.title = content.metaTitle;
+    console.log('Updated title:', content.metaTitle);
+  }
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc && content.metaDescription) {
+    metaDesc.content = content.metaDescription;
+    console.log('Updated meta description:', content.metaDescription);
+  }
+  
+  // Update header logo
+  const logo = document.getElementById('header-logo');
+  if (logo && content.logo) {
+    logo.textContent = content.logo;
+    console.log('Updated logo:', content.logo);
+  }
   
   // Update navigation
-  if (content.nav) {
-    const navLinks = content.nav.split('\n').filter(link => link.trim());
-    const navElement = document.getElementById('header-nav');
-    if (navElement) {
-      navElement.innerHTML = navLinks.map(link => {
-        const [text, url] = link.split('|');
-        const clickHandler = url && url.startsWith('#') ? `onclick="scrollToSection('${url.substring(1)}')"` : '';
-        return `<a href="${url || '#'}" ${clickHandler}>${text}</a>`;
-      }).join('');
+  const nav = document.getElementById('header-nav');
+  if (nav && content.nav) {
+    nav.innerHTML = '';
+    const navItems = content.nav.split('\n');
+    navItems.forEach(item => {
+      if (item.trim()) {
+        const [text, href] = item.split('|');
+        const link = document.createElement('a');
+        link.href = href || '#';
+        link.textContent = text.trim();
+        nav.appendChild(link);
+      }
+    });
+    console.log('Updated navigation:', navItems);
+  }
+  
+  // Update hero section
+  if (content.heroTitle) {
+    const heroTitle = document.querySelector('.hero h1');
+    if (heroTitle) {
+      heroTitle.textContent = content.heroTitle;
+      console.log('Updated hero title:', content.heroTitle);
     }
   }
   
-  // Update footer links
-  if (content.footerLinks) {
-    const footerLinks = content.footerLinks.split('\n').filter(link => link.trim());
-    const footerElement = document.getElementById('footer-links');
-    if (footerElement) {
-      footerElement.innerHTML = footerLinks.map(link => {
-        const [text, url] = link.split('|');
-        return `<a href="${url || '#'}">${text}</a>`;
-      }).join('');
+  if (content.heroTagline) {
+    const heroTagline = document.querySelector('.hero .tagline');
+    if (heroTagline) {
+      heroTagline.textContent = content.heroTagline;
+      console.log('Updated hero tagline:', content.heroTagline);
     }
   }
+  
+  if (content.heroButton) {
+    const heroButton = document.querySelector('.hero .btn');
+    if (heroButton) {
+      heroButton.textContent = content.heroButton;
+      console.log('Updated hero button:', content.heroButton);
+    }
+  }
+  
+  // Update collection section
+  if (content.collectionHeading) {
+    const collectionHeading = document.querySelector('#collection h2');
+    if (collectionHeading) {
+      collectionHeading.textContent = content.collectionHeading;
+      console.log('Updated collection heading:', content.collectionHeading);
+    }
+  }
+  
+  if (content.collectionSubtitle) {
+    const collectionSubtitle = document.querySelector('#collection p');
+    if (collectionSubtitle) {
+      collectionSubtitle.textContent = content.collectionSubtitle;
+      console.log('Updated collection subtitle:', content.collectionSubtitle);
+    }
+  }
+  
+  // Update invest section
+  if (content.investHeading) {
+    const investHeading = document.querySelector('#invest h2');
+    if (investHeading) {
+      investHeading.textContent = content.investHeading;
+      console.log('Updated invest heading:', content.investHeading);
+    }
+  }
+  
+  if (content.investBody) {
+    const investBody = document.querySelector('#invest p');
+    if (investBody) {
+      investBody.textContent = content.investBody;
+      console.log('Updated invest body:', content.investBody);
+    }
+  }
+  
+  if (content.investButton) {
+    const investButton = document.querySelector('#invest .btn');
+    if (investButton) {
+      investButton.textContent = content.investButton;
+      console.log('Updated invest button:', content.investButton);
+    }
+  }
+  
+  // Update footer
+  if (content.footerLogo) {
+    const footerLogo = document.querySelector('.footer-brand .logo');
+    if (footerLogo) {
+      footerLogo.textContent = content.footerLogo;
+      console.log('Updated footer logo:', content.footerLogo);
+    }
+  }
+  
+  if (content.footerTagline) {
+    const footerTagline = document.querySelector('.footer-brand p');
+    if (footerTagline) {
+      footerTagline.textContent = content.footerTagline;
+      console.log('Updated footer tagline:', content.footerTagline);
+    }
+  }
+  
+  if (content.footerLinks) {
+    const footerLinks = document.querySelector('.footer-links');
+    if (footerLinks) {
+      footerLinks.innerHTML = '';
+      const linkItems = content.footerLinks.split('\n');
+      linkItems.forEach(item => {
+        if (item.trim()) {
+          const [text, href] = item.split('|');
+          const link = document.createElement('a');
+          link.href = href || '#';
+          link.textContent = text.trim();
+          footerLinks.appendChild(link);
+        }
+      });
+      console.log('Updated footer links:', linkItems);
+    }
+  }
+  
+  if (content.footerCopyright) {
+    const footerCopyright = document.querySelector('.footer-bottom span');
+    if (footerCopyright) {
+      footerCopyright.textContent = content.footerCopyright;
+      console.log('Updated footer copyright:', content.footerCopyright);
+    }
+  }
+  
+  console.log('Content application complete');
 }
+
+// Load content on page load
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('DOM loaded, loading site content...');
+  loadSiteContent();
+  
+  // Add refresh button for testing
+  const refreshBtn = document.createElement('button');
+  refreshBtn.innerHTML = '🔄 Refresh Content';
+  refreshBtn.style.cssText = `
+    position: fixed; bottom: 20px; right: 20px; background: var(--accent);
+    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
+    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
+  `;
+  refreshBtn.onclick = function() {
+    console.log('Manual content refresh triggered...');
+    loadSiteContent();
+    showNotification('Content refreshed from dashboard');
+  };
+  document.body.appendChild(refreshBtn);
+});
+
+// Also listen for storage changes (for real-time updates)
+window.addEventListener('storage', function(e) {
+  if (e.key === 'watenContent') {
+    console.log('Storage changed, reloading content...');
+    loadSiteContent();
+    showNotification('Content updated from dashboard');
+  }
+});
 
 function updateSiteElement(id, content) {
   const element = document.getElementById(id);
