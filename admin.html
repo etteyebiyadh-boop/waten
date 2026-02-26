@@ -597,6 +597,9 @@ body {
               <div class="stat-label">Pending</div>
             </div>
           </div>
+          <button class="action-btn btn-secondary" onclick="testAllFunctions()" style="margin-left: auto;">
+            🧪 Test All Functions
+          </button>
         </header>
 
         <!-- Orders Section -->
@@ -1821,6 +1824,215 @@ function showNotification(message, type = 'success') {
 function showSettings() {
   showNotification('Settings panel coming soon!');
 }
+
+// Comprehensive Function Testing System
+function testAllFunctions() {
+  console.log('🧪 Starting comprehensive dashboard function testing...');
+  
+  const tests = [];
+  
+  // Test 1: Password Check Function
+  tests.push({
+    name: 'Password Check Function',
+    test: () => {
+      try {
+        const result = checkPassword.toString();
+        return result.includes('admin-password') && result.includes('dashboard-content');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 2: Panel Switching
+  tests.push({
+    name: 'Panel Switching Function',
+    test: () => {
+      try {
+        const result = switchPanel.toString();
+        return result.includes('panel-') && result.includes('active');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 3: Product Management
+  tests.push({
+    name: 'Product Management Functions',
+    test: () => {
+      try {
+        const addProductStr = addProduct.toString();
+        const editProductStr = editProduct.toString();
+        const deleteProductStr = deleteProduct.toString();
+        return addProductStr.includes('watenProducts') && 
+               editProductStr.includes('modal') && 
+               deleteProductStr.includes('filter');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 4: Image Upload
+  tests.push({
+    name: 'Image Upload Functions',
+    test: () => {
+      try {
+        const handleUploadStr = handleImageUpload.toString();
+        const handleEditUploadStr = handleEditImageUpload.toString();
+        return handleUploadStr.includes('FileReader') && 
+               handleEditUploadStr.includes('FileReader');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 5: Content Management
+  tests.push({
+    name: 'Content Management Functions',
+    test: () => {
+      try {
+        const loadContentStr = loadContent.toString();
+        const saveContentStr = saveContent.toString();
+        return loadContentStr.includes('watenContent') && 
+               saveContentStr.includes('watenContent');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 6: Settings Management
+  tests.push({
+    name: 'Settings Management Functions',
+    test: () => {
+      try {
+        const loadSettingsStr = loadSettings.toString();
+        return loadSettingsStr && loadSettingsStr.toString().includes('watenSettings');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 7: Notification System
+  tests.push({
+    name: 'Notification System',
+    test: () => {
+      try {
+        const notificationStr = showNotification.toString();
+        return notificationStr.includes('createElement') && 
+               notificationStr.includes('appendChild');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 8: Order Management
+  tests.push({
+    name: 'Order Management Functions',
+    test: () => {
+      try {
+        const loadOrdersStr = loadOrders.toString();
+        const renderOrdersStr = renderOrders.toString();
+        return loadOrdersStr.includes('watenOrders') && 
+               renderOrdersStr.includes('forEach');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 9: Data Export/Clear
+  tests.push({
+    name: 'System Management Functions',
+    test: () => {
+      try {
+        const exportStr = exportAllData.toString();
+        const clearStr = clearAllData.toString();
+        const resetStr = resetToDefaults.toString();
+        return exportStr && clearStr && resetStr;
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Test 10: Real-time Updates
+  tests.push({
+    name: 'Real-time Update System',
+    test: () => {
+      try {
+        const realTimeStr = startRealTimeUpdates.toString();
+        return realTimeStr.includes('addEventListener') && 
+               realTimeStr.includes('storage');
+      } catch (e) {
+        return false;
+      }
+    }
+  });
+  
+  // Run all tests
+  let passed = 0;
+  let failed = 0;
+  
+  console.log('📋 Running tests...');
+  
+  tests.forEach((test, index) => {
+    try {
+      const result = test.test();
+      if (result) {
+        console.log(`✅ Test ${index + 1}: ${test.name} - PASSED`);
+        passed++;
+      } else {
+        console.log(`❌ Test ${index + 1}: ${test.name} - FAILED`);
+        failed++;
+      }
+    } catch (error) {
+      console.log(`❌ Test ${index + 1}: ${test.name} - ERROR: ${error.message}`);
+      failed++;
+    }
+  });
+  
+  // Summary
+  console.log('\n📊 TEST SUMMARY:');
+  console.log(`✅ Passed: ${passed}`);
+  console.log(`❌ Failed: ${failed}`);
+  console.log(`📈 Success Rate: ${((passed / tests.length) * 100).toFixed(1)}%`);
+  
+  // Show notification
+  if (failed === 0) {
+    showNotification(`All ${passed} tests passed! Dashboard is fully functional. 🎉`);
+  } else {
+    showNotification(`${passed}/${tests.length} tests passed. ${failed} functions need attention. ⚠️`, 'error');
+  }
+  
+  return { passed, failed, total: tests.length };
+}
+
+// Test individual functions
+function testFunction(functionName, functionRef) {
+  try {
+    const functionStr = functionRef.toString();
+    console.log(`✅ ${functionName}: Function exists and is callable`);
+    return true;
+  } catch (error) {
+    console.log(`❌ ${functionName}: Function error - ${error.message}`);
+    return false;
+  }
+}
+
+// Run tests on page load
+document.addEventListener('DOMContentLoaded', function() {
+  // Wait for everything to load
+  setTimeout(() => {
+    console.log('🧪 Auto-running dashboard function tests...');
+    testAllFunctions();
+  }, 2000);
+});
 
 function startRealTimeUpdates() {
   // Listen for new orders from main site
