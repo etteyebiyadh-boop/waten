@@ -35,26 +35,127 @@ html { scroll-behavior: smooth; }
   transform: translate(-50%, -50%);
 }
 
-/* Floating Fashion Elements */
-.fashion-element {
+/* Floating Fashion Items */
+.fashion-item {
   position: fixed; pointer-events: none; z-index: 5;
-  opacity: 0.6; transition: all 0.3s ease;
+  opacity: 0.7; transition: all 0.3s ease;
+  font-size: 2rem; color: var(--accent);
+  display: flex; align-items: center; justify-content: center;
 }
-.fashion-element.hanger {
-  width: 60px; height: 80px; border: 3px solid var(--accent);
-  border-radius: 50% 50% 0 0; border-bottom: none;
-}
-.fashion-element.thread {
-  width: 2px; height: 100px; background: linear-gradient(to bottom, var(--accent), transparent);
-}
-.fashion-element.button {
-  width: 25px; height: 25px; border-radius: 50%;
-  background: var(--accent); box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-}
-.fashion-element.zipper {
-  width: 40px; height: 3px; background: repeating-linear-gradient(
-    to right, var(--accent) 0px, var(--accent) 3px, transparent 3px, transparent 6px
+
+/* T-Shirt Shape */
+.tshirt {
+  width: 60px; height: 70px;
+  background: var(--accent);
+  position: relative;
+  clip-path: polygon(
+    20% 0%, 80% 0%, 100% 25%, 100% 100%, 0% 100%, 0% 25%
   );
+}
+
+.tshirt::before {
+  content: ''; position: absolute;
+  width: 25px; height: 30px;
+  background: var(--bg-dark);
+  top: 0; left: 50%; transform: translateX(-50%);
+  clip-path: polygon(0% 0%, 100% 0%, 80% 100%, 20% 100%);
+}
+
+/* Hoodie Shape */
+.hoodie {
+  width: 65px; height: 75px;
+  background: var(--accent);
+  position: relative;
+  border-radius: 10px 10px 0 0;
+}
+
+.hoodie::before {
+  content: ''; position: absolute;
+  width: 30px; height: 35px;
+  background: var(--bg-dark);
+  top: -10px; left: 50%; transform: translateX(-50%);
+  border-radius: 50% 50% 0 0;
+}
+
+.hoodie::after {
+  content: ''; position: absolute;
+  width: 8px; height: 40px;
+  background: var(--accent);
+  top: 10px; left: -5px;
+  border-radius: 4px;
+}
+
+/* Single Item (Pants) */
+.single {
+  width: 50px; height: 80px;
+  background: var(--accent);
+  position: relative;
+  clip-path: polygon(
+    10% 0%, 40% 0%, 35% 50%, 50% 50%, 65% 50%, 60% 0%, 90% 0%,
+    85% 100%, 60% 100%, 55% 55%, 45% 55%, 40% 100%, 15% 100%
+  );
+}
+
+/* Money Symbols */
+.money {
+  font-size: 2.5rem; font-weight: bold;
+  color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5);
+  animation: moneyGlow 2s ease-in-out infinite alternate;
+}
+
+@keyframes moneyGlow {
+  from { text-shadow: 0 0 10px rgba(0,255,0,0.5); }
+  to { text-shadow: 0 0 20px rgba(0,255,0,0.8), 0 0 30px rgba(0,255,0,0.4); }
+}
+
+.dollar-bill {
+  width: 70px; height: 30px;
+  background: linear-gradient(45deg, #00ff00, #00cc00);
+  border: 2px solid #008800;
+  border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: bold; color: #008800;
+  box-shadow: 0 4px 15px rgba(0,255,0,0.3);
+}
+
+/* Social Media Icons */
+.instagram {
+  width: 50px; height: 50px;
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+  border-radius: 12px;
+  position: relative;
+}
+
+.instagram::before {
+  content: '📷'; position: absolute;
+  top: 50%; left: 50%; transform: translate(-50%, -50%);
+  font-size: 1.5rem;
+}
+
+.tiktok {
+  width: 45px; height: 50px;
+  background: #000;
+  border-radius: 8px;
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+  color: white; font-weight: bold; font-size: 1.2rem;
+}
+
+.tiktok::before {
+  content: '♬'; position: absolute;
+  color: #ff0050; font-size: 1.8rem;
+}
+
+/* Floating Animation */
+.floating {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  25% { transform: translateY(-20px) rotate(2deg); }
+  50% { transform: translateY(-10px) rotate(-1deg); }
+  75% { transform: translateY(-15px) rotate(1deg); }
 }
 
 /* Parallax Layers */
@@ -198,11 +299,22 @@ footer {
 <div class="cursor"></div>
 <div class="cursor-follower"></div>
 
-<!-- Floating Fashion Elements -->
-<div class="fashion-element hanger" style="top: 20%; left: 10%;"></div>
-<div class="fashion-element thread" style="top: 30%; right: 15%;"></div>
-<div class="fashion-element button" style="top: 60%; left: 80%;"></div>
-<div class="fashion-element zipper" style="top: 70%; right: 25%;"></div>
+<!-- Floating Clothes, Money & Social Media Items -->
+<div class="fashion-item tshirt floating" style="top: 15%; left: 10%;"></div>
+<div class="fashion-item hoodie floating" style="top: 25%; right: 15%;"></div>
+<div class="fashion-item single floating" style="top: 60%; left: 80%;"></div>
+<div class="fashion-item tshirt floating" style="top: 70%; right: 25%;"></div>
+
+<div class="fashion-item money floating" style="top: 20%; left: 50%;">$</div>
+<div class="fashion-item money floating" style="top: 45%; right: 30%;">€</div>
+<div class="fashion-item money floating" style="bottom: 25%; left: 20%;">£</div>
+
+<div class="fashion-item dollar-bill floating" style="top: 35%; left: 25%;">$</div>
+<div class="fashion-item dollar-bill floating" style="top: 55%; right: 20%;">$</div>
+
+<div class="fashion-item instagram floating" style="top: 30%; left: 70%;"></div>
+<div class="fashion-item tiktok floating" style="top: 65%; left: 40%;"></div>
+<div class="fashion-item instagram floating" style="bottom: 20%; right: 35%;"></div>
 
 <!-- Parallax Layers -->
 <div class="parallax-layer layer-1">
@@ -666,8 +778,8 @@ window.addEventListener('load', init3DBackground);
 // Fashion Template Mouse Interactions
 const cursor = document.querySelector('.cursor');
 const cursorFollower = document.querySelector('.cursor-follower');
-const fashionElements = document.querySelectorAll('.fashion-element');
-const floatingItems = document.querySelectorAll('.floating-item');
+const fashionItems = document.querySelectorAll('.fashion-item');
+const floatingTexts = document.querySelectorAll('.floating-item');
 const parallaxLayers = document.querySelectorAll('.parallax-layer');
 
 let mouseX = 0, mouseY = 0;
@@ -698,23 +810,34 @@ function animateCursor() {
 }
 animateCursor();
 
-// Fashion elements mouse interaction
-fashionElements.forEach((element, index) => {
-  const initialX = parseFloat(element.style.left) || 0;
-  const initialY = parseFloat(element.style.top) || 0;
+// Fashion items mouse interaction
+fashionItems.forEach((item, index) => {
+  const initialX = parseFloat(item.style.left) || 0;
+  const initialY = parseFloat(item.style.top) || 0;
   
   document.addEventListener('mousemove', (e) => {
     const moveX = (e.clientX - window.innerWidth / 2) / 50;
     const moveY = (e.clientY - window.innerHeight / 2) / 50;
     
-    const offsetX = moveX * (index + 1) * 2;
-    const offsetY = moveY * (index + 1) * 2;
+    const offsetX = moveX * (index + 1) * 3;
+    const offsetY = moveY * (index + 1) * 3;
+    const rotation = (moveX + moveY) * (index + 1) * 2;
     
-    element.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${offsetX}deg)`;
+    item.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(${1 + Math.abs(moveX) * 0.01})`;
+    
+    // Special effects for money items
+    if (item.classList.contains('money') || item.classList.contains('dollar-bill')) {
+      item.style.filter = `brightness(${1 + Math.abs(moveX) * 0.5}) hue-rotate(${moveX * 20}deg)`;
+    }
+    
+    // Special effects for social media
+    if (item.classList.contains('instagram') || item.classList.contains('tiktok')) {
+      item.style.filter = `brightness(${1 + Math.abs(moveY) * 0.3}) saturate(${1 + Math.abs(moveX) * 0.5})`;
+    }
   });
 });
 
-// Parallax effect for floating items
+// Parallax effect for floating text
 parallaxLayers.forEach((layer, layerIndex) => {
   const items = layer.querySelectorAll('.floating-item');
   
@@ -738,28 +861,50 @@ document.querySelectorAll('a, button, .product').forEach(element => {
   element.addEventListener('mouseenter', () => {
     cursor.style.transform = 'translate(-50%, -50%) scale(1.5)';
     cursorFollower.style.transform = 'translate(-50%, -50%) scale(1.2)';
+    
+    // Make nearby fashion items glow
+    fashionItems.forEach(item => {
+      item.style.opacity = '0.9';
+      item.style.filter = 'brightness(1.2)';
+    });
   });
   
   element.addEventListener('mouseleave', () => {
     cursor.style.transform = 'translate(-50%, -50%) scale(1)';
     cursorFollower.style.transform = 'translate(-50%, -50%) scale(1)';
+    
+    // Reset fashion items
+    fashionItems.forEach(item => {
+      item.style.opacity = '0.7';
+      item.style.filter = 'brightness(1)';
+    });
   });
 });
 
-// Floating animation for fashion elements
-function animateFashionElements() {
+// Enhanced floating animation for fashion items
+function animateFashionItems() {
   const time = Date.now() * 0.001;
   
-  fashionElements.forEach((element, index) => {
-    const floatY = Math.sin(time + index) * 10;
-    const rotateY = Math.sin(time * 0.5 + index) * 5;
+  fashionItems.forEach((item, index) => {
+    if (!item.classList.contains('floating')) return;
     
-    element.style.transform += ` translateY(${floatY}px) rotateY(${rotateY}deg)`;
+    const floatY = Math.sin(time + index * 0.5) * 15;
+    const floatX = Math.cos(time * 0.7 + index * 0.3) * 10;
+    const rotateZ = Math.sin(time * 0.3 + index) * 5;
+    
+    // Add some randomness to money items
+    if (item.classList.contains('money')) {
+      item.style.transform += ` translateY(${floatY * 1.5}px) translateX(${floatX}px) rotateZ(${rotateZ * 2}deg)`;
+    } else if (item.classList.contains('instagram') || item.classList.contains('tiktok')) {
+      item.style.transform += ` translateY(${floatY * 0.8}px) rotateZ(${rotateZ * 3}deg)`;
+    } else {
+      item.style.transform += ` translateY(${floatY}px) translateX(${floatX * 0.5}px) rotateZ(${rotateZ}deg)`;
+    }
   });
   
-  requestAnimationFrame(animateFashionElements);
+  requestAnimationFrame(animateFashionItems);
 }
-animateFashionElements();
+animateFashionItems();
 
 // Hide default cursor on mobile
 if (window.innerWidth > 768) {
