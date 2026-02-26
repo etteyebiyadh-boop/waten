@@ -250,7 +250,33 @@ body {
 </head>
 <body>
 
-<!-- Dashboard Header -->
+<!-- Login Screen -->
+<div id="login-screen" style="
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(135deg, #1a1a2e 0%, #0f0f1e 100%);
+  display: flex; justify-content: center; align-items: center; z-index: 20000;
+">
+  <div class="login-box">
+    <h2 style="color: var(--accent); font-family: 'Cormorant Garamond', serif; font-size: 2rem; margin-bottom: 2rem; text-align: center; letter-spacing: 0.1em;">🎯 WATEN ADMIN</h2>
+    <p style="color: var(--text-muted); margin-bottom: 2rem; text-align: center;">Enter password to access dashboard</p>
+    <input type="password" id="admin-password" placeholder="Enter password" style="
+      width: 100%; padding: 1rem; background: var(--bg-dark); border: 1px solid var(--accent);
+      color: var(--text); font-size: 1rem; border-radius: 8px; margin-bottom: 1rem;
+    ">
+    <button onclick="checkPassword()" style="
+      width: 100%; padding: 1rem; background: var(--accent); color: var(--bg-dark);
+      border: none; border-radius: 8px; font-weight: 600; cursor: pointer;
+      font-size: 1rem; transition: all 0.2s ease;
+    ">Access Dashboard</button>
+    <div id="login-error" style="
+      color: var(--danger); margin-top: 1rem; text-align: center;
+      font-size: 0.9rem; display: none;
+    ">Incorrect password. Please try again.</div>
+  </div>
+</div>
+
+<!-- Dashboard Content (Hidden until login) -->
+<div id="dashboard-content" style="display: none;">
 <header class="dashboard-header">
   <h1 class="dashboard-title">🎯 WATEN ADMIN</h1>
   <div class="header-stats">
@@ -326,18 +352,52 @@ body {
     </div>
   </div>
 </div>
+</div>
 
 <script>
-// Admin Dashboard JavaScript
-let orders = [];
-let notifications = [];
+// Password Protection
+const ADMIN_PASSWORD = 'waten123'; // Change this to your desired password
 
-// Initialize dashboard
+function checkPassword() {
+  const passwordInput = document.getElementById('admin-password');
+  const loginError = document.getElementById('login-error');
+  const loginScreen = document.getElementById('login-screen');
+  const dashboardContent = document.getElementById('dashboard-content');
+  
+  if (passwordInput.value === ADMIN_PASSWORD) {
+    loginScreen.style.display = 'none';
+    dashboardContent.style.display = 'block';
+    initializeDashboard();
+  } else {
+    loginError.style.display = 'block';
+    passwordInput.value = '';
+    passwordInput.focus();
+  }
+}
+
+// Allow Enter key to submit password
 document.addEventListener('DOMContentLoaded', function() {
+  const passwordInput = document.getElementById('admin-password');
+  if (passwordInput) {
+    passwordInput.addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        checkPassword();
+      }
+    });
+    passwordInput.focus();
+  }
+});
+
+function initializeDashboard() {
+  // Initialize dashboard only after successful login
   loadData();
   setupEventListeners();
   startRealTimeUpdates();
-});
+}
+
+// Admin Dashboard JavaScript
+let orders = [];
+let notifications = [];
 
 function loadData() {
   // Load orders from localStorage or fetch from server
