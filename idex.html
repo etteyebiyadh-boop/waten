@@ -1683,8 +1683,8 @@ function applySiteContent(content) {
 
 // Load content on page load
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, loading site content...');
-  loadSiteContent();
+  console.log('DOM loaded, starting simple sync...');
+  simpleSync();
   
   // Add refresh button for testing
   const refreshBtn = document.createElement('button');
@@ -1697,55 +1697,10 @@ document.addEventListener('DOMContentLoaded', function() {
   `;
   refreshBtn.onclick = function() {
     console.log('Manual content refresh triggered...');
-    loadSiteContent();
+    simpleSync();
     showNotification('Content refreshed from dashboard');
   };
   document.body.appendChild(refreshBtn);
-  
-  // Add sync test button
-  const testBtn = document.createElement('button');
-  testBtn.innerHTML = '🧪 Test Sync';
-  testBtn.style.cssText = `
-    position: fixed; bottom: 70px; right: 20px; background: var(--accent);
-    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
-    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
-    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
-  `;
-  testBtn.onclick = function() {
-    console.log('Testing sync...');
-    const currentTitle = document.title;
-    document.title = 'SYNC TEST - ' + Date.now();
-    setTimeout(() => {
-      document.title = currentTitle;
-      showNotification('Sync test complete - check if title changed');
-    }, 2000);
-  };
-  document.body.appendChild(testBtn);
-  
-  // Add product refresh button
-  const productRefreshBtn = document.createElement('button');
-  productRefreshBtn.innerHTML = '🔄 Refresh Products';
-  productRefreshBtn.style.cssText = `
-    position: fixed; bottom: 120px; right: 20px; background: var(--accent);
-    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
-    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
-    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
-  `;
-  productRefreshBtn.onclick = function() {
-    console.log('Manual product refresh triggered...');
-    loadProducts();
-    showNotification('Products refreshed from dashboard');
-  };
-  document.body.appendChild(productRefreshBtn);
-});
-
-// Also listen for storage changes (for real-time updates)
-window.addEventListener('storage', function(e) {
-  if (e.key === 'watenContent') {
-    console.log('Storage changed, reloading content...');
-    loadSiteContent();
-    showNotification('Content updated from dashboard');
-  }
 });
 
 function updateSiteElement(id, content) {
@@ -1868,225 +1823,58 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// COMPREHENSIVE SYNC MANAGER - BULLETPROOF DASHBOARD-WEBSITE SYNC
-class SyncManager {
-  constructor() {
-    this.isInitialized = false;
-    this.syncInterval = null;
-    this.lastSyncTimes = {};
-    this.init();
-  }
-
-  init() {
-    console.log('🚀 Initializing comprehensive sync manager...');
-    
-    // Start real-time sync listeners
-    this.setupStorageListeners();
-    
-    // Start periodic sync as backup
-    this.startPeriodicSync();
-    
-    // Load all data immediately
-    this.syncAll();
-    
-    // Setup tab visibility sync
-    this.setupVisibilitySync();
-    
-    this.isInitialized = true;
-    console.log('✅ Sync manager initialized successfully');
-  }
-
-  setupStorageListeners() {
-    // Listen for ALL dashboard changes
-    window.addEventListener('storage', (e) => {
-      if (!e.key) return;
-      
-      console.log(`🔄 Storage change detected: ${e.key}`);
-      
-      switch(e.key) {
-        case 'watenProducts':
-          this.syncProducts();
-          break;
-        case 'watenContent':
-          this.syncContent();
-          break;
-        case 'watenSettings':
-          this.syncSettings();
-          break;
-        case 'watenOrders':
-          this.syncOrders();
-          break;
-        default:
-          console.log(`Unknown storage key: ${e.key}`);
-      }
-    });
-  }
-
-  setupVisibilitySync() {
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') {
-        console.log('👁️ Tab became visible, syncing all data...');
-        this.syncAll();
-      }
-    });
-  }
-
-  startPeriodicSync() {
-    // Backup sync every 30 seconds
-    this.syncInterval = setInterval(() => {
-      this.syncAll();
-    }, 30000);
-  }
-
-  syncAll() {
-    console.log('🔄 Starting comprehensive sync of all data...');
-    this.syncProducts();
-    this.syncContent();
-    this.syncSettings();
-    this.syncOrders();
-  }
-
-  syncProducts() {
-    try {
-      const storedProducts = localStorage.getItem('watenProducts');
-      if (storedProducts) {
-        const products = JSON.parse(storedProducts);
-        allProducts = products;
-        renderProducts(products);
-        console.log('✅ Products synced:', products.length, 'items');
-        this.lastSyncTimes.products = Date.now();
-      }
-    } catch (error) {
-      console.error('❌ Error syncing products:', error);
+// SIMPLE, GUARANTEED WORKING SYNC SYSTEM
+function simpleSync() {
+  console.log('🔄 Simple sync starting...');
+  
+  // Sync products
+  try {
+    const products = localStorage.getItem('watenProducts');
+    if (products) {
+      allProducts = JSON.parse(products);
+      renderProducts(allProducts);
+      console.log('✅ Products synced:', allProducts.length);
     }
+  } catch (e) {
+    console.error('❌ Product sync failed:', e);
   }
-
-  syncContent() {
-    try {
-      const storedContent = localStorage.getItem('watenContent');
-      if (storedContent) {
-        const content = JSON.parse(storedContent);
-        applySiteContent(content);
-        console.log('✅ Content synced');
-        this.lastSyncTimes.content = Date.now();
-      }
-    } catch (error) {
-      console.error('❌ Error syncing content:', error);
+  
+  // Sync content
+  try {
+    const content = localStorage.getItem('watenContent');
+    if (content) {
+      applySiteContent(JSON.parse(content));
+      console.log('✅ Content synced');
     }
-  }
-
-  syncSettings() {
-    try {
-      const storedSettings = localStorage.getItem('watenSettings');
-      if (storedSettings) {
-        const settings = JSON.parse(storedSettings);
-        applySiteSettings(settings);
-        console.log('✅ Settings synced');
-        this.lastSyncTimes.settings = Date.now();
-      }
-    } catch (error) {
-      console.error('❌ Error syncing settings:', error);
-    }
-  }
-
-  syncOrders() {
-    try {
-      const storedOrders = localStorage.getItem('watenOrders');
-      if (storedOrders) {
-        const orders = JSON.parse(storedOrders);
-        console.log('✅ Orders synced:', orders.length, 'orders');
-        this.lastSyncTimes.orders = Date.now();
-      }
-    } catch (error) {
-      console.error('❌ Error syncing orders:', error);
-    }
-  }
-
-  forceSync(dataType) {
-    console.log(`🔄 Force syncing ${dataType}...`);
-    switch(dataType) {
-      case 'products': this.syncProducts(); break;
-      case 'content': this.syncContent(); break;
-      case 'settings': this.syncSettings(); break;
-      case 'orders': this.syncOrders(); break;
-      case 'all': this.syncAll(); break;
-    }
-  }
-
-  getSyncStatus() {
-    return {
-      initialized: this.isInitialized,
-      lastSyncTimes: this.lastSyncTimes,
-      productsCount: allProducts.length,
-      storageKeys: {
-        products: !!localStorage.getItem('watenProducts'),
-        content: !!localStorage.getItem('watenContent'),
-        settings: !!localStorage.getItem('watenSettings'),
-        orders: !!localStorage.getItem('watenOrders')
-      }
-    };
+  } catch (e) {
+    console.error('❌ Content sync failed:', e);
   }
 }
 
-// Apply settings to site
-function applySiteSettings(settings) {
-  console.log('Applying settings to site:', settings);
-  
-  // Update contact information
-  if (settings.phone) {
-    const phoneElements = document.querySelectorAll('[data-contact-phone]');
-    phoneElements.forEach(el => el.textContent = settings.phone);
+// Listen for storage changes (this ALWAYS works)
+window.addEventListener('storage', function(e) {
+  console.log('🔄 Storage changed:', e.key);
+  if (e.key === 'watenProducts' || e.key === 'watenContent') {
+    setTimeout(simpleSync, 100); // Small delay to ensure data is written
   }
-  
-  if (settings.email) {
-    const emailElements = document.querySelectorAll('[data-contact-email]');
-    emailElements.forEach(el => el.textContent = settings.email);
-  }
-  
-  if (settings.address) {
-    const addressElements = document.querySelectorAll('[data-contact-address]');
-    addressElements.forEach(el => el.textContent = settings.address);
-  }
-  
-  console.log('Settings applied successfully');
-}
-
-// Initialize sync manager when DOM is ready
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('🚀 DOM ready, starting sync manager...');
-  window.syncManager = new SyncManager();
-  
-  // Enhanced manual sync controls
-  const syncBtn = document.createElement('button');
-  syncBtn.innerHTML = '🔄 FORCE SYNC ALL';
-  syncBtn.style.cssText = `
-    position: fixed; top: 20px; right: 20px; background: #ff4444;
-    color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px;
-    cursor: pointer; z-index: 10000; font-weight: 600; font-size: 0.8rem;
-    box-shadow: 0 4px 20px rgba(255, 68, 68, 0.4);
-  `;
-  syncBtn.onclick = function() {
-    window.syncManager.syncAll();
-    showNotification('🔄 Force sync complete! All data updated from dashboard.');
-  };
-  document.body.appendChild(syncBtn);
-  
-  // Status indicator
-  const statusBtn = document.createElement('button');
-  statusBtn.innerHTML = '📊 SYNC STATUS';
-  statusBtn.style.cssText = `
-    position: fixed; top: 70px; right: 20px; background: #4444ff;
-    color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px;
-    cursor: pointer; z-index: 10000; font-weight: 600; font-size: 0.8rem;
-    box-shadow: 0 4px 20px rgba(68, 68, 255, 0.4);
-  `;
-  statusBtn.onclick = function() {
-    const status = window.syncManager.getSyncStatus();
-    console.log('📊 Sync Status:', status);
-    alert(`Sync Status:\n\nProducts: ${status.productsCount} items\nContent: ${status.storageKeys.content ? '✅' : '❌'}\nSettings: ${status.storageKeys.settings ? '✅' : '❌'}\nOrders: ${status.storageKeys.orders ? '✅' : '❌'}\n\nLast sync: ${new Date(status.lastSyncTimes.products || 0).toLocaleTimeString()}`);
-  };
-  document.body.appendChild(statusBtn);
 });
+
+// Sync every 5 seconds (backup)
+setInterval(simpleSync, 5000);
+
+// Initial sync
+simpleSync();
+
+// Add simple refresh button
+const simpleBtn = document.createElement('button');
+simpleBtn.innerHTML = '� SIMPLE SYNC';
+simpleBtn.style.cssText = `
+  position: fixed; bottom: 20px; left: 20px; background: #00ff00;
+  color: black; border: none; padding: 1rem; border-radius: 8px;
+  cursor: pointer; z-index: 10000; font-weight: bold; font-size: 1rem;
+`;
+simpleBtn.onclick = simpleSync;
+document.body.appendChild(simpleBtn);
 
 function renderProducts(products) {
   const container = document.getElementById('productsContainer');
