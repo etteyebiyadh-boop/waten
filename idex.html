@@ -861,13 +861,13 @@ function animate() {
       element.sprite.material.opacity += 0.01;
     }
     
-    // Mouse attraction for logo
-    if (element.type === 'logo') {
-      const attractionX = mouseX * element.magneticAttraction;
-      const attractionY = mouseY * element.magneticAttraction * 0.6;
-      element.sprite.position.x += (attractionX - element.sprite.position.x * 0.1) * 0.05;
-      element.sprite.position.y += (attractionY - element.sprite.position.y * 0.1) * 0.05;
-    }
+    // Mouse attraction for all elements
+    const attractionStrength = element.magneticAttraction || 0.3;
+    const attractionX = mouseX * attractionStrength;
+    const attractionY = mouseY * attractionStrength * 0.6;
+    
+    element.sprite.position.x += (attractionX - element.sprite.position.x * 0.1) * 0.05;
+    element.sprite.position.y += (attractionY - element.sprite.position.y * 0.1) * 0.05;
     
     // Pulsing effect for premium elements
     if (element.type === 'premium' || element.type === 'exclusive') {
@@ -884,6 +884,10 @@ function animate() {
   if (particleSystem) {
     particleSystem.rotation.y = time * 0.05;
     particleSystem.rotation.x = time * 0.02;
+    
+    // Make particles respond to mouse
+    particleSystem.position.x = mouseX * 2;
+    particleSystem.position.y = mouseY * 2;
     
     const positions = particleSystem.geometry.attributes.position.array;
     for (let i = 0; i < positions.length; i += 3) {
