@@ -1683,21 +1683,21 @@ function applySiteContent(content) {
 
 // Load content on page load
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('DOM loaded, starting simple sync...');
-  simpleSync();
+  console.log('DOM loaded, loading content...');
+  loadSiteContent();
   
   // Add refresh button for testing
   const refreshBtn = document.createElement('button');
-  refreshBtn.innerHTML = '🔄 Refresh Content';
+  refreshBtn.textContent = '🔄 Refresh Content';
   refreshBtn.style.cssText = `
-    position: fixed; bottom: 20px; right: 20px; background: var(--accent);
-    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
-    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
-    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
+    position: fixed; top: 20px; left: 20px; z-index: 1000;
+    padding: 10px 15px; background: #27ae60; color: white;
+    border: none; border-radius: 5px; cursor: pointer;
+    font-size: 12px; font-weight: bold;
   `;
   refreshBtn.onclick = function() {
     console.log('Manual content refresh triggered...');
-    simpleSync();
+    loadSiteContent();
     showNotification('Content refreshed from dashboard');
   };
   document.body.appendChild(refreshBtn);
@@ -1823,73 +1823,43 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// SIMPLE, GUARANTEED WORKING SYNC SYSTEM
-function simpleSync() {
-  console.log('🔄 Simple sync starting...');
+// Load products - prioritize API for visitor sync
+function loadProducts() {
+  console.log('🔄 loadProducts called - loading from API first...');
   
-  // Sync products
-  try {
-    const products = localStorage.getItem('watenProducts');
-    if (products) {
-      allProducts = JSON.parse(products);
-      renderProducts(allProducts);
-      console.log('✅ Products synced:', allProducts.length, 'items');
-    } else {
-      console.log('❌ No products found in localStorage');
-    }
-  } catch (e) {
-    console.error('❌ Product sync failed:', e);
-  }
-  
-  // Sync content
-  try {
-    const content = localStorage.getItem('watenContent');
-    if (content) {
-      applySiteContent(JSON.parse(content));
-      console.log('✅ Content synced');
-    }
-  } catch (e) {
-    console.error('❌ Content sync failed:', e);
-  }
+  // Try API first for visitor sync
+  fetch('/api/products')
+    .then(res => res.json())
+    .then(products => {
+      allProducts = products;
+      // Save to localStorage for dashboard sync
+      localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+      renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
+      console.log('✅ Products loaded from API:', allProducts.length, 'items');
+    })
+    .catch(error => {
+      console.error('❌ API failed, using localStorage:', error);
+      // Fallback to localStorage
+      try {
+        const storedProducts = localStorage.getItem('watenProducts');
+        if (storedProducts) {
+          const products = JSON.parse(storedProducts);
+          allProducts = products;
+          renderProducts(products);
+        } else {
+          allProducts = FALLBACK_PRODUCTS;
+          renderProducts(FALLBACK_PRODUCTS);
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback failed:', fallbackError);
+        allProducts = FALLBACK_PRODUCTS;
+        renderProducts(FALLBACK_PRODUCTS);
+      }
+    });
 }
 
-// Listen for storage changes (this ALWAYS works)
-window.addEventListener('storage', function(e) {
-  console.log('🔄 Storage changed:', e.key);
-  if (e.key === 'watenProducts' || e.key === 'watenContent') {
-    console.log('🔄 Detected change, syncing in 100ms...');
-    setTimeout(simpleSync, 100); // Small delay to ensure data is written
-  }
-});
-
-// Also listen for custom storage events (for same-tab updates)
-window.addEventListener('storage', function(e) {
-  if (e.key === 'watenProducts') {
-    console.log('🔄 Custom storage event detected');
-    simpleSync();
-  }
-});
-
-// Sync every 5 seconds (backup)
-setInterval(simpleSync, 5000);
-
-// Initial sync
-simpleSync();
-
-// Add simple refresh button
-const simpleBtn = document.createElement('button');
-simpleBtn.innerHTML = '🔄 SIMPLE SYNC';
-simpleBtn.style.cssText = `
-  position: fixed; bottom: 20px; left: 20px; background: #00ff00;
-  color: black; border: none; padding: 1rem; border-radius: 8px;
-  cursor: pointer; z-index: 10000; font-weight: bold; font-size: 1rem;
-`;
-simpleBtn.onclick = function() {
-  console.log('🔄 Manual sync triggered');
-  simpleSync();
-  showNotification('Manual sync completed!');
-};
-document.body.appendChild(simpleBtn);
+// Initialize products on load
+loadProducts();
 
 function renderProducts(products) {
   const container = document.getElementById('productsContainer');
@@ -2082,30 +2052,39 @@ function openProductFromEl(el) {
   openProduct(p.name, p.price);
 }
 
-// Load products - now integrated with SyncManager
+// Load products - prioritize API for visitor sync
 function loadProducts() {
-  console.log('🔄 loadProducts called - delegating to sync manager...');
-  if (window.syncManager) {
-    window.syncManager.syncProducts();
-  } else {
-    // Fallback if sync manager not ready yet
-    console.log('⚠️ Sync manager not ready, using fallback...');
-    try {
-      const storedProducts = localStorage.getItem('watenProducts');
-      if (storedProducts) {
-        const products = JSON.parse(storedProducts);
-        allProducts = products;
-        renderProducts(products);
-      } else {
+  console.log('🔄 loadProducts called - loading from API first...');
+  
+  // Try API first for visitor sync
+  fetch('/api/products')
+    .then(res => res.json())
+    .then(products => {
+      allProducts = products;
+      // Save to localStorage for dashboard sync
+      localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+      renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
+      console.log('✅ Products loaded from API:', allProducts.length, 'items');
+    })
+    .catch(error => {
+      console.error('❌ API failed, using localStorage:', error);
+      // Fallback to localStorage
+      try {
+        const storedProducts = localStorage.getItem('watenProducts');
+        if (storedProducts) {
+          const products = JSON.parse(storedProducts);
+          allProducts = products;
+          renderProducts(products);
+        } else {
+          allProducts = FALLBACK_PRODUCTS;
+          renderProducts(FALLBACK_PRODUCTS);
+        }
+      } catch (fallbackError) {
+        console.error('❌ Fallback failed:', fallbackError);
         allProducts = FALLBACK_PRODUCTS;
         renderProducts(FALLBACK_PRODUCTS);
       }
-    } catch (error) {
-      console.error('❌ Fallback load failed:', error);
-      allProducts = FALLBACK_PRODUCTS;
-      renderProducts(FALLBACK_PRODUCTS);
-    }
-  }
+    });
 }
 
 // Initialize products on load
