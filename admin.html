@@ -636,8 +636,18 @@ body {
             <input type="number" id="new-product-price" placeholder="120" min="0">
           </div>
           <div class="form-row">
-            <label>Product Image URL</label>
-            <input type="text" id="new-product-image" placeholder="https://...">
+            <label>Product Image</label>
+            <div style="display: flex; gap: 1rem; align-items: center;">
+              <input type="file" id="new-product-image-file" accept="image/*" onchange="handleImageUpload(event)" style="display: none;">
+              <button type="button" class="action-btn btn-secondary" onclick="document.getElementById('new-product-image-file').click()">
+                📁 Upload Image
+              </button>
+              <input type="text" id="new-product-image" placeholder="https://..." style="flex: 1;">
+            </div>
+            <div id="image-preview" style="margin-top: 1rem; display: none;">
+              <img id="preview-img" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid var(--border);">
+              <button type="button" class="btn-small" onclick="clearImagePreview()" style="margin-left: 1rem;">Clear</button>
+            </div>
           </div>
           <button class="action-btn btn-primary" onclick="addProduct()">Add Product</button>
         </div>
@@ -892,6 +902,88 @@ function switchPanel(panelName) {
   }
 }
 
+// Image Upload Functions
+let uploadedImageData = null;
+
+function handleImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  // Check if file is an image
+  if (!file.type.startsWith('image/')) {
+    showNotification('Please select a valid image file', 'error');
+    return;
+  }
+  
+  // Check file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    showNotification('Image size should be less than 5MB', 'error');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    uploadedImageData = e.target.result;
+    
+    // Show preview
+    const preview = document.getElementById('image-preview');
+    const previewImg = document.getElementById('preview-img');
+    previewImg.src = uploadedImageData;
+    preview.style.display = 'block';
+    
+    // Update the URL field with base64 data
+    document.getElementById('new-product-image').value = uploadedImageData;
+    
+    showNotification('Image uploaded successfully');
+  };
+  
+  reader.onerror = function() {
+    showNotification('Error reading image file', 'error');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function clearImagePreview() {
+  uploadedImageData = null;
+  document.getElementById('image-preview').style.display = 'none';
+  document.getElementById('preview-img').src = '';
+  document.getElementById('new-product-image').value = '';
+  document.getElementById('new-product-image-file').value = '';
+  showNotification('Image cleared');
+}
+
+// Enhanced addProduct function to handle uploaded images
+function addProduct() {
+  const name = document.getElementById('new-product-name').value.trim();
+  const price = parseInt(document.getElementById('new-product-price').value);
+  const image = document.getElementById('new-product-image').value.trim();
+  
+  if (!name || !price || !image) {
+    showNotification('Please fill in all product fields', 'error');
+    return;
+  }
+  
+  const newProduct = {
+    id: Date.now(),
+    name: name,
+    price: price,
+    image: image
+  };
+  
+  products.push(newProduct);
+  localStorage.setItem('watenProducts', JSON.stringify(products));
+  renderProducts();
+  
+  // Clear form
+  document.getElementById('new-product-name').value = '';
+  document.getElementById('new-product-price').value = '';
+  document.getElementById('new-product-image').value = '';
+  clearImagePreview();
+  
+  showNotification('Product added successfully');
+}
+
 // Products Management
 let products = [];
 
@@ -963,19 +1055,98 @@ function editProduct(id) {
   const product = products.find(p => p.id === id);
   if (!product) return;
   
-  const newName = prompt('Product name:', product.name);
-  const newPrice = prompt('Price (TND):', product.price);
-  const newImage = prompt('Image URL:', product.image);
+  // Create edit modal
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Edit Product</h3>
+        <button class="close-btn" onclick="closeEditModal()">&times;</button>
+      </div>
+      <div class="form-row">
+        <label>Product Name</label>
+        <input type="text" id="edit-product-name" value="${product.name}">
+      </div>
+      <div class="form-row">
+        <label>Price (TND)</label>
+        <input type="number" id="edit-product-price" value="${product.price}" min="0">
+      </div>
+      <div class="form-row">
+        <label>Product Image</label>
+        <div style="display: flex; gap: 1rem; align-items: center;">
+          <input type="file" id="edit-product-image-file" accept="image/*" onchange="handleEditImageUpload(event)" style="display: none;">
+          <button type="button" class="action-btn btn-secondary" onclick="document.getElementById('edit-product-image-file').click()">
+            📁 Upload New Image
+          </button>
+          <input type="text" id="edit-product-image" value="${product.image}" style="flex: 1;">
+        </div>
+        <div id="edit-image-preview" style="margin-top: 1rem;">
+          <img id="edit-preview-img" src="${product.image}" style="max-width: 200px; max-height: 200px; border-radius: 8px; border: 1px solid var(--border);">
+        </div>
+      </div>
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button class="action-btn btn-primary" onclick="saveProductEdit(${id})">Save Changes</button>
+        <button class="action-btn btn-secondary" onclick="closeEditModal()">Cancel</button>
+      </div>
+    </div>
+  `;
   
-  if (newName && newPrice) {
-    product.name = newName;
-    product.price = parseInt(newPrice);
-    if (newImage) product.image = newImage;
-    
-    localStorage.setItem('watenProducts', JSON.stringify(products));
-    renderProducts();
-    showNotification('Product updated successfully');
+  document.body.appendChild(modal);
+}
+
+function handleEditImageUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  
+  if (!file.type.startsWith('image/')) {
+    showNotification('Please select a valid image file', 'error');
+    return;
   }
+  
+  if (file.size > 5 * 1024 * 1024) {
+    showNotification('Image size should be less than 5MB', 'error');
+    return;
+  }
+  
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const imageData = e.target.result;
+    document.getElementById('edit-preview-img').src = imageData;
+    document.getElementById('edit-product-image').value = imageData;
+    showNotification('Image uploaded successfully');
+  };
+  
+  reader.readAsDataURL(file);
+}
+
+function saveProductEdit(id) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+  
+  const name = document.getElementById('edit-product-name').value.trim();
+  const price = parseInt(document.getElementById('edit-product-price').value);
+  const image = document.getElementById('edit-product-image').value.trim();
+  
+  if (!name || !price || !image) {
+    showNotification('Please fill in all product fields', 'error');
+    return;
+  }
+  
+  product.name = name;
+  product.price = price;
+  product.image = image;
+  
+  localStorage.setItem('watenProducts', JSON.stringify(products));
+  renderProducts();
+  closeEditModal();
+  showNotification('Product updated successfully');
+}
+
+function closeEditModal() {
+  const modal = document.querySelector('.modal');
+  if (modal) modal.remove();
 }
 
 function deleteProduct(id) {
