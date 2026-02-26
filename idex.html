@@ -96,56 +96,6 @@ html { scroll-behavior: smooth; }
   );
 }
 
-/* Money Symbols */
-.money {
-  font-size: 2.5rem; font-weight: bold;
-  color: #00ff00; text-shadow: 0 0 10px rgba(0,255,0,0.5);
-  animation: moneyGlow 2s ease-in-out infinite alternate;
-}
-
-@keyframes moneyGlow {
-  from { text-shadow: 0 0 10px rgba(0,255,0,0.5); }
-  to { text-shadow: 0 0 20px rgba(0,255,0,0.8), 0 0 30px rgba(0,255,0,0.4); }
-}
-
-.dollar-bill {
-  width: 70px; height: 30px;
-  background: linear-gradient(45deg, #00ff00, #00cc00);
-  border: 2px solid #008800;
-  border-radius: 5px;
-  display: flex; align-items: center; justify-content: center;
-  font-weight: bold; color: #008800;
-  box-shadow: 0 4px 15px rgba(0,255,0,0.3);
-}
-
-/* Social Media Icons */
-.instagram {
-  width: 50px; height: 50px;
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
-  border-radius: 12px;
-  position: relative;
-}
-
-.instagram::before {
-  content: '📷'; position: absolute;
-  top: 50%; left: 50%; transform: translate(-50%, -50%);
-  font-size: 1.5rem;
-}
-
-.tiktok {
-  width: 45px; height: 50px;
-  background: #000;
-  border-radius: 8px;
-  position: relative;
-  display: flex; align-items: center; justify-content: center;
-  color: white; font-weight: bold; font-size: 1.2rem;
-}
-
-.tiktok::before {
-  content: '♬'; position: absolute;
-  color: #ff0050; font-size: 1.8rem;
-}
-
 /* Floating Animation */
 .floating {
   animation: float 6s ease-in-out infinite;
@@ -299,22 +249,15 @@ footer {
 <div class="cursor"></div>
 <div class="cursor-follower"></div>
 
-<!-- Floating Clothes, Money & Social Media Items -->
+<!-- Floating Clothing Items Only -->
 <div class="fashion-item tshirt floating" style="top: 15%; left: 10%;"></div>
 <div class="fashion-item hoodie floating" style="top: 25%; right: 15%;"></div>
 <div class="fashion-item single floating" style="top: 60%; left: 80%;"></div>
 <div class="fashion-item tshirt floating" style="top: 70%; right: 25%;"></div>
-
-<div class="fashion-item money floating" style="top: 20%; left: 50%;">$</div>
-<div class="fashion-item money floating" style="top: 45%; right: 30%;">€</div>
-<div class="fashion-item money floating" style="bottom: 25%; left: 20%;">£</div>
-
-<div class="fashion-item dollar-bill floating" style="top: 35%; left: 25%;">$</div>
-<div class="fashion-item dollar-bill floating" style="top: 55%; right: 20%;">$</div>
-
-<div class="fashion-item instagram floating" style="top: 30%; left: 70%;"></div>
-<div class="fashion-item tiktok floating" style="top: 65%; left: 40%;"></div>
-<div class="fashion-item instagram floating" style="bottom: 20%; right: 35%;"></div>
+<div class="fashion-item hoodie floating" style="top: 35%; left: 25%;"></div>
+<div class="fashion-item single floating" style="top: 45%; right: 30%;"></div>
+<div class="fashion-item tshirt floating" style="bottom: 20%; left: 40%;"></div>
+<div class="fashion-item hoodie floating" style="bottom: 25%; right: 35%;"></div>
 
 <!-- Parallax Layers -->
 <div class="parallax-layer layer-1">
@@ -824,16 +767,6 @@ fashionItems.forEach((item, index) => {
     const rotation = (moveX + moveY) * (index + 1) * 2;
     
     item.style.transform = `translate(${offsetX}px, ${offsetY}px) rotate(${rotation}deg) scale(${1 + Math.abs(moveX) * 0.01})`;
-    
-    // Special effects for money items
-    if (item.classList.contains('money') || item.classList.contains('dollar-bill')) {
-      item.style.filter = `brightness(${1 + Math.abs(moveX) * 0.5}) hue-rotate(${moveX * 20}deg)`;
-    }
-    
-    // Special effects for social media
-    if (item.classList.contains('instagram') || item.classList.contains('tiktok')) {
-      item.style.filter = `brightness(${1 + Math.abs(moveY) * 0.3}) saturate(${1 + Math.abs(moveX) * 0.5})`;
-    }
   });
 });
 
@@ -881,7 +814,7 @@ document.querySelectorAll('a, button, .product').forEach(element => {
   });
 });
 
-// Enhanced floating animation for fashion items
+// Enhanced floating animation for clothing items
 function animateFashionItems() {
   const time = Date.now() * 0.001;
   
@@ -892,14 +825,7 @@ function animateFashionItems() {
     const floatX = Math.cos(time * 0.7 + index * 0.3) * 10;
     const rotateZ = Math.sin(time * 0.3 + index) * 5;
     
-    // Add some randomness to money items
-    if (item.classList.contains('money')) {
-      item.style.transform += ` translateY(${floatY * 1.5}px) translateX(${floatX}px) rotateZ(${rotateZ * 2}deg)`;
-    } else if (item.classList.contains('instagram') || item.classList.contains('tiktok')) {
-      item.style.transform += ` translateY(${floatY * 0.8}px) rotateZ(${rotateZ * 3}deg)`;
-    } else {
-      item.style.transform += ` translateY(${floatY}px) translateX(${floatX * 0.5}px) rotateZ(${rotateZ}deg)`;
-    }
+    item.style.transform += ` translateY(${floatY}px) translateX(${floatX * 0.5}px) rotateZ(${rotateZ}deg)`;
   });
   
   requestAnimationFrame(animateFashionItems);
