@@ -566,14 +566,16 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
   document.body.appendChild(adminDiv);
 }
 
-// Manager Access Panel (always available)
+// Manager Access Panel (hidden by default)
+let managerPanelVisible = false;
+
 function createManagerPanel() {
   const managerPanel = document.createElement('div');
   managerPanel.id = 'manager-panel';
   managerPanel.style.cssText = `
     position: fixed; bottom: 20px; right: 20px; z-index: 1000;
     background: #1a1a2e; border: 1px solid #c9a227; border-radius: 8px;
-    padding: 10px; font-size: 12px;
+    padding: 10px; font-size: 12px; display: none;
   `;
   managerPanel.innerHTML = `
     <div style="color: #c9a227; font-weight: 600; margin-bottom: 8px;">🎯 MANAGER ACCESS</div>
@@ -589,9 +591,83 @@ function createManagerPanel() {
       background: #0a0a0a; color: #fff; border: 1px solid #666; padding: 5px 10px;
       margin: 2px; border-radius: 4px; cursor: pointer; width: 100%;
     ">Export Orders</button>
+    <button onclick="toggleManagerPanel()" style="
+      background: #333; color: #999; border: 1px solid #666; padding: 3px 8px;
+      margin: 2px; border-radius: 4px; cursor: pointer; width: 100%; font-size: 10px;
+    ">Hide Panel</button>
   `;
   document.body.appendChild(managerPanel);
 }
+
+function toggleManagerPanel() {
+  const panel = document.getElementById('manager-panel');
+  if (panel) {
+    managerPanelVisible = !managerPanelVisible;
+    panel.style.display = managerPanelVisible ? 'block' : 'none';
+  }
+}
+
+// Secret key combination: W + A + T + E + N (press in sequence)
+let secretKeys = [];
+const secretCode = ['w', 'a', 't', 'e', 'n'];
+
+document.addEventListener('keydown', function(e) {
+  const key = e.key.toLowerCase();
+  
+  // Add key to sequence
+  secretKeys.push(key);
+  
+  // Keep only last 5 keys
+  if (secretKeys.length > 5) {
+    secretKeys.shift();
+  }
+  
+  // Check if secret code matches
+  if (secretKeys.join('') === secretCode.join('')) {
+    toggleManagerPanel();
+    secretKeys = []; // Reset sequence
+    
+    // Show subtle notification
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+      position: fixed; top: 100px; right: 20px; background: #c9a227; color: #0a0a0a;
+      padding: 10px 15px; border-radius: 4px; z-index: 10000;
+      font-size: 12px; font-weight: 600; opacity: 0; transition: opacity 0.3s;
+    `;
+    notification.textContent = '🎯 Manager Panel ' + (managerPanelVisible ? 'Opened' : 'Closed');
+    document.body.appendChild(notification);
+    
+    setTimeout(() => notification.style.opacity = '1', 10);
+    setTimeout(() => {
+      notification.style.opacity = '0';
+      setTimeout(() => notification.remove(), 300);
+    }, 2000);
+  }
+});
+
+// Alternative: Triple click on logo (backup method)
+let logoClickCount = 0;
+let logoClickTimer;
+
+document.addEventListener('DOMContentLoaded', function() {
+  const logo = document.getElementById('header-logo');
+  if (logo) {
+    logo.addEventListener('click', function() {
+      logoClickCount++;
+      
+      if (logoClickCount === 3) {
+        toggleManagerPanel();
+        logoClickCount = 0;
+        clearTimeout(logoClickTimer);
+      } else {
+        clearTimeout(logoClickTimer);
+        logoClickTimer = setTimeout(() => {
+          logoClickCount = 0;
+        }, 1000);
+      }
+    });
+  }
+});
 
 function exportOrders() {
   const orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
