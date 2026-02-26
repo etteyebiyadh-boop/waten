@@ -187,12 +187,6 @@ section.show { opacity: 1; transform: translateY(0); }
   box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
 }
 
-.cart {
-  position: fixed; top: 1.25rem; right: 6%; background: var(--accent); color: var(--bg-dark);
-  padding: 0.6rem 1.25rem; cursor: pointer; font-weight: 600; z-index: 2000;
-  font-size: 0.7rem; letter-spacing: 0.15em; transition: background 0.25s;
-}
-.cart:hover { background: var(--accent-hover); }
 
 .invest-section { text-align: center; max-width: 640px; margin: 0 auto; }
 .invest-section h2 { font-family: 'Cormorant Garamond', serif; font-size: 1.75rem; letter-spacing: 0.15em; margin-bottom: 1.25rem; }
@@ -220,8 +214,7 @@ footer {
   .hero h1 { letter-spacing: 0.12em; }
   .products { gap: 1.5rem; }
   .product { width: 100%; max-width: 340px; }
-  .cart { right: 5%; }
-  footer { flex-direction: column; text-align: center; }
+    footer { flex-direction: column; text-align: center; }
   .footer-links { justify-content: center; }
   .footer-social { align-items: center; }
   
@@ -249,7 +242,6 @@ footer {
 <div class="cursor"></div>
 <div class="cursor-follower"></div>
 
-<div class="cart" onclick="viewCart()">Cart (<span id="cart-count">0</span>)</div>
 
 <header>
 <div class="logo" id="header-logo">WATEN</div>
@@ -384,9 +376,195 @@ footer {
 </div>
 
 <script>
-let cart = JSON.parse(localStorage.getItem('cart')) || [];
 let currentProduct = {};
 let siteContent = null;
+
+// Order Management System
+function submitOrder(event) {
+  event.preventDefault();
+  
+  // Get form data
+  const formData = new FormData(event.target);
+  const orderData = {
+    orderId: 'ORD-' + Date.now(),
+    product: currentProduct,
+    customer: {
+      name: formData.get('customerName'),
+      phone: formData.get('phoneNumber'),
+      email: formData.get('email'),
+      address: formData.get('address'),
+      city: formData.get('city'),
+      postalCode: formData.get('postalCode')
+    },
+    quantity: parseInt(formData.get('quantity')),
+    notes: formData.get('notes'),
+    totalPrice: currentProduct.price * parseInt(formData.get('quantity')),
+    orderDate: new Date().toISOString(),
+    status: 'pending'
+  };
+  
+  // Save order to localStorage
+  const orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
+  orders.push(orderData);
+  localStorage.setItem('watenOrders', JSON.stringify(orders));
+  
+  // Send notification (in real app, this would be sent to server)
+  sendOrderNotification(orderData);
+  
+  // Show confirmation message
+  showOrderConfirmation(orderData);
+  
+  // Close modal and reset
+  closeProduct();
+}
+
+function sendOrderNotification(orderData) {
+  // Create notification data
+  const notification = {
+    type: 'new_order',
+    orderId: orderData.orderId,
+    customerName: orderData.customer.name,
+    customerPhone: orderData.customer.phone,
+    customerEmail: orderData.customer.email,
+    product: orderData.product.name,
+    quantity: orderData.quantity,
+    totalPrice: orderData.totalPrice,
+    address: orderData.customer.address + ', ' + orderData.customer.city,
+    orderDate: orderData.orderDate,
+    notes: orderData.notes,
+    timestamp: new Date().toISOString()
+  };
+  
+  // Save notification for admin to see
+  const notifications = JSON.parse(localStorage.getItem('watenNotifications')) || [];
+  notifications.push(notification);
+  localStorage.setItem('watenNotifications', JSON.stringify(notifications));
+  
+  // In a real application, you would send this to your server/email
+  console.log('ORDER NOTIFICATION:', notification);
+  
+  // Show admin notification on page (for development)
+  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+    showAdminNotification(notification);
+  }
+}
+
+function showOrderConfirmation(orderData) {
+  const confirmationMessage = `
+✅ ORDER CONFIRMED!
+
+Order ID: ${orderData.orderId}
+Product: ${orderData.product.name}
+Quantity: ${orderData.quantity}
+Total: ${orderData.totalPrice} TND
+
+Customer: ${orderData.customer.name}
+Phone: ${orderData.customer.phone}
+
+We'll contact you within 24 hours to confirm delivery.
+Thank you for choosing WATEN! 🎯
+  `;
+  
+  alert(confirmationMessage);
+}
+
+function showAdminNotification(notification) {
+  // Create admin notification banner
+  const notificationBanner = document.createElement('div');
+  notificationBanner.style.cssText = `
+    position: fixed; top: 80px; right: 20px; background: #c9a227; color: #0a0a0a;
+    padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 350px;
+    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4); font-weight: 600;
+    animation: slideIn 0.3s ease;
+  `;
+  
+  notificationBanner.innerHTML = `
+    <div style="margin-bottom: 8px;">🎯 NEW ORDER!</div>
+    <div style="font-size: 14px; font-weight: 400;">
+      Order: ${notification.orderId}<br>
+      Customer: ${notification.customerName}<br>
+      Product: ${notification.product}<br>
+      Total: ${notification.totalPrice} TND<br>
+      Phone: ${notification.customerPhone}
+    </div>
+    <button onclick="this.parentElement.remove()" style="
+      margin-top: 10px; background: #0a0a0a; color: #c9a227; border: none;
+      padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;
+    ">Close</button>
+  `;
+  
+  document.body.appendChild(notificationBanner);
+  
+  // Auto-remove after 10 seconds
+  setTimeout(() => {
+    if (notificationBanner.parentElement) {
+      notificationBanner.remove();
+    }
+  }, 10000);
+}
+
+function viewOrders() {
+  const orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
+  
+  if (orders.length === 0) {
+    alert('No orders yet.');
+    return;
+  }
+  
+  let orderList = '🎯 WATEN ORDERS\n\n';
+  orders.forEach((order, index) => {
+    orderList += `${index + 1}. Order ID: ${order.orderId}\n`;
+    orderList += `   Customer: ${order.customer.name}\n`;
+    orderList += `   Product: ${order.product.name}\n`;
+    orderList += `   Quantity: ${order.quantity}\n`;
+    orderList += `   Total: ${order.totalPrice} TND\n`;
+    orderList += `   Date: ${new Date(order.orderDate).toLocaleDateString()}\n`;
+    orderList += `   Status: ${order.status}\n\n`;
+  });
+  
+  alert(orderList);
+}
+
+function viewNotifications() {
+  const notifications = JSON.parse(localStorage.getItem('watenNotifications')) || [];
+  
+  if (notifications.length === 0) {
+    alert('No notifications yet.');
+    return;
+  }
+  
+  let notificationList = '📧 ORDER NOTIFICATIONS\n\n';
+  notifications.forEach((notif, index) => {
+    notificationList += `${index + 1}. Order: ${notif.orderId}\n`;
+    notificationList += `   Customer: ${notif.customerName}\n`;
+    notificationList += `   Phone: ${notif.customerPhone}\n`;
+    notificationList += `   Email: ${notif.customerEmail}\n`;
+    notificationList += `   Product: ${notif.product}\n`;
+    notificationList += `   Total: ${notif.totalPrice} TND\n`;
+    notificationList += `   Address: ${notif.address}\n`;
+    notificationList += `   Date: ${new Date(notif.timestamp).toLocaleString()}\n\n`;
+  });
+  
+  alert(notificationList);
+}
+
+// Add admin buttons to header (only visible on localhost)
+if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+  const header = document.querySelector('header');
+  const adminDiv = document.createElement('div');
+  adminDiv.style.cssText = 'position: fixed; top: 60px; right: 20px; z-index: 1000;';
+  adminDiv.innerHTML = `
+    <button onclick="viewOrders()" style="
+      background: #c9a227; color: #0a0a0a; border: none; padding: 8px 12px;
+      margin: 2px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;
+    ">View Orders</button>
+    <button onclick="viewNotifications()" style="
+      background: #1a1a2e; color: #c9a227; border: none; padding: 8px 12px;
+      margin: 2px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: 600;
+    ">View Notifications</button>
+  `;
+  document.body.appendChild(adminDiv);
+}
 
 function applySiteContent(site) {
   if (!site) return;
@@ -569,55 +747,6 @@ function updateOrderSummary() {
   document.getElementById('summaryQuantity').innerText = quantity;
   document.getElementById('totalPrice').innerText = totalPrice + ' TND';
 }
-
-function submitOrder(event) {
-  event.preventDefault();
-  
-  // Get form data
-  const formData = new FormData(event.target);
-  const orderData = {
-    product: currentProduct,
-    customer: {
-      name: formData.get('customerName'),
-      phone: formData.get('phoneNumber'),
-      email: formData.get('email'),
-      address: formData.get('address'),
-      city: formData.get('city'),
-      postalCode: formData.get('postalCode')
-    },
-    quantity: parseInt(formData.get('quantity')),
-    notes: formData.get('notes'),
-    totalPrice: currentProduct.price * parseInt(formData.get('quantity')),
-    orderDate: new Date().toISOString()
-  };
-  
-  // Save order to localStorage (in a real app, this would be sent to a server)
-  const orders = JSON.parse(localStorage.getItem('orders')) || [];
-  orders.push(orderData);
-  localStorage.setItem('orders', JSON.stringify(orders));
-  
-  // Show confirmation message
-  alert(`Order confirmed!\n\nProduct: ${orderData.product.name}\nQuantity: ${orderData.quantity}\nTotal: ${orderData.totalPrice} TND\n\nWe'll contact you soon at ${orderData.customer.phone}`);
-  
-  // Close modal and reset
-  closeProduct();
-  
-  // Optional: Update cart count if you want to track orders
-  const cartCount = document.getElementById('cart-count');
-  if (cartCount) {
-    cartCount.innerText = orders.length;
-  }
-}
-
-function viewCart() {
-  if (cart.length === 0) {
-    alert('Your cart is empty.');
-    return;
-  }
-  alert('Cart Items:\n' + cart.map(p => p.name + ' — ' + p.price + ' TND').join('\n'));
-}
-
-document.getElementById('cart-count').innerText = cart.length;
 
 // Close modal on backdrop click
 document.getElementById('productModal').addEventListener('click', function(e) {
