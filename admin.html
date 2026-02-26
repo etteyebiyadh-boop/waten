@@ -224,11 +224,11 @@ body {
 }
 
 .panel {
-  display: none;
+  display: none !important;
 }
 
 .panel.active {
-  display: block;
+  display: block !important;
 }
 
 .nav-item {
@@ -620,7 +620,7 @@ body {
       </div>
 
       <!-- Products Panel -->
-      <div id="panel-products" class="panel" style="display: none;">
+      <div id="panel-products" class="panel">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
           <h2 class="section-title">Products Management</h2>
           <button class="action-btn btn-secondary" onclick="loadProducts()">🔄 Refresh Products</button>
@@ -647,7 +647,7 @@ body {
       </div>
 
       <!-- Content Panel -->
-      <div id="panel-content" class="panel" style="display: none;">
+      <div id="panel-content" class="panel">
         <h2 class="section-title">Website Content Management</h2>
         
         <!-- SEO & Meta -->
@@ -749,7 +749,7 @@ body {
       </div>
 
       <!-- Settings Panel -->
-      <div id="panel-settings" class="panel" style="display: none;">
+      <div id="panel-settings" class="panel">
         <h2 class="section-title">Settings & Configuration</h2>
         
         <div class="section-card">
@@ -856,9 +856,12 @@ function initializeDashboard() {
 
 // Panel Switching
 function switchPanel(panelName) {
+  console.log('Switching to panel:', panelName);
+  
   // Hide all panels
   document.querySelectorAll('.panel').forEach(panel => {
     panel.classList.remove('active');
+    console.log('Hiding panel:', panel.id);
   });
   
   // Remove active class from all nav items
@@ -870,6 +873,16 @@ function switchPanel(panelName) {
   const selectedPanel = document.getElementById('panel-' + panelName);
   if (selectedPanel) {
     selectedPanel.classList.add('active');
+    console.log('Showing panel:', selectedPanel.id);
+    
+    // Load content for specific panels
+    if (panelName === 'content') {
+      loadContent();
+    } else if (panelName === 'settings') {
+      loadSettings();
+    }
+  } else {
+    console.error('Panel not found:', 'panel-' + panelName);
   }
   
   // Add active class to selected nav item
