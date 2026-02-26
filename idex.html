@@ -50,16 +50,20 @@ section.show { opacity: 1; transform: translateY(0); }
   content: ""; position: absolute; inset: 0; z-index: 2;
   background: linear-gradient(180deg, rgba(10,10,10,0.4) 0%, rgba(10,10,10,0.85) 100%);
 }
-.hero-content { position: relative; z-index: 2; max-width: 900px; }
+.hero-content { position: relative; z-index: 10; max-width: 900px; }
 .hero h1 { font-family: 'Cormorant Garamond', serif; font-size: clamp(3.5rem, 10vw, 6rem); font-weight: 700; letter-spacing: 0.2em; line-height: 1.1; }
 .hero .tagline { margin-top: 1.25rem; font-size: 0.8rem; letter-spacing: 0.35em; color: var(--text-muted); font-weight: 500; }
 .btn {
   margin-top: 2.5rem; padding: 1rem 2.5rem; background: transparent;
   border: 1.5px solid var(--accent); color: var(--accent);
   font-family: 'DM Sans', sans-serif; font-size: 0.7rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase;
-  cursor: pointer; transition: all 0.3s ease;
+  cursor: pointer; transition: all 0.3s ease; position: relative; z-index: 15;
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3); backdrop-filter: blur(10px);
 }
-.btn:hover { background: var(--accent); color: var(--bg-dark); }
+.btn:hover { 
+  background: var(--accent); color: var(--bg-dark); 
+  transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201, 162, 39, 0.4);
+}
 
 .section-header { margin-bottom: 3rem; }
 .section-header h2 {
@@ -405,8 +409,8 @@ window.addEventListener('scroll', function() {
   });
 });
 
-// 3D Background Animation
-let scene, camera, renderer, particles;
+// 3D Background Animation with Geometric Shapes
+let scene, camera, renderer, shapes = [];
 let mouseX = 0, mouseY = 0;
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
 
@@ -421,9 +425,10 @@ function init3DBackground() {
   }
 
   scene = new THREE.Scene();
+  scene.fog = new THREE.Fog(0x0a0a0a, 1, 15);
   
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
-  camera.position.z = 5;
+  camera.position.z = 8;
 
   renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
@@ -432,40 +437,98 @@ function init3DBackground() {
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   container.appendChild(renderer.domElement);
 
-  // Create particles (reduced count for mobile)
-  const particlesGeometry = new THREE.BufferGeometry();
-  const particlesCount = isMobile ? 500 : 1500;
-  const posArray = new Float32Array(particlesCount * 3);
-
-  for (let i = 0; i < particlesCount * 3; i++) {
-    posArray[i] = (Math.random() - 0.5) * 10;
-  }
-
-  particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
-
-  // Particle material with brand color
-  const particlesMaterial = new THREE.PointsMaterial({
-    size: isMobile ? 0.03 : 0.02,
-    color: 0xc9a227,
-    transparent: true,
-    opacity: isMobile ? 0.6 : 0.8,
-    blending: THREE.AdditiveBlending
-  });
-
-  particles = new THREE.Points(particlesGeometry, particlesMaterial);
-  scene.add(particles);
-
-  // Add ambient light
-  const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+  // Lighting
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
   scene.add(ambientLight);
+
+  const pointLight1 = new THREE.PointLight(0xc9a227, 2, 20);
+  pointLight1.position.set(5, 5, 5);
+  pointLight1.castShadow = true;
+  scene.add(pointLight1);
+
+  const pointLight2 = new THREE.PointLight(0xff6b35, 1.5, 15);
+  pointLight2.position.set(-5, -3, 3);
+  scene.add(pointLight2);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
+  directionalLight.position.set(0, 5, 5);
+  directionalLight.castShadow = true;
+  scene.add(directionalLight);
+
+  // Create geometric shapes
+  const shapeCount = isMobile ? 8 : 15;
+  
+  for (let i = 0; i < shapeCount; i++) {
+    const geometryType = Math.random();
+    let geometry, material, mesh;
+
+    if (geometryType < 0.33) {
+      // Cube
+      geometry = new THREE.BoxGeometry(
+        Math.random() * 1.5 + 0.5,
+        Math.random() * 1.5 + 0.5,
+        Math.random() * 1.5 + 0.5
+      );
+    } else if (geometryType < 0.66) {
+      // Torus
+      geometry = new THREE.TorusGeometry(
+        Math.random() * 0.8 + 0.3,
+        Math.random() * 0.3 + 0.1,
+        8, 16
+      );
+    } else {
+      // Octahedron
+      geometry = new THREE.OctahedronGeometry(Math.random() * 0.8 + 0.4);
+    }
+
+    material = new THREE.MeshPhongMaterial({
+      color: Math.random() > 0.5 ? 0xc9a227 : 0xff6b35,
+      emissive: Math.random() > 0.5 ? 0xc9a227 : 0xff6b35,
+      emissiveIntensity: 0.2,
+      shininess: 100,
+      transparent: true,
+      opacity: isMobile ? 0.6 : 0.8,
+      wireframe: Math.random() > 0.7
+    });
+
+    mesh = new THREE.Mesh(geometry, material);
+    
+    // Random position
+    mesh.position.x = (Math.random() - 0.5) * 12;
+    mesh.position.y = (Math.random() - 0.5) * 8;
+    mesh.position.z = (Math.random() - 0.5) * 6;
+    
+    // Random rotation
+    mesh.rotation.x = Math.random() * Math.PI * 2;
+    mesh.rotation.y = Math.random() * Math.PI * 2;
+    
+    // Random velocity for animation
+    mesh.userData = {
+      rotationSpeed: {
+        x: (Math.random() - 0.5) * 0.02,
+        y: (Math.random() - 0.5) * 0.02,
+        z: (Math.random() - 0.5) * 0.02
+      },
+      floatSpeed: Math.random() * 0.001 + 0.0005,
+      floatAmount: Math.random() * 0.5 + 0.2
+    };
+    
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    
+    shapes.push(mesh);
+    scene.add(mesh);
+  }
 
   // Mouse movement (reduced on mobile)
   if (!isMobile) {
     document.addEventListener('mousemove', (event) => {
-      mouseX = event.clientX / window.innerWidth - 0.5;
-      mouseY = event.clientY / window.innerHeight - 0.5;
+      mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
+      mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
     });
   }
 
@@ -496,28 +559,30 @@ function animate3D() {
   if (document.hidden) return;
   requestAnimationFrame(animate3D);
 
-  // Rotate particles (slower on mobile)
-  const rotationSpeed = isMobile ? 0.0002 : 0.0005;
-  particles.rotation.x += rotationSpeed;
-  particles.rotation.y += rotationSpeed * 2;
+  const time = Date.now() * 0.001;
 
-  // Mouse interaction (disabled on mobile)
-  if (!isMobile) {
-    particles.rotation.x += mouseY * 0.05;
-    particles.rotation.y += mouseX * 0.05;
-  }
+  // Animate shapes
+  shapes.forEach((shape, index) => {
+    // Rotation
+    shape.rotation.x += shape.userData.rotationSpeed.x;
+    shape.rotation.y += shape.userData.rotationSpeed.y;
+    shape.rotation.z += shape.userData.rotationSpeed.z;
 
-  // Floating animation (simplified on mobile)
-  if (!isMobile) {
-    const positions = particles.geometry.attributes.position.array;
-    const time = Date.now() * 0.0005;
-    
-    for (let i = 0; i < positions.length; i += 3) {
-      positions[i + 1] += Math.sin(time + positions[i]) * 0.001;
+    // Floating animation
+    shape.position.y += Math.sin(time * shape.userData.floatSpeed + index) * shape.userData.floatAmount * 0.01;
+    shape.position.x += Math.cos(time * shape.userData.floatSpeed * 0.7 + index) * shape.userData.floatAmount * 0.005;
+
+    // Mouse interaction
+    if (!isMobile) {
+      shape.rotation.x += mouseY * 0.01;
+      shape.rotation.y += mouseX * 0.01;
     }
-    
-    particles.geometry.attributes.position.needsUpdate = true;
-  }
+  });
+
+  // Subtle camera movement
+  camera.position.x = Math.sin(time * 0.1) * 0.5;
+  camera.position.y = Math.cos(time * 0.15) * 0.3;
+  camera.lookAt(scene.position);
 
   renderer.render(scene, camera);
 }
