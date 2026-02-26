@@ -7,11 +7,12 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: #0f0f0f; color: #f5f5f5; min-height: 100vh; }
+    body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: #f5f5f5; min-height: 100vh; }
     .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-    h1 { font-size: 1.5rem; margin-bottom: 2rem; letter-spacing: 0.1em; }
+    h1 { font-size: 1.5rem; margin-bottom: 2rem; letter-spacing: 0.1em; background: linear-gradient(135deg, #c9a227, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
     .login-box {
-      max-width: 360px; margin: 4rem auto; padding: 2rem; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
+      max-width: 360px; margin: 4rem auto; padding: 2rem; background: rgba(26,26,26,0.9); border: 1px solid rgba(201,162,39,0.2);
+      backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
     .login-box h2 { font-size: 1rem; margin-bottom: 1rem; font-weight: 500; }
     input[type="password"] {
@@ -20,21 +21,43 @@
     }
     input[type="password"]:focus { outline: none; border-color: #c9a227; }
     .btn {
-      padding: 0.75rem 1.5rem; background: #c9a227; color: #0a0a0a; border: none;
+      padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #c9a227, #d4af37); color: #0a0a0a; border: none;
       font-weight: 600; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.05em;
+      border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(201,162,39,0.3);
     }
-    .btn:hover { background: #d4af37; }
-    .btn-ghost { background: transparent; color: #c9a227; border: 1px solid #c9a227; }
-    .btn-ghost:hover { background: rgba(201,162,39,0.15); }
-    .btn-danger { background: #8b2635; color: #fff; }
-    .btn-danger:hover { background: #a02d3f; }
+    .btn:hover { 
+      background: linear-gradient(135deg, #d4af37, #c9a227); 
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,162,39,0.4);
+    }
+    .btn-ghost { 
+      background: transparent; color: #c9a227; border: 1px solid #c9a227; 
+      backdrop-filter: blur(10px);
+    }
+    .btn-ghost:hover { 
+      background: rgba(201,162,39,0.15); 
+      border-color: #d4af37; color: #d4af37;
+    }
+    .btn-danger { 
+      background: linear-gradient(135deg, #8b2635, #a02d3f); color: #fff; 
+      box-shadow: 0 4px 12px rgba(139,38,53,0.3);
+    }
+    .btn-danger:hover { 
+      background: linear-gradient(135deg, #a02d3f, #8b2635); 
+      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,38,53,0.4);
+    }
     .error { color: #e57373; font-size: 0.85rem; margin-top: 0.5rem; }
     .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
     .header a { color: #c9a227; text-decoration: none; font-size: 0.85rem; }
     .products-list { display: flex; flex-direction: column; gap: 1rem; }
     .product-row {
-      display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: #141414;
-      border: 1px solid rgba(255,255,255,0.08);
+      display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: rgba(20,20,20,0.8);
+      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
+      backdrop-filter: blur(10px); transition: all 0.3s ease;
+    }
+    .product-row:hover { 
+      border-color: rgba(201,162,39,0.3); 
+      background: rgba(26,26,26,0.9); transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
     }
     .product-row img { width: 60px; height: 75px; object-fit: cover; background: #1a1a1a; }
     .product-row .info { flex: 1; }
@@ -42,6 +65,33 @@
     .product-row .price { color: #c9a227; font-size: 0.9rem; }
     .product-row .actions { display: flex; gap: 0.5rem; }
     .product-row .actions button { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
+    .order-row {
+      display: flex; align-items: center; gap: 1rem; padding: 1rem; background: rgba(20,20,20,0.8);
+      border: 1px solid rgba(255,255,255,0.08); margin-bottom: 0.75rem; border-radius: 8px;
+      backdrop-filter: blur(10px); transition: all 0.3s ease;
+    }
+    .order-row:hover { 
+      border-color: rgba(201,162,39,0.3); 
+      background: rgba(26,26,26,0.9); transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .order-row .order-info { flex: 1; }
+    .order-row .order-id { font-weight: 600; color: #c9a227; margin-bottom: 0.25rem; }
+    .order-row .customer-name { font-size: 0.9rem; margin-bottom: 0.25rem; }
+    .order-row .product-name { font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .order-row .order-total { font-weight: 600; color: #c9a227; font-size: 1rem; margin-right: 1rem; }
+    .order-row .order-status {
+      padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.05em; margin-right: 1rem;
+    }
+    .status-pending { background: rgba(243,156,18,0.2); color: #f39c12; border: 1px solid rgba(243,156,18,0.3); }
+    .status-processing { background: rgba(201,162,39,0.2); color: #c9a227; border: 1px solid rgba(201,162,39,0.3); }
+    .status-completed { background: rgba(39,174,96,0.2); color: #27ae60; border: 1px solid rgba(39,174,96,0.3); }
+    .status-cancelled { background: rgba(231,76,60,0.2); color: #e74c3c; border: 1px solid rgba(231,76,60,0.3); }
+    .order-row .order-date { font-size: 0.8rem; color: rgba(255,255,255,0.5); margin-right: 1rem; }
+    .order-row .actions { display: flex; gap: 0.5rem; }
+    .order-row select { padding: 0.4rem 0.6rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.75rem; border-radius: 3px; }
+    .btn.active { background: #c9a227; color: #0a0a0a; }
     .add-form {
       background: #1a1a1a; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.08);
     }
@@ -95,7 +145,10 @@
     .panel { display: none; }
     .panel.active { display: block; }
     .panel h2 { font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 600; letter-spacing: 0.05em; }
-    .section-card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); padding: 1.5rem; margin-bottom: 1.5rem; max-width: 640px; }
+    .section-card { 
+      background: rgba(26,26,26,0.9); border: 1px solid rgba(201,162,39,0.2); padding: 1.5rem; margin-bottom: 1.5rem; max-width: 640px;
+      border-radius: 8px; backdrop-filter: blur(10px); box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+    }
     .section-card h3 { font-size: 0.85rem; margin-bottom: 1rem; color: rgba(255,255,255,0.8); font-weight: 500; }
     .link-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
     .link-row input { flex: 1; }
@@ -123,6 +176,7 @@
     <div class="dashboard-wrap">
       <nav class="sidebar">
         <a href="#" class="active" data-panel="products">Products</a>
+        <a href="#" data-panel="orders">Orders</a>
         <a href="#" data-panel="home">Home &amp; Hero</a>
         <a href="#" data-panel="collection">Collection</a>
         <a href="#" data-panel="invest">Invest</a>
@@ -183,6 +237,29 @@
               </div>
             </div>
           </div>
+        </div>
+
+        <div id="panel-orders" class="panel">
+          <h2>Orders Management</h2>
+          <div class="stats-bar">
+            <span class="stat">Total: <strong id="totalOrders">0</strong></span>
+            <span class="stat">Pending: <strong id="pendingOrders">0</strong></span>
+            <span class="stat">Revenue: <strong id="totalRevenue">0 TND</strong></span>
+            <div class="search-wrap">
+              <input type="text" id="searchOrders" placeholder="Search orders..." aria-label="Search orders">
+            </div>
+          </div>
+          <div class="section-card" style="margin-bottom: 1.5rem;">
+            <h3>Filter by Status</h3>
+            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
+              <button class="btn btn-ghost" onclick="filterOrdersByStatus('all')" id="filter-all">All</button>
+              <button class="btn btn-ghost" onclick="filterOrdersByStatus('pending')" id="filter-pending">Pending</button>
+              <button class="btn btn-ghost" onclick="filterOrdersByStatus('processing')" id="filter-processing">Processing</button>
+              <button class="btn btn-ghost" onclick="filterOrdersByStatus('completed')" id="filter-completed">Completed</button>
+              <button class="btn btn-ghost" onclick="filterOrdersByStatus('cancelled')" id="filter-cancelled">Cancelled</button>
+            </div>
+          </div>
+          <div id="ordersList" class="products-list"></div>
         </div>
 
         <div id="panel-home" class="panel">
@@ -323,7 +400,10 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('dashboardScreen').classList.remove('hidden');
         loadProducts();
+        loadOrders();
         loadSiteContent();
+        // Set initial active filter
+        document.getElementById('filter-all').classList.add('active');
       } else {
         document.getElementById('loginError').textContent = 'Wrong password.';
       }
@@ -334,7 +414,10 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('dashboardScreen').classList.remove('hidden');
         loadProducts();
+        loadOrders();
         loadSiteContent();
+        // Set initial active filter
+        document.getElementById('filter-all').classList.add('active');
       }
     }
 
@@ -701,6 +784,146 @@
         loadProducts();
       } else alert('Failed to delete.');
     }
+
+    // Orders Management
+    let allOrders = [];
+    let currentOrderFilter = 'all';
+
+    async function loadOrders() {
+      try {
+        const res = await fetch(API + '/orders', { headers: authHeaders() });
+        allOrders = await res.json();
+        renderOrdersList();
+        updateOrderStats();
+      } catch (e) {
+        console.error('Failed to load orders:', e);
+        // Fallback to localStorage if API fails
+        const savedOrders = localStorage.getItem('watenOrders');
+        if (savedOrders) {
+          allOrders = JSON.parse(savedOrders);
+          renderOrdersList();
+          updateOrderStats();
+        }
+      }
+    }
+
+    function updateOrderStats() {
+      const total = allOrders.length;
+      const pending = allOrders.filter(o => o.status === 'pending').length;
+      const revenue = allOrders
+        .filter(o => o.status === 'completed')
+        .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
+      
+      document.getElementById('totalOrders').textContent = total;
+      document.getElementById('pendingOrders').textContent = pending;
+      document.getElementById('totalRevenue').textContent = revenue + ' TND';
+    }
+
+    function getOrdersSearchQuery() {
+      return (document.getElementById('searchOrders').value || '').trim().toLowerCase();
+    }
+
+    function filterOrders(orders) {
+      const q = getOrdersSearchQuery();
+      let filtered = orders;
+      
+      if (currentOrderFilter !== 'all') {
+        filtered = filtered.filter(o => o.status === currentOrderFilter);
+      }
+      
+      if (q) {
+        filtered = filtered.filter(o => {
+          const orderId = (o.orderId || '').toLowerCase();
+          const customer = (o.customer?.name || '').toLowerCase();
+          const product = (o.product?.name || '').toLowerCase();
+          return orderId.includes(q) || customer.includes(q) || product.includes(q);
+        });
+      }
+      
+      return filtered;
+    }
+
+    function renderOrdersList() {
+      const el = document.getElementById('ordersList');
+      const filtered = filterOrders(allOrders);
+      
+      if (!filtered.length) {
+        el.innerHTML = '<div class="empty">' + (allOrders.length ? 'No orders match your search.' : 'No orders yet.') + '</div>';
+        return;
+      }
+      
+      el.innerHTML = filtered.map(order => {
+        const orderId = order.orderId || 'N/A';
+        const customerName = order.customer?.name || 'N/A';
+        const productName = order.product?.name || 'N/A';
+        const total = order.totalPrice || 0;
+        const status = order.status || 'pending';
+        const date = order.date ? new Date(order.date).toLocaleDateString() : 'N/A';
+        
+        return `
+        <div class="order-row">
+          <div class="order-info">
+            <div class="order-id">#${orderId}</div>
+            <div class="customer-name">${customerName}</div>
+            <div class="product-name">${productName}</div>
+          </div>
+          <div class="order-total">${total} TND</div>
+          <div class="order-status status-${status}">${status}</div>
+          <div class="order-date">${date}</div>
+          <div class="actions">
+            <select onchange="updateOrderStatus('${orderId}', this.value)">
+              <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
+              <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
+              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    function filterOrdersByStatus(status) {
+      currentOrderFilter = status;
+      
+      // Update button states
+      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.getElementById('filter-' + status).classList.add('active');
+      
+      renderOrdersList();
+    }
+
+    async function updateOrderStatus(orderId, newStatus) {
+      try {
+        const order = allOrders.find(o => o.orderId === orderId);
+        if (order) {
+          order.status = newStatus;
+          
+          // Update via API
+          const res = await fetch(API + '/orders/' + orderId, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify({ status: newStatus })
+          });
+          
+          if (res.ok) {
+            // Update localStorage as backup
+            localStorage.setItem('watenOrders', JSON.stringify(allOrders));
+            renderOrdersList();
+            updateOrderStats();
+          } else {
+            alert('Failed to update order status');
+          }
+        }
+      } catch (e) {
+        console.error('Failed to update order:', e);
+        alert('Failed to update order status');
+      }
+    }
+
+    // Add search functionality for orders
+    document.getElementById('searchOrders')?.addEventListener('input', renderOrdersList);
 
     document.getElementById('password').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
