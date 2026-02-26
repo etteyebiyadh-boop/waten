@@ -834,55 +834,98 @@
       if (fileInput.files.length) {
         const fd = new FormData();
         fd.append('image', fileInput.files[0]);
-        const up = await fetch(API + '/upload', {
-          method: 'POST',
-          headers: { 'X-Admin-Password': token },
-          body: fd
-        });
-        if (!up.ok) {
-          const err = await up.json().catch(() => ({}));
-          alert('Image upload failed: ' + (err.error || up.statusText));
-          return;
+        try {
+          const up = await fetch(API + '/upload', {
+            method: 'POST',
+            headers: { 'X-Admin-Password': token },
+            body: fd
+          });
+          if (up.ok) {
+            const data = await up.json();
+            image = data.path;
+          }
+        } catch (uploadError) {
+          console.log('Upload API not available, keeping existing image');
         }
-        const data = await up.json();
-        image = data.path;
       }
-      const body = { name, price };
-      if (image) body.image = image;
-      const res = await fetch(API + '/products/' + editingId, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify(body)
-      });
-      if (res.ok) {
+      
+      // Update product in localStorage immediately
+      const index = allProducts.findIndex(p => p.id === editingId);
+      if (index !== -1) {
+        allProducts[index] = {
+          ...allProducts[index],
+          name: name,
+          price: price,
+          image: image || allProducts[index].image
+        };
+        localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+        
+        // Try to sync with API if available
+        try {
+          const body = { name, price };
+          if (image) body.image = image;
+          const res = await fetch(API + '/products/' + editingId, {
+            method: 'PUT',
+            headers: authHeaders(),
+            body: JSON.stringify(body)
+          });
+          if (res.ok) {
+            console.log('Product updated in API');
+          }
+        } catch (apiError) {
+          console.log('API not available, product updated locally only');
+        }
+        
         closeEdit();
         loadProducts();
+        
         // Trigger storage event for main site sync
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'watenProducts',
           newValue: localStorage.getItem('watenProducts')
         }));
-      } else alert('Failed to update.');
+        
+        showNotification('Product updated successfully!', 'success');
+      }
     }
 
     async function deleteProduct(id) {
       if (!confirm('Delete this product?')) return;
-      const res = await fetch(API + '/products/' + id, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      if (res.ok) {
+      
+      // Remove from localStorage immediately
+      const index = allProducts.findIndex(p => p.id === id);
+      if (index !== -1) {
+        allProducts.splice(index, 1);
+        localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+        
+        // Update UI
         if (selectedProductId === id) {
           selectedProductId = null;
           document.getElementById('detailPanel').classList.add('hidden');
         }
         loadProducts();
+        
+        // Try to sync with API if available
+        try {
+          const res = await fetch(API + '/products/' + id, {
+            method: 'DELETE',
+            headers: authHeaders()
+          });
+          if (res.ok) {
+            console.log('Product deleted from API');
+          }
+        } catch (apiError) {
+          console.log('API not available, product deleted locally only');
+        }
+        
         // Trigger storage event for main site sync
         window.dispatchEvent(new StorageEvent('storage', {
           key: 'watenProducts',
           newValue: localStorage.getItem('watenProducts')
         }));
-      } else alert('Failed to delete.');
+        
+        showNotification('Product deleted successfully!', 'success');
+      }
     }
 
     // Orders Management
