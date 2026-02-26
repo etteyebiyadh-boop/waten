@@ -638,26 +638,49 @@ window.addEventListener('scroll', function() {
   });
 });
 
-// 3D Background Animation with Geometric Shapes
-let scene, camera, renderer, shapes = [];
+// Premium 3D Fabric Wave Background for WATEN
+let scene, camera, renderer;
+let fabricWaves = [];
+let mouseX = 0, mouseY = 0;
 let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
+// Check WebGL support
+function checkWebGLSupport() {
+  try {
+    const canvas = document.createElement('canvas');
+    return !!(window.WebGLRenderingContext && 
+      (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+  } catch(e) {
+    return false;
+  }
+}
 
 function init3DBackground() {
   const container = document.getElementById('canvas-container');
   if (!container) return;
 
-  // Skip 3D on low-end devices
-  if (isMobile && window.innerWidth < 768) {
-    container.style.display = 'none';
+  // Fallback for non-WebGL browsers
+  if (!checkWebGLSupport()) {
+    container.style.background = 
+      'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f1e 100%)';
     return;
   }
 
+  // Skip 3D on low-end devices
+  if (isMobile && window.innerWidth < 768) {
+    container.style.background = 
+      'linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #0f0f1e 100%)';
+    return;
+  }
+
+  // Scene setup
   scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x0a0a0a, 1, 15);
   
   camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 1000);
   camera.position.z = 8;
 
+  // Renderer setup with performance optimizations
   renderer = new THREE.WebGLRenderer({ 
     alpha: true, 
     antialias: !isMobile,
@@ -665,145 +688,87 @@ function init3DBackground() {
   });
   renderer.setSize(window.innerWidth, window.innerHeight);
   renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setClearColor(0x0a0a0a, 1);
   container.appendChild(renderer.domElement);
 
-  // Lighting
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.5);
-  scene.add(ambientLight);
-
-  const pointLight1 = new THREE.PointLight(0xc9a227, 2, 20);
-  pointLight1.position.set(5, 5, 5);
-  pointLight1.castShadow = true;
-  scene.add(pointLight1);
-
-  const pointLight2 = new THREE.PointLight(0xff6b35, 1.5, 15);
-  pointLight2.position.set(-5, -3, 3);
-  scene.add(pointLight2);
-
-  const directionalLight = new THREE.DirectionalLight(0xffffff, 0.3);
-  directionalLight.position.set(0, 5, 5);
-  directionalLight.castShadow = true;
-  scene.add(directionalLight);
-
-  // Create geometric shapes
-  const shapeCount = isMobile ? 8 : 15;
+  // Create fabric waves
+  createFabricWaves();
   
-  for (let i = 0; i < shapeCount; i++) {
-    const geometryType = Math.random();
-    let geometry, material, mesh;
+  // Luxury lighting setup
+  const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+  scene.add(ambientLight);
+  
+  const directionalLight = new THREE.DirectionalLight(0xc9a227, 0.4);
+  directionalLight.position.set(5, 5, 5);
+  scene.add(directionalLight);
+  
+  const pointLight = new THREE.PointLight(0x1a1a2e, 1, 20);
+  pointLight.position.set(-3, 2, 4);
+  scene.add(pointLight);
 
-    if (geometryType < 0.33) {
-      // Cube
-      geometry = new THREE.BoxGeometry(
-        Math.random() * 1.5 + 0.5,
-        Math.random() * 1.5 + 0.5,
-        Math.random() * 1.5 + 0.5
-      );
-    } else if (geometryType < 0.66) {
-      // Torus
-      geometry = new THREE.TorusGeometry(
-        Math.random() * 0.8 + 0.3,
-        Math.random() * 0.3 + 0.1,
-        8, 16
-      );
-    } else {
-      // Octahedron
-      geometry = new THREE.OctahedronGeometry(Math.random() * 0.8 + 0.4);
-    }
+  // Start animation
+  animate3D();
+  
+  // Handle events
+  window.addEventListener('resize', onWindowResize, false);
+  window.addEventListener('mousemove', onMouseMove, false);
+}
 
-    material = new THREE.MeshPhongMaterial({
-      color: Math.random() > 0.5 ? 0xc9a227 : 0xff6b35,
-      emissive: Math.random() > 0.5 ? 0xc9a227 : 0xff6b35,
-      emissiveIntensity: 0.2,
-      shininess: 100,
+function createFabricWaves() {
+  // Create multiple fabric-like wave layers
+  for (let i = 0; i < 3; i++) {
+    const geometry = new THREE.PlaneGeometry(20, 12, 32, 24);
+    
+    // Luxury gradient material
+    const material = new THREE.MeshPhongMaterial({
+      color: i === 0 ? 0x1a1a2e : i === 1 ? 0x16213e : 0x0f0f1e,
+      emissive: i === 0 ? 0x0a0a0a : 0x000000,
+      emissiveIntensity: 0.1,
+      shininess: 30,
       transparent: true,
-      opacity: isMobile ? 0.6 : 0.8,
-      wireframe: Math.random() > 0.7
+      opacity: 0.8 - (i * 0.2),
+      side: THREE.DoubleSide
     });
-
-    mesh = new THREE.Mesh(geometry, material);
     
-    // Random position
-    mesh.position.x = (Math.random() - 0.5) * 12;
-    mesh.position.y = (Math.random() - 0.5) * 8;
-    mesh.position.z = (Math.random() - 0.5) * 6;
+    const mesh = new THREE.Mesh(geometry, material);
+    mesh.position.z = -2 + (i * 1.5);
+    mesh.rotation.x = -0.3;
     
-    // Random rotation
-    mesh.rotation.x = Math.random() * Math.PI * 2;
-    mesh.rotation.y = Math.random() * Math.PI * 2;
-    
-    // Random velocity for animation
-    mesh.userData = {
-      rotationSpeed: {
-        x: (Math.random() - 0.5) * 0.02,
-        y: (Math.random() - 0.5) * 0.02,
-        z: (Math.random() - 0.5) * 0.02
-      },
-      floatSpeed: Math.random() * 0.001 + 0.0005,
-      floatAmount: Math.random() * 0.5 + 0.2
-    };
-    
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    
-    shapes.push(mesh);
+    fabricWaves.push(mesh);
     scene.add(mesh);
   }
+}
 
-  // Mouse movement (reduced on mobile)
-  if (!isMobile) {
-    document.addEventListener('mousemove', (event) => {
-      mouseX = (event.clientX / window.innerWidth - 0.5) * 2;
-      mouseY = (event.clientY / window.innerHeight - 0.5) * 2;
-    });
-  }
+function onMouseMove(event) {
+  mouseX = (event.clientX / window.innerWidth) * 2 - 1;
+  mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
+}
 
-  // Handle resize with debouncing
-  let resizeTimeout;
-  window.addEventListener('resize', () => {
-    clearTimeout(resizeTimeout);
-    resizeTimeout = setTimeout(() => {
-      camera.aspect = window.innerWidth / window.innerHeight;
-      camera.updateProjectionMatrix();
-      renderer.setSize(window.innerWidth, window.innerHeight);
-    }, 250);
-  });
-
-  // Handle visibility change to pause when tab is not visible
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      renderer.dispose();
-    } else {
-      animate3D();
-    }
-  });
-
-  animate3D();
+function onWindowResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function animate3D() {
-  if (document.hidden) return;
   requestAnimationFrame(animate3D);
-
-  const time = Date.now() * 0.001;
-
-  // Animate shapes
-  shapes.forEach((shape, index) => {
-    // Rotation
-    shape.rotation.x += shape.userData.rotationSpeed.x;
-    shape.rotation.y += shape.userData.rotationSpeed.y;
-    shape.rotation.z += shape.userData.rotationSpeed.z;
-
-    // Floating animation
-    shape.position.y += Math.sin(time * shape.userData.floatSpeed + index) * shape.userData.floatAmount * 0.01;
-    shape.position.x += Math.cos(time * shape.userData.floatSpeed * 0.7 + index) * shape.userData.floatAmount * 0.005;
-
-    // Mouse interaction
-    if (!isMobile) {
-      shape.rotation.x += mouseY * 0.01;
-      shape.rotation.y += mouseX * 0.01;
+  
+  const time = Date.now() * 0.0005; // Slow, luxury pacing
+  
+  // Animate fabric waves with subtle motion
+  fabricWaves.forEach((wave, index) => {
+    const positions = wave.geometry.attributes.position.array;
+    
+    for (let i = 0; i < positions.length; i += 3) {
+      const x = positions[i];
+      const y = positions[i + 1];
+      
+      // Fabric-like wave motion
+      const wave1 = Math.sin(time * 0.8 + x * 0.3 + index * 0.5) * 0.15;
+      const wave2 = Math.cos(time * 0.6 + y * 0.2 + index * 0.3) * 0.12;
+      const wave3 = Math.sin(time * 0.4 + x * 0.1 + y * 0.1) * 0.08;
+      
+      positions[i + 2] = wave1 + wave2 + wave3;
     }
   });
 
@@ -822,7 +787,6 @@ window.addEventListener('load', init3DBackground);
 const cursor = document.querySelector('.cursor');
 const cursorFollower = document.querySelector('.cursor-follower');
 
-let mouseX = 0, mouseY = 0;
 let currentX = 0, currentY = 0;
 
 // Mouse movement tracking
