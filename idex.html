@@ -637,254 +637,100 @@ window.addEventListener('scroll', function() {
   });
 });
 
-// Ultimate Attention-Grabbing 3D Background for WATEN - Hyper-Realistic Edition
+// Simple but Effective 3D Background for WATEN
 let scene, camera, renderer;
-let clothSystem;
-let attentionElements = [];
+let floatingElements = [];
 let mouseX = 0, mouseY = 0;
 let time = 0;
-let isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-
-// Advanced WebGL support detection
-function checkWebGLSupport() {
-  try {
-    const canvas = document.createElement('canvas');
-    const gl = canvas.getContext('webgl2') || canvas.getContext('experimental-webgl2') || canvas.getContext('webgl');
-    return !!(gl && gl.getExtension('OES_texture_float') && gl.getExtension('OES_standard_derivatives'));
-  } catch(e) {
-    return false;
-  }
-}
 
 function init3DBackground() {
-  console.log('Initializing 3D background...');
+  console.log('Initializing simple 3D background...');
   const container = document.getElementById('canvas-container');
   if (!container) {
     console.error('Canvas container not found!');
     return;
   }
 
-  // Premium fallback for non-WebGL browsers
-  if (!checkWebGLSupport()) {
-    console.log('WebGL not supported, using fallback');
-    container.style.background = 
-      'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 30%, #16213e 70%, #0f0f1e 100%)';
-    return;
-  }
-
-  // Skip 3D on very low-end devices
-  if (isMobile && window.innerWidth < 768) {
-    console.log('Mobile device detected, using fallback');
-    container.style.background = 
-      'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 30%, #16213e 70%, #0f0f1e 100%)';
-    return;
-  }
-
-  console.log('Creating 3D scene...');
-  // Ultimate scene setup
+  // Simple scene setup
   scene = new THREE.Scene();
-  scene.fog = new THREE.Fog(0x0a0a0a, 2, 25);
-  
-  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.5, 2000);
-  camera.position.z = 15;
+  camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.z = 10;
 
-  // Elite renderer setup
-  renderer = new THREE.WebGLRenderer({ 
-    alpha: true, 
-    antialias: !isMobile,
-    powerPreference: "high-performance",
-    stencil: true,
-    logarithmicDepthBuffer: true
-  });
+  // Basic renderer
+  renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
   renderer.setSize(window.innerWidth, window.innerHeight);
-  renderer.setPixelRatio(isMobile ? 1 : Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x0a0a0a, 1);
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
   container.appendChild(renderer.domElement);
 
-  console.log('Creating 3D elements...');
-  // Create ultimate systems
-  createHyperRealisticCloth();
-  createAdvancedFloatingElements();
-  createCinematicLighting();
+  // Create floating elements
+  createFloatingElements();
   
-  console.log('Starting animation...');
-  // Start ultimate animation
-  animateUltimate();
+  // Add basic lighting
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+  scene.add(ambientLight);
+  
+  const pointLight = new THREE.PointLight(0xc9a227, 1, 100);
+  pointLight.position.set(10, 10, 10);
+  scene.add(pointLight);
+
+  // Start animation
+  animate();
   
   // Handle events
   window.addEventListener('resize', onWindowResize, false);
   window.addEventListener('mousemove', onMouseMove, false);
-  window.addEventListener('click', onMouseClick, false);
   
-  console.log('3D background initialized successfully!');
+  console.log('Simple 3D background initialized!');
 }
 
-function createHyperRealisticCloth() {
-  // Create high-resolution cloth geometry
-  const clothGeometry = new THREE.PlaneGeometry(30, 30, 80, 80);
-  
-  // Premium fabric material with advanced properties
-  const clothMaterial = new THREE.MeshPhongMaterial({
-    color: 0x1a1a2e,
-    roughness: 0.85,
-    metalness: 0.15,
-    transparent: true,
-    opacity: 0.9,
-    side: THREE.DoubleSide,
-    wireframe: false
-  });
-  
-  clothSystem = new THREE.Mesh(clothGeometry, clothMaterial);
-  clothSystem.position.z = -5;
-  clothSystem.rotation.x = -0.5;
-  scene.add(clothSystem);
-  
-  // Store cloth vertices for physics
-  const vertices = clothGeometry.attributes.position.array;
-  clothSystem.userData = {
-    vertices: vertices,
-    originalPositions: new Float32Array(vertices),
-    velocities: new Float32Array(vertices.length),
-    mass: 0.1,
-    damping: 0.98,
-    windInfluence: 0.02
-  };
-}
-
-function createAdvancedFloatingElements() {
-  // Supreme floating elements with complex behaviors
+function createFloatingElements() {
   const elements = [
-    { type: 'premiumLogo', text: 'WATEN', size: 4, color: 0xc9a227, glowColor: 0xffd700 },
-    { type: 'luxuryBadge', text: 'SUPREME', size: 2.5, color: 0xffffff, glowColor: 0xc9a227 },
-    { type: 'fashionIcon', text: '', size: 3, color: 0xffd700, glowColor: 0xff6b35 },
-    { type: 'diamond', text: '', size: 2.5, color: 0xffffff, glowColor: 0xc9a227 },
-    { type: 'star', text: '', size: 2, color: 0xffffff, glowColor: 0xffd700 }
+    { text: 'WATEN', size: 2, color: 0xc9a227, position: [0, 2, -2] },
+    { text: 'LUXURY', size: 1.5, color: 0xffffff, position: [-3, 1, -3] },
+    { text: 'STREETWEAR', size: 1.2, color: 0xffd700, position: [3, -1, -4] },
+    { text: '♦', size: 1.5, color: 0xc9a227, position: [-2, -2, -5] },
+    { text: '✨', size: 1, color: 0xffffff, position: [2, 3, -6] }
   ];
-  
+
   elements.forEach((element, index) => {
-    const geometry = new THREE.PlaneGeometry(element.size, element.size/2);
-    const material = new THREE.MeshBasicMaterial({
-      color: element.color,
-      transparent: true,
-      opacity: 0,
-      side: THREE.DoubleSide
-    });
-    
-    const mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(
-      (Math.random() - 0.5) * 25,
-      (Math.random() - 0.5) * 20,
-      -15 + index * 4
-    );
-    
-    // Add text sprite
+    // Create text using canvas
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
-    context.font = 'bold ' + (element.size * 25) + 'px Arial';
+    canvas.width = 256;
+    canvas.height = 128;
+    
+    context.font = 'bold 48px Arial';
     context.fillStyle = '#ffffff';
     context.textAlign = 'center';
     context.textBaseline = 'middle';
-    context.fillText(element.text, canvas.width/2, canvas.height/2);
+    context.fillText(element.text, 128, 64);
     
     const texture = new THREE.CanvasTexture(canvas);
-    const spriteMaterial = new THREE.SpriteMaterial({
+    const material = new THREE.SpriteMaterial({
       map: texture,
+      color: element.color,
       transparent: true,
       opacity: 0.9
     });
     
-    const sprite = new THREE.Sprite(spriteMaterial);
-    sprite.scale.set(element.size * 2, element.size * 2, 1);
-    mesh.add(sprite);
+    const sprite = new THREE.Sprite(material);
+    sprite.scale.set(element.size, element.size, 1);
+    sprite.position.set(...element.position);
     
-    attentionElements.push({
-      mesh: mesh,
+    floatingElements.push({
       sprite: sprite,
-      type: element.type,
-      baseRotation: Math.random() * Math.PI * 2,
-      floatSpeed: 0.3 + Math.random() * 0.4,
-      glowIntensity: element.glowColor || 0xc9a227,
-      magneticAttraction: element.type === 'premiumLogo' ? 0.8 : 0.3
+      basePosition: element.position,
+      floatSpeed: 0.5 + Math.random() * 0.5,
+      rotationSpeed: Math.random() * 0.02
     });
     
-    scene.add(mesh);
+    scene.add(sprite);
   });
-}
-
-function createCinematicLighting() {
-  // Premium lighting for fashion showcase
-  const ambientLight = new THREE.AmbientLight(0x404040, 0.3);
-  scene.add(ambientLight);
-  
-  // Main fashion spotlight
-  const spotLight = new THREE.SpotLight(0xc9a227, 2, 30, Math.PI/6, 0.5);
-  spotLight.position.set(0, 10, 5);
-  spotLight.castShadow = true;
-  spotLight.shadow.mapSize.width = 4096;
-  spotLight.shadow.mapSize.height = 4096;
-  scene.add(spotLight);
-  
-  // Accent lights for drama
-  const pointLight1 = new THREE.PointLight(0x1a1a2e, 1.5, 20);
-  pointLight1.position.set(-15, 5, 0);
-  scene.add(pointLight1);
-  
-  const pointLight2 = new THREE.PointLight(0xc9a227, 1, 25);
-  pointLight2.position.set(15, 8, 0);
-  scene.add(pointLight2);
 }
 
 function onMouseMove(event) {
   mouseX = (event.clientX / window.innerWidth) * 2 - 1;
   mouseY = -(event.clientY / window.innerHeight) * 2 + 1;
-  
-  // Make cloth react to mouse
-  if (clothSystem && clothSystem.userData) {
-    const windForce = new THREE.Vector3(
-      mouseX * 0.1,
-      mouseY * 0.05,
-      Math.sin(time * 0.5) * 0.2
-    );
-    
-    // Apply wind to cloth vertices
-    const vertices = clothSystem.userData.vertices;
-    const velocities = clothSystem.userData.velocities;
-    
-    for (let i = 0; i < vertices.length; i += 3) {
-      const x = vertices[i];
-      const y = vertices[i + 1];
-      
-      // Distance from mouse influence
-      const distX = (mouseX * 10 - x) * 0.01;
-      const distY = (mouseY * 10 - y) * 0.01;
-      
-      velocities[i] += distX * 0.1;
-      velocities[i + 1] += distY * 0.1;
-      velocities[i + 2] += Math.sin(time * 2 + i * 0.01) * 0.5;
-      
-      // Apply damping
-      velocities[i] *= clothSystem.userData.damping;
-    }
-  }
-}
-
-function onMouseClick(event) {
-  // Create explosion effect on click
-  const clickEffect = new THREE.PointLight(0xffffff, 5, 10);
-  clickEffect.position.set(
-    (event.clientX / window.innerWidth) * 2 - 1,
-    (event.clientY / window.innerHeight) * 2 - 1,
-    5
-  );
-  scene.add(clickEffect);
-  
-  // Remove after 1 second
-  setTimeout(() => {
-    scene.remove(clickEffect);
-  }, 1000);
 }
 
 function onWindowResize() {
@@ -893,91 +739,42 @@ function onWindowResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-function animateUltimate() {
-  requestAnimationFrame(animateUltimate);
+function animate() {
+  requestAnimationFrame(animate);
   
-  time = Date.now() * 0.0002; // Ultra-smooth luxury pacing
+  time = Date.now() * 0.001;
   
-  // Animate hyper-realistic cloth
-  if (clothSystem && clothSystem.userData) {
-    const vertices = clothSystem.userData.vertices;
-    const velocities = clothSystem.userData.velocities;
+  // Animate floating elements
+  floatingElements.forEach((element, index) => {
+    const floatY = Math.sin(time * element.floatSpeed + index) * 0.5;
+    const floatX = Math.cos(time * element.floatSpeed * 0.7 + index) * 0.3;
     
-    for (let i = 0; i < vertices.length; i += 3) {
-      // Complex cloth physics
-      const x = vertices[i];
-      const y = vertices[i + 1];
-      
-      // Multiple wave functions for realistic fabric
-      const wave1 = Math.sin(time * 0.8 + x * 0.1) * 0.8;
-      const wave2 = Math.cos(time * 0.6 + y * 0.15) * 0.6;
-      const wave3 = Math.sin(time * 0.4 + x * 0.05 + y * 0.05) * 0.4;
-      const turbulence = Math.sin(time * 3 + x * 0.02) * 0.2;
-      
-      vertices[i + 2] = wave1 + wave2 + wave3 + turbulence;
-      
-      // Apply gravity and restore force
-      velocities[i + 2] -= 0.05; // Gravity
-      velocities[i + 2] += (0 - vertices[i + 2]) * 0.02; // Restore force
-      
-      // Apply damping
-      velocities[i] *= clothSystem.userData.damping;
-      velocities[i + 1] *= clothSystem.userData.damping;
-      
-      // Update position
-      vertices[i] += velocities[i];
-      vertices[i + 1] += velocities[i + 1];
-    }
+    element.sprite.position.y = element.basePosition[1] + floatY;
+    element.sprite.position.x = element.basePosition[0] + floatX;
+    element.sprite.rotation.z += element.rotationSpeed;
     
-    clothSystem.geometry.attributes.position.needsUpdate = true;
-    clothSystem.geometry.computeVertexNormals();
-  }
-  
-  // Animate attention-grabbing elements
-  attentionElements.forEach((element, index) => {
-    // Complex floating patterns
-    const floatY = Math.sin(time * element.floatSpeed + index * 0.3) * 3;
-    const floatX = Math.cos(time * element.floatSpeed * 0.7 + index * 0.2) * 2;
-    const rotateZ = Math.sin(time * 0.4 + index * 0.1) * 0.1;
-    
-    element.mesh.position.y += floatY * 0.01;
-    element.mesh.position.x += floatX * 0.01;
-    element.mesh.rotation.z = element.baseRotation + rotateZ;
-    
-    // Mouse attraction for logo
-    if (element.type === 'premiumLogo') {
-      const attractionX = mouseX * 0.05;
-      const attractionY = mouseY * 0.03;
-      element.mesh.position.x += (attractionX - element.mesh.position.x) * 0.02;
-      element.mesh.position.y += (attractionY - element.mesh.position.y) * 0.02;
-    }
-    
-    // Pulsing effect for premium elements
-    if (element.type === 'luxuryBadge' || element.type === 'fashionIcon') {
-      const pulse = 1 + Math.sin(time * 3) * 0.2;
-      element.sprite.material.opacity = 0.7 + pulse * 0.3;
+    // Mouse attraction for WATEN logo
+    if (index === 0) {
+      element.sprite.position.x += mouseX * 0.1;
+      element.sprite.position.y += mouseY * 0.05;
     }
   });
   
-  // Elite camera movement
-  camera.position.x = Math.sin(time * 0.05) * 3;
-  camera.position.y = Math.cos(time * 0.03) * 2;
+  // Simple camera movement
+  camera.position.x = Math.sin(time * 0.1) * 0.5;
   camera.lookAt(0, 0, 0);
   
   renderer.render(scene, camera);
 }
 
-// Initialize ultimate 3D background when page loads
+// Initialize when page loads
 window.addEventListener('load', function() {
-  console.log('Page loaded, checking Three.js...');
-  
-  if (typeof THREE === 'undefined') {
+  console.log('Page loaded, starting 3D...');
+  if (typeof THREE !== 'undefined') {
+    init3DBackground();
+  } else {
     console.error('Three.js not loaded!');
-    return;
   }
-  
-  console.log('Three.js loaded:', THREE.REVISION);
-  init3DBackground();
 });
 
 // Fashion Template Mouse Interactions
