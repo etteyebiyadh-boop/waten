@@ -657,11 +657,16 @@ function checkWebGLSupport() {
 }
 
 function init3DBackground() {
+  console.log('Initializing 3D background...');
   const container = document.getElementById('canvas-container');
-  if (!container) return;
+  if (!container) {
+    console.error('Canvas container not found!');
+    return;
+  }
 
   // Premium fallback for non-WebGL browsers
   if (!checkWebGLSupport()) {
+    console.log('WebGL not supported, using fallback');
     container.style.background = 
       'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 30%, #16213e 70%, #0f0f1e 100%)';
     return;
@@ -669,11 +674,13 @@ function init3DBackground() {
 
   // Skip 3D on very low-end devices
   if (isMobile && window.innerWidth < 768) {
+    console.log('Mobile device detected, using fallback');
     container.style.background = 
       'radial-gradient(ellipse at center, #1a1a2e 0%, #0a0a0a 30%, #16213e 70%, #0f0f1e 100%)';
     return;
   }
 
+  console.log('Creating 3D scene...');
   // Ultimate scene setup
   scene = new THREE.Scene();
   scene.fog = new THREE.Fog(0x0a0a0a, 2, 25);
@@ -697,11 +704,13 @@ function init3DBackground() {
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   container.appendChild(renderer.domElement);
 
+  console.log('Creating 3D elements...');
   // Create ultimate systems
   createHyperRealisticCloth();
   createAdvancedFloatingElements();
   createCinematicLighting();
   
+  console.log('Starting animation...');
   // Start ultimate animation
   animateUltimate();
   
@@ -709,6 +718,8 @@ function init3DBackground() {
   window.addEventListener('resize', onWindowResize, false);
   window.addEventListener('mousemove', onMouseMove, false);
   window.addEventListener('click', onMouseClick, false);
+  
+  console.log('3D background initialized successfully!');
 }
 
 function createHyperRealisticCloth() {
@@ -957,7 +968,17 @@ function animateUltimate() {
 }
 
 // Initialize ultimate 3D background when page loads
-window.addEventListener('load', init3DBackground);
+window.addEventListener('load', function() {
+  console.log('Page loaded, checking Three.js...');
+  
+  if (typeof THREE === 'undefined') {
+    console.error('Three.js not loaded!');
+    return;
+  }
+  
+  console.log('Three.js loaded:', THREE.REVISION);
+  init3DBackground();
+});
 
 // Fashion Template Mouse Interactions
 const cursor = document.querySelector('.cursor');
