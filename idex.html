@@ -566,6 +566,58 @@ if (window.location.hostname === 'localhost' || window.location.hostname === '12
   document.body.appendChild(adminDiv);
 }
 
+// Manager Access Panel (always available)
+function createManagerPanel() {
+  const managerPanel = document.createElement('div');
+  managerPanel.id = 'manager-panel';
+  managerPanel.style.cssText = `
+    position: fixed; bottom: 20px; right: 20px; z-index: 1000;
+    background: #1a1a2e; border: 1px solid #c9a227; border-radius: 8px;
+    padding: 10px; font-size: 12px;
+  `;
+  managerPanel.innerHTML = `
+    <div style="color: #c9a227; font-weight: 600; margin-bottom: 8px;">🎯 MANAGER ACCESS</div>
+    <button onclick="viewOrders()" style="
+      background: #c9a227; color: #0a0a0a; border: none; padding: 5px 10px;
+      margin: 2px; border-radius: 4px; cursor: pointer; width: 100%;
+    ">View Orders</button>
+    <button onclick="viewNotifications()" style="
+      background: #0a0a0a; color: #c9a227; border: 1px solid #c9a227; padding: 5px 10px;
+      margin: 2px; border-radius: 4px; cursor: pointer; width: 100%;
+    ">View Notifications</button>
+    <button onclick="exportOrders()" style="
+      background: #0a0a0a; color: #fff; border: 1px solid #666; padding: 5px 10px;
+      margin: 2px; border-radius: 4px; cursor: pointer; width: 100%;
+    ">Export Orders</button>
+  `;
+  document.body.appendChild(managerPanel);
+}
+
+function exportOrders() {
+  const orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
+  const notifications = JSON.parse(localStorage.getItem('watenNotifications')) || [];
+  
+  const exportData = {
+    orders: orders,
+    notifications: notifications,
+    exportDate: new Date().toISOString()
+  };
+  
+  // Create downloadable file
+  const dataStr = JSON.stringify(exportData, null, 2);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  
+  const exportFileDefaultName = 'waten-orders-' + new Date().toISOString().split('T')[0] + '.json';
+  
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+}
+
+// Create manager panel when page loads
+window.addEventListener('load', createManagerPanel);
+
 function applySiteContent(site) {
   if (!site) return;
   if (site.meta) {
