@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <meta name="description" content="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity." id="meta-description">
+<meta name="theme-color" content="#c9a227">
 <title>WATEN | Global Streetwear</title>
 <script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -72,6 +73,53 @@ nav a {
   letter-spacing: 0.2em; text-transform: uppercase; transition: color 0.25s ease;
 }
 nav a:hover { color: var(--accent); }
+
+/* Mobile Menu Toggle */
+.mobile-menu-toggle {
+  display: none; background: none; border: none; color: var(--text);
+  font-size: 1.5rem; cursor: pointer; padding: 0.5rem;
+  order: 2;
+}
+
+@media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  nav {
+    position: fixed; top: 0; right: -100%; width: 70%;
+    height: 100vh; background: var(--bg-card);
+    border-left: 1px solid var(--border);
+    flex-direction: column; justify-content: flex-start;
+    padding: 5rem 2rem 2rem; z-index: 1001;
+    transition: right 0.3s ease; order: 4;
+  }
+  
+  nav.mobile-open {
+    right: 0;
+  }
+  
+  nav a {
+    display: block; padding: 1rem 0; border-bottom: 1px solid var(--border);
+    font-size: 0.9rem; text-align: center;
+  }
+  
+  nav a:last-child {
+    border-bottom: none;
+  }
+  
+  /* Overlay for mobile menu */
+  .mobile-menu-overlay {
+    position: fixed; top: 0; left: 0; width: 100%;
+    height: 100vh; background: rgba(0,0,0,0.5);
+    z-index: 1000; display: none; opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+  
+  .mobile-menu-overlay.active {
+    display: block; opacity: 1;
+  }
+}
 
 section { padding: 7rem 6%; opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease, transform 0.8s ease; }
 section.show { opacity: 1; transform: translateY(0); }
@@ -255,12 +303,269 @@ footer {
 }
 
 @media (max-width: 768px) {
+  /* Hide custom cursor on mobile */
+  .cursor, .cursor-follower {
+    display: none;
+  }
+  
+  /* Header adjustments */
+  header {
+    padding: 1rem 5%;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .logo {
+    font-size: 1.25rem;
+    order: 1;
+  }
+  
+  nav {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  
+  nav a {
+    font-size: 0.7rem;
+  }
+  
   .search-container {
+    order: 2;
     margin: 0.5rem 0;
+    flex: 1;
+    max-width: 200px;
   }
   
   #search-input {
-    width: 120px;
+    width: 100%;
+    font-size: 0.8rem;
+  }
+  
+  /* Hero section */
+  .hero h1 {
+    font-size: clamp(2.5rem, 12vw, 4rem);
+    letter-spacing: 0.1em;
+  }
+  
+  .hero .tagline {
+    font-size: 0.7rem;
+    margin-top: 1rem;
+  }
+  
+  .btn {
+    padding: 0.8rem 2rem;
+    font-size: 0.6rem;
+    margin-top: 2rem;
+  }
+  
+  /* Sections */
+  section {
+    padding: 4rem 5%;
+  }
+  
+  /* Products */
+  .products {
+    gap: 1rem;
+    justify-content: center;
+  }
+  
+  .product {
+    width: 100%;
+    max-width: 300px;
+  }
+  
+  /* Modals */
+  .modal-content {
+    padding: 1.5rem;
+    margin: 1rem;
+    max-width: none;
+    max-height: 90vh;
+  }
+  
+  /* Forms */
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  
+  .order-form {
+    gap: 1rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.6rem 0.8rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Footer */
+  footer {
+    flex-direction: column;
+    text-align: center;
+    padding: 3rem 5% 2rem;
+  }
+  
+  .footer-links {
+    justify-content: center;
+    margin-top: 1rem;
+  }
+  
+  .footer-social {
+    align-items: center;
+    margin-top: 1rem;
+  }
+  
+  /* Search results */
+  .search-result-item img {
+    width: 40px;
+    height: 40px;
+  }
+  
+  /* Invest section */
+  .invest-section h2 {
+    font-size: 1.5rem;
+  }
+  
+  .invest-section p {
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Extra small mobile */
+  header {
+    padding: 0.75rem 4%;
+  }
+  
+  .logo {
+    font-size: 1.1rem;
+  }
+  
+  nav {
+    gap: 0.75rem;
+  }
+  
+  nav a {
+    font-size: 0.65rem;
+  }
+  
+  .search-container {
+    max-width: 150px;
+  }
+  
+  #search-input {
+    font-size: 0.75rem;
+    padding: 0.4rem 0.6rem;
+  }
+  
+  .hero h1 {
+    font-size: clamp(2rem, 15vw, 3rem);
+  }
+  
+  .hero .tagline {
+    font-size: 0.65rem;
+  }
+  
+  .btn {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.55rem;
+  }
+  
+  section {
+    padding: 3rem 4%;
+  }
+  
+  .products {
+    gap: 0.75rem;
+  }
+  
+  .product {
+    max-width: 280px;
+  }
+  
+  .product-details {
+    padding: 1rem;
+  }
+  
+  .product-details .name {
+    font-size: 0.8rem;
+  }
+  
+  .product-details .price {
+    font-size: 0.85rem;
+  }
+  
+  .product button {
+    font-size: 0.6rem;
+    padding: 0.4rem 0.8rem;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+    margin: 0.5rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .confirm-order-btn {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.6rem;
+  }
+  
+  footer {
+    padding: 2rem 4% 1.5rem;
+  }
+  
+  .footer-brand .logo {
+    font-size: 1.1rem;
+  }
+  
+  .footer-brand p {
+    font-size: 0.7rem;
+  }
+  
+  .footer-links a {
+    font-size: 0.65rem;
+  }
+  
+  .footer-bottom span {
+    font-size: 0.6rem;
+  }
+}
+
+/* Mobile optimizations for touch */
+@media (hover: none) and (pointer: coarse) {
+  .product:hover {
+    transform: none;
+  }
+  
+  .product:active {
+    transform: scale(0.98);
+  }
+  
+  .btn:hover {
+    transform: none;
+  }
+  
+  .btn:active {
+    transform: scale(0.95);
+  }
+  
+  nav a:hover {
+    color: var(--text);
+  }
+  
+  nav a:active {
+    color: var(--accent);
   }
 }
 </style>
@@ -327,8 +632,12 @@ footer {
   </div>
 </div>
 
+<!-- Mobile Menu Overlay -->
+<div class="mobile-menu-overlay" id="mobile-menu-overlay" onclick="closeMobileMenu()"></div>
+
 <header>
 <div class="logo" id="header-logo">WATEN</div>
+<button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
 <nav id="header-nav">
   <a href="#collection">COLLECTION</a>
   <a href="#invest">INVEST</a>
@@ -669,6 +978,47 @@ function loadUserOrders() {
 // Initialize systems on page load
 document.addEventListener('DOMContentLoaded', function() {
   updateAccountLink();
+});
+
+// Mobile Menu Functions
+function toggleMobileMenu() {
+  const nav = document.getElementById('header-nav');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  
+  nav.classList.toggle('mobile-open');
+  overlay.classList.toggle('active');
+  
+  // Prevent body scroll when menu is open
+  if (nav.classList.contains('mobile-open')) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
+}
+
+function closeMobileMenu() {
+  const nav = document.getElementById('header-nav');
+  const overlay = document.getElementById('mobile-menu-overlay');
+  
+  nav.classList.remove('mobile-open');
+  overlay.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close mobile menu when clicking on nav links
+document.querySelectorAll('#header-nav a').forEach(link => {
+  link.addEventListener('click', function() {
+    if (window.innerWidth <= 768) {
+      closeMobileMenu();
+    }
+  });
+});
+
+// Handle window resize
+window.addEventListener('resize', function() {
+  if (window.innerWidth > 768) {
+    closeMobileMenu();
+  }
 });
 
 // Order Management System
@@ -1169,13 +1519,80 @@ async function loadSiteContent() {
   } catch (e) {}
 }
 
+// Load and apply content from dashboard
+function loadSiteContent() {
+  const storedContent = localStorage.getItem('watenContent');
+  if (storedContent) {
+    const content = JSON.parse(storedContent);
+    applySiteContent(content);
+  }
+}
+
+function applySiteContent(content) {
+  // Update page title and meta
+  if (content.metaTitle) document.title = content.metaTitle;
+  const metaDesc = document.querySelector('meta[name="description"]');
+  if (metaDesc && content.metaDescription) metaDesc.setAttribute('content', content.metaDescription);
+  
+  // Update all content elements
+  updateSiteElement('header-logo', content.logo);
+  updateSiteElement('hero-title', content.heroTitle);
+  updateSiteElement('hero-tagline', content.heroTagline);
+  updateSiteElement('hero-cta', content.heroCta);
+  updateSiteElement('collection-heading', content.collectionHeading);
+  updateSiteElement('collection-subtitle', content.collectionSubtitle);
+  updateSiteElement('invest-heading', content.investHeading);
+  updateSiteElement('invest-body', content.investBody);
+  updateSiteElement('invest-cta', content.investCta);
+  updateSiteElement('footer-logo', content.footerLogo);
+  updateSiteElement('footer-tagline', content.footerTagline);
+  updateSiteElement('footer-copyright', content.footerCopyright);
+  
+  // Update navigation
+  if (content.nav) {
+    const navLinks = content.nav.split('\n').filter(link => link.trim());
+    const navElement = document.getElementById('header-nav');
+    if (navElement) {
+      navElement.innerHTML = navLinks.map(link => {
+        const [text, url] = link.split('|');
+        const clickHandler = url && url.startsWith('#') ? `onclick="scrollToSection('${url.substring(1)}')"` : '';
+        return `<a href="${url || '#'}" ${clickHandler}>${text}</a>`;
+      }).join('');
+    }
+  }
+  
+  // Update footer links
+  if (content.footerLinks) {
+    const footerLinks = content.footerLinks.split('\n').filter(link => link.trim());
+    const footerElement = document.getElementById('footer-links');
+    if (footerElement) {
+      footerElement.innerHTML = footerLinks.map(link => {
+        const [text, url] = link.split('|');
+        return `<a href="${url || '#'}">${text}</a>`;
+      }).join('');
+    }
+  }
+}
+
+function updateSiteElement(id, content) {
+  const element = document.getElementById(id);
+  if (element && content) element.textContent = content;
+}
+
+function scrollToSection(sectionId) {
+  const element = document.getElementById(sectionId);
+  if (element) {
+    element.scrollIntoView({ behavior: 'smooth' });
+  }
+}
+
 loadSiteContent();
 
 const FALLBACK_PRODUCTS = [
-  { name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },
-  { name: 'Oversized Street Tee', price: 80, image: 'https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47' },
-  { name: 'Limited Varsity Jacket', price: 250, image: 'images/iyadh.jpg' },
-  { name: 'Tataouine 3200 Hoodie', price: 140, image: '12.png' }
+  { id: 1, name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },
+  { id: 2, name: 'Oversized Street Tee', price: 80, image: 'https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47' },
+  { id: 3, name: 'Limited Varsity Jacket', price: 250, image: 'images/iyadh.jpg' },
+  { id: 4, name: 'Tataouine 3200 Hoodie', price: 140, image: '12.png' }
 ];
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
 
@@ -1277,15 +1694,23 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Update loadProducts to store all products for search
+// Update loadProducts to store all products for search and sync with dashboard
 async function loadProducts() {
   const container = document.getElementById('productsContainer');
   try {
     const res = await fetch('/api/products');
     allProducts = await res.json();
+    
+    // Save to localStorage for dashboard sync
+    localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+    
     renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
   } catch (e) {
     allProducts = FALLBACK_PRODUCTS;
+    
+    // Save fallback products to localStorage for dashboard sync
+    localStorage.setItem('watenProducts', JSON.stringify(FALLBACK_PRODUCTS));
+    
     renderProducts(FALLBACK_PRODUCTS);
   }
 }
@@ -1557,6 +1982,13 @@ let time = 0;
 
 function init3DBackground() {
   console.log('Initializing premium 3D background...');
+  
+  // Disable 3D background on mobile for performance
+  if (window.innerWidth <= 768) {
+    console.log('Mobile detected - disabling 3D background for performance');
+    return;
+  }
+  
   const container = document.getElementById('canvas-container');
   if (!container) {
     console.error('Canvas container not found!');

@@ -329,6 +329,144 @@ body {
   background: var(--danger); color: white;
 }
 
+/* Mobile Responsiveness for Admin Dashboard */
+@media (max-width: 768px) {
+  .dashboard-header {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .dashboard-title {
+    font-size: 1.5rem;
+  }
+  
+  .header-stats {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+    width: 100%;
+  }
+  
+  .orders-section {
+    flex-direction: column;
+  }
+  
+  .filters {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .filter-select,
+  .search-box {
+    width: 100%;
+  }
+  
+  .sidebar {
+    width: 100%;
+    margin-top: 2rem;
+  }
+  
+  .dashboard-content > div {
+    flex-direction: column;
+  }
+  
+  nav {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    padding: 0.5rem;
+  }
+  
+  .nav-item {
+    flex-shrink: 0;
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .section-card {
+    padding: 1rem;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .products-list {
+    gap: 0.5rem;
+  }
+  
+  .product-item {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.75rem;
+  }
+  
+  .product-actions {
+    justify-content: center;
+  }
+  
+  .order-item {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .order-details {
+    text-align: center;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+    margin: 1rem;
+    max-width: none;
+  }
+  
+  .action-btn {
+    padding: 0.6rem 1rem;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .dashboard-title {
+    font-size: 1.25rem;
+  }
+  
+  .section-title {
+    font-size: 1.1rem;
+  }
+  
+  .stat-card {
+    padding: 1rem;
+  }
+  
+  .stat-number {
+    font-size: 1.5rem;
+  }
+  
+  .order-item {
+    padding: 0.75rem;
+  }
+  
+  .product-item {
+    padding: 0.75rem;
+  }
+  
+  .btn-small {
+    padding: 0.3rem 0.6rem;
+    font-size: 0.7rem;
+  }
+  
+  .action-btn {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.75rem;
+  }
+  
+  .form-row input,
+  .form-row textarea {
+    font-size: 0.85rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .dashboard-content {
     grid-template-columns: 1fr;
@@ -409,6 +547,9 @@ body {
       <a href="#" class="nav-item" data-panel="products" onclick="switchPanel('products')">
         👕 Products
       </a>
+      <a href="#" class="nav-item" data-panel="content" onclick="switchPanel('content')">
+        📝 Content
+      </a>
       <a href="#" class="nav-item" data-panel="settings" onclick="switchPanel('settings')">
         ⚙️ Settings
       </a>
@@ -480,7 +621,10 @@ body {
 
       <!-- Products Panel -->
       <div id="panel-products" class="panel" style="display: none;">
-        <h2 class="section-title">Products Management</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+          <h2 class="section-title">Products Management</h2>
+          <button class="action-btn btn-secondary" onclick="loadProducts()">🔄 Refresh Products</button>
+        </div>
         <div class="section-card">
           <h3>Add New Product</h3>
           <div class="form-row">
@@ -502,9 +646,111 @@ body {
         </div>
       </div>
 
+      <!-- Content Panel -->
+      <div id="panel-content" class="panel" style="display: none;">
+        <h2 class="section-title">Website Content Management</h2>
+        
+        <!-- SEO & Meta -->
+        <div class="section-card">
+          <h3>SEO & Meta Information</h3>
+          <div class="form-row">
+            <label>Page Title</label>
+            <input type="text" id="meta-title" placeholder="WATEN | Global Streetwear">
+          </div>
+          <div class="form-row">
+            <label>Meta Description</label>
+            <textarea id="meta-description" rows="2" placeholder="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity."></textarea>
+          </div>
+        </div>
+
+        <!-- Header & Navigation -->
+        <div class="section-card">
+          <h3>Header & Navigation</h3>
+          <div class="form-row">
+            <label>Logo Text</label>
+            <input type="text" id="site-logo" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Navigation Links (one per line: text|url)</label>
+            <textarea id="site-nav" rows="3" placeholder="COLLECTION|#collection&#10;INVEST|#invest&#10;Account|#"></textarea>
+          </div>
+        </div>
+
+        <!-- Hero Section -->
+        <div class="section-card">
+          <h3>Hero Section</h3>
+          <div class="form-row">
+            <label>Main Title</label>
+            <input type="text" id="hero-title" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Tagline</label>
+            <input type="text" id="hero-tagline" placeholder="Built for global dominance">
+          </div>
+          <div class="form-row">
+            <label>Button Text</label>
+            <input type="text" id="hero-cta" placeholder="Shop Now">
+          </div>
+        </div>
+
+        <!-- Collection Section -->
+        <div class="section-card">
+          <h3>Collection Section</h3>
+          <div class="form-row">
+            <label>Section Heading</label>
+            <input type="text" id="collection-heading" placeholder="New Drop">
+          </div>
+          <div class="form-row">
+            <label>Section Subtitle</label>
+            <input type="text" id="collection-subtitle" placeholder="Limited edition pieces — available now">
+          </div>
+        </div>
+
+        <!-- Invest Section -->
+        <div class="section-card">
+          <h3>Invest Section</h3>
+          <div class="form-row">
+            <label>Section Heading</label>
+            <input type="text" id="invest-heading" placeholder="Invest in WATEN">
+          </div>
+          <div class="form-row">
+            <label>Section Body</label>
+            <textarea id="invest-body" rows="4" placeholder="WATEN is positioned for aggressive expansion across Tunisia and international markets..."></textarea>
+          </div>
+          <div class="form-row">
+            <label>Button Text</label>
+            <input type="text" id="invest-cta" placeholder="Request Pitch Deck">
+          </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="section-card">
+          <h3>Footer</h3>
+          <div class="form-row">
+            <label>Footer Logo</label>
+            <input type="text" id="footer-logo" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Footer Tagline</label>
+            <input type="text" id="footer-tagline" placeholder="Premium streetwear. Limited drops. Global reach.">
+          </div>
+          <div class="form-row">
+            <label>Footer Links (one per line: text|url)</label>
+            <textarea id="footer-links" rows="2" placeholder="Collection|#collection&#10;Invest|#invest"></textarea>
+          </div>
+          <div class="form-row">
+            <label>Copyright Text</label>
+            <input type="text" id="footer-copyright" placeholder="© 2026 WATEN — Global Streetwear">
+          </div>
+        </div>
+
+        <button class="action-btn btn-primary" onclick="saveContent()">💾 Save All Content</button>
+        <button class="action-btn btn-secondary" onclick="loadContent()">🔄 Reload Content</button>
+      </div>
+
       <!-- Settings Panel -->
       <div id="panel-settings" class="panel" style="display: none;">
-        <h2 class="section-title">Settings</h2>
+        <h2 class="section-title">Settings & Configuration</h2>
         
         <div class="section-card">
           <h3>Contact Information</h3>
@@ -515,6 +761,10 @@ body {
           <div class="form-row">
             <label>Instagram</label>
             <input type="text" id="contact-instagram" placeholder="https://instagram.com/...">
+          </div>
+          <div class="form-row">
+            <label>TikTok</label>
+            <input type="text" id="contact-tiktok" placeholder="https://tiktok.com/@...">
           </div>
           <div class="form-row">
             <label>Email</label>
@@ -530,7 +780,17 @@ body {
           </div>
         </div>
 
-        <button class="action-btn btn-primary" onclick="saveSettings()">Save Settings</button>
+        <div class="section-card">
+          <h3>System Management</h3>
+          <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+            <button class="action-btn btn-secondary" onclick="clearAllData()">🗑️ Clear All Data</button>
+            <button class="action-btn btn-secondary" onclick="exportAllData()">📥 Export All Data</button>
+            <button class="action-btn btn-secondary" onclick="resetToDefaults()">🔄 Reset to Defaults</button>
+          </div>
+        </div>
+
+        <button class="action-btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+        <button class="action-btn btn-secondary" onclick="loadSettings()">🔄 Reload Settings</button>
       </div>
     </div>
   </div>
@@ -590,6 +850,7 @@ function initializeDashboard() {
   setupEventListeners();
   startRealTimeUpdates();
   loadProducts();
+  loadContent();
   loadSettings();
 }
 
@@ -624,11 +885,13 @@ let products = [];
 function loadProducts() {
   const storedProducts = localStorage.getItem('watenProducts');
   products = storedProducts ? JSON.parse(storedProducts) : [
-    { id: 1, name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7' },
-    { id: 2, name: 'White Premium Tee', price: 85, image: 'https://images.unsplash.com/photo-1521572163474-6844f2cf16ab' },
-    { id: 3, name: 'Navy Streetwear Jacket', price: 250, image: 'https://images.unsplash.com/photo-1551698618-1d4a98c205c1' }
+    { id: 1, name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },
+    { id: 2, name: 'Oversized Street Tee', price: 80, image: 'https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47' },
+    { id: 3, name: 'Limited Varsity Jacket', price: 250, image: 'images/iyadh.jpg' },
+    { id: 4, name: 'Tataouine 3200 Hoodie', price: 140, image: '12.png' }
   ];
   renderProducts();
+  showNotification(`Loaded ${products.length} products`);
 }
 
 function renderProducts() {
@@ -711,17 +974,146 @@ function deleteProduct(id) {
   showNotification('Product deleted successfully');
 }
 
+// Content Management
+function loadContent() {
+  const storedContent = localStorage.getItem('watenContent');
+  const content = storedContent ? JSON.parse(storedContent) : {
+    metaTitle: 'WATEN | Global Streetwear',
+    metaDescription: 'WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity.',
+    logo: 'WATEN',
+    nav: 'COLLECTION|#collection\nINVEST|#invest\nAccount|#',
+    heroTitle: 'WATEN',
+    heroTagline: 'Built for global dominance',
+    heroCta: 'Shop Now',
+    collectionHeading: 'New Drop',
+    collectionSubtitle: 'Limited edition pieces — available now',
+    investHeading: 'Invest in WATEN',
+    investBody: 'WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.',
+    investCta: 'Request Pitch Deck',
+    footerLogo: 'WATEN',
+    footerTagline: 'Premium streetwear. Limited drops. Global reach.',
+    footerLinks: 'Collection|#collection\nInvest|#invest',
+    footerCopyright: '© 2026 WATEN — Global Streetwear'
+  };
+  
+  // Load all content fields
+  document.getElementById('meta-title').value = content.metaTitle || '';
+  document.getElementById('meta-description').value = content.metaDescription || '';
+  document.getElementById('site-logo').value = content.logo || '';
+  document.getElementById('site-nav').value = content.nav || '';
+  document.getElementById('hero-title').value = content.heroTitle || '';
+  document.getElementById('hero-tagline').value = content.heroTagline || '';
+  document.getElementById('hero-cta').value = content.heroCta || '';
+  document.getElementById('collection-heading').value = content.collectionHeading || '';
+  document.getElementById('collection-subtitle').value = content.collectionSubtitle || '';
+  document.getElementById('invest-heading').value = content.investHeading || '';
+  document.getElementById('invest-body').value = content.investBody || '';
+  document.getElementById('invest-cta').value = content.investCta || '';
+  document.getElementById('footer-logo').value = content.footerLogo || '';
+  document.getElementById('footer-tagline').value = content.footerTagline || '';
+  document.getElementById('footer-links').value = content.footerLinks || '';
+  document.getElementById('footer-copyright').value = content.footerCopyright || '';
+}
+
+function saveContent() {
+  const content = {
+    metaTitle: document.getElementById('meta-title').value,
+    metaDescription: document.getElementById('meta-description').value,
+    logo: document.getElementById('site-logo').value,
+    nav: document.getElementById('site-nav').value,
+    heroTitle: document.getElementById('hero-title').value,
+    heroTagline: document.getElementById('hero-tagline').value,
+    heroCta: document.getElementById('hero-cta').value,
+    collectionHeading: document.getElementById('collection-heading').value,
+    collectionSubtitle: document.getElementById('collection-subtitle').value,
+    investHeading: document.getElementById('invest-heading').value,
+    investBody: document.getElementById('invest-body').value,
+    investCta: document.getElementById('invest-cta').value,
+    footerLogo: document.getElementById('footer-logo').value,
+    footerTagline: document.getElementById('footer-tagline').value,
+    footerLinks: document.getElementById('footer-links').value,
+    footerCopyright: document.getElementById('footer-copyright').value
+  };
+  
+  // Save to localStorage
+  localStorage.setItem('watenContent', JSON.stringify(content));
+  
+  // Apply changes to main site (if it's open in same browser)
+  applyContentToSite(content);
+  
+  showNotification('Content saved successfully! Changes applied to website.');
+}
+
+function applyContentToSite(content) {
+  // This function will be called by the main site to load content
+  // The main site will have a corresponding function to apply this content
+  try {
+    // Update page title and meta
+    if (document.title) document.title = content.metaTitle;
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc) metaDesc.setAttribute('content', content.metaDescription);
+    
+    // Update all content elements
+    updateElement('header-logo', content.logo);
+    updateElement('hero-title', content.heroTitle);
+    updateElement('hero-tagline', content.heroTagline);
+    updateElement('hero-cta', content.heroCta);
+    updateElement('collection-heading', content.collectionHeading);
+    updateElement('collection-subtitle', content.collectionSubtitle);
+    updateElement('invest-heading', content.investHeading);
+    updateElement('invest-body', content.investBody);
+    updateElement('invest-cta', content.investCta);
+    updateElement('footer-logo', content.footerLogo);
+    updateElement('footer-tagline', content.footerTagline);
+    updateElement('footer-copyright', content.footerCopyright);
+    
+    // Update navigation
+    if (content.nav) {
+      const navLinks = content.nav.split('\n').filter(link => link.trim());
+      const navElement = document.getElementById('header-nav');
+      if (navElement) {
+        navElement.innerHTML = navLinks.map(link => {
+          const [text, url] = link.split('|');
+          return `<a href="${url || '#'}">${text}</a>`;
+        }).join('');
+      }
+    }
+    
+    // Update footer links
+    if (content.footerLinks) {
+      const footerLinks = content.footerLinks.split('\n').filter(link => link.trim());
+      const footerElement = document.getElementById('footer-links');
+      if (footerElement) {
+        footerElement.innerHTML = footerLinks.map(link => {
+          const [text, url] = link.split('|');
+          return `<a href="${url || '#'}">${text}</a>`;
+        }).join('');
+      }
+    }
+    
+  } catch (e) {
+    console.log('Content updates will be applied when main site is refreshed');
+  }
+}
+
+function updateElement(id, content) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = content;
+}
+
 // Settings Management
 function loadSettings() {
   const storedSettings = localStorage.getItem('watenSettings');
   const settings = storedSettings ? JSON.parse(storedSettings) : {
     whatsapp: '',
     instagram: '',
+    tiktok: '',
     email: ''
   };
   
   document.getElementById('contact-whatsapp').value = settings.whatsapp || '';
   document.getElementById('contact-instagram').value = settings.instagram || '';
+  document.getElementById('contact-tiktok').value = settings.tiktok || '';
   document.getElementById('contact-email').value = settings.email || '';
 }
 
@@ -739,15 +1131,144 @@ function saveSettings() {
   const settings = {
     whatsapp: document.getElementById('contact-whatsapp').value,
     instagram: document.getElementById('contact-instagram').value,
+    tiktok: document.getElementById('contact-tiktok').value,
     email: document.getElementById('contact-email').value
   };
   
   localStorage.setItem('watenSettings', JSON.stringify(settings));
   
+  // Update footer social links
+  updateSocialLinks(settings);
+  
   // Clear password field
   document.getElementById('new-admin-password').value = '';
   
   showNotification('Settings saved successfully');
+}
+
+function updateSocialLinks(settings) {
+  // Update social links in main site (if open)
+  try {
+    const whatsappLink = document.getElementById('footer-whatsapp');
+    const instagramLink = document.getElementById('footer-instagram');
+    const tiktokLink = document.getElementById('footer-tiktok');
+    const emailLink = document.getElementById('footer-email');
+    
+    if (whatsappLink && settings.whatsapp) {
+      whatsappLink.href = settings.whatsapp;
+      whatsappLink.style.display = 'block';
+    }
+    if (instagramLink && settings.instagram) {
+      instagramLink.href = settings.instagram;
+      instagramLink.style.display = 'block';
+    }
+    if (tiktokLink && settings.tiktok) {
+      tiktokLink.href = settings.tiktok;
+      tiktokLink.style.display = 'block';
+    }
+    if (emailLink && settings.email) {
+      emailLink.href = `mailto:${settings.email}`;
+      emailLink.style.display = 'block';
+    }
+  } catch (e) {
+    console.log('Social links will be updated when main site is refreshed');
+  }
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ WARNING: This will delete ALL orders, products, content, and settings. Are you absolutely sure?')) return;
+  
+  if (!confirm('🚨 FINAL WARNING: This action cannot be undone. All data will be permanently deleted. Continue?')) return;
+  
+  localStorage.removeItem('watenOrders');
+  localStorage.removeItem('watenNotifications');
+  localStorage.removeItem('watenProducts');
+  localStorage.removeItem('watenContent');
+  localStorage.removeItem('watenSettings');
+  localStorage.removeItem('watenUsers');
+  localStorage.removeItem('watenCurrentUser');
+  localStorage.removeItem('watenReviews');
+  localStorage.removeItem('watenWishlist');
+  
+  showNotification('All data cleared successfully');
+  setTimeout(() => {
+    location.reload();
+  }, 2000);
+}
+
+function exportAllData() {
+  const allData = {
+    orders: JSON.parse(localStorage.getItem('watenOrders')) || [],
+    products: JSON.parse(localStorage.getItem('watenProducts')) || [],
+    content: JSON.parse(localStorage.getItem('watenContent')) || {},
+    settings: JSON.parse(localStorage.getItem('watenSettings')) || {},
+    users: JSON.parse(localStorage.getItem('watenUsers')) || [],
+    reviews: JSON.parse(localStorage.getItem('watenReviews')) || {},
+    exportDate: new Date().toISOString()
+  };
+  
+  const dataStr = JSON.stringify(allData, null, 2);
+  const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+  
+  const exportFileDefaultName = `waten-backup-${new Date().toISOString().split('T')[0]}.json`;
+  
+  const linkElement = document.createElement('a');
+  linkElement.setAttribute('href', dataUri);
+  linkElement.setAttribute('download', exportFileDefaultName);
+  linkElement.click();
+  
+  showNotification('All data exported successfully');
+}
+
+function resetToDefaults() {
+  if (!confirm('This will reset all content and settings to default values. Continue?')) return;
+  
+  // Reset content to defaults
+  const defaultContent = {
+    metaTitle: 'WATEN | Global Streetwear',
+    metaDescription: 'WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity.',
+    logo: 'WATEN',
+    nav: 'COLLECTION|#collection\nINVEST|#invest\nAccount|#',
+    heroTitle: 'WATEN',
+    heroTagline: 'Built for global dominance',
+    heroCta: 'Shop Now',
+    collectionHeading: 'New Drop',
+    collectionSubtitle: 'Limited edition pieces — available now',
+    investHeading: 'Invest in WATEN',
+    investBody: 'WATEN is positioned for aggressive expansion across Tunisia and international markets. High-margin model. Limited drops. Strong brand identity. Seeking strategic investors to scale retail and global distribution.',
+    investCta: 'Request Pitch Deck',
+    footerLogo: 'WATEN',
+    footerTagline: 'Premium streetwear. Limited drops. Global reach.',
+    footerLinks: 'Collection|#collection\nInvest|#invest',
+    footerCopyright: '© 2026 WATEN — Global Streetwear'
+  };
+  
+  localStorage.setItem('watenContent', JSON.stringify(defaultContent));
+  
+  // Reset settings to defaults
+  const defaultSettings = {
+    whatsapp: '',
+    instagram: '',
+    tiktok: '',
+    email: ''
+  };
+  
+  localStorage.setItem('watenSettings', JSON.stringify(defaultSettings));
+  
+  // Reset products to defaults
+  const defaultProducts = [
+    { id: 1, name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1602810319428-019690571b5b' },
+    { id: 2, name: 'Oversized Street Tee', price: 80, image: 'https://images.unsplash.com/photo-1593032465171-8f8b8fdd6b47' },
+    { id: 3, name: 'Limited Varsity Jacket', price: 250, image: 'images/iyadh.jpg' },
+    { id: 4, name: 'Tataouine 3200 Hoodie', price: 140, image: '12.png' }
+  ];
+  
+  localStorage.setItem('watenProducts', JSON.stringify(defaultProducts));
+  
+  showNotification('Reset to defaults successfully');
+  loadContent();
+  loadSettings();
+  loadProducts();
 }
 
 // Admin Dashboard JavaScript
