@@ -5,7 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="description" content="WATEN — Premium streetwear built for global dominance. Limited drops. Strong brand identity." id="meta-description">
 <title>WATEN | Global Streetwear</title>
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+  (function() {
+    emailjs.init("YOUR_PUBLIC_KEY"); // Replace with your EmailJS public key
+  })();
+  
+  // Initialize Stripe
+  const stripe = Stripe('YOUR_STRIPE_PUBLISHABLE_KEY'); // Replace with your Stripe publishable key
+</script>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -20,7 +30,6 @@
 * { margin: 0; padding: 0; box-sizing: border-box; }
 body { background: var(--bg-dark); color: var(--text); overflow-x: hidden; font-family: 'DM Sans', sans-serif; font-weight: 400; line-height: 1.6; cursor: none; }
 html { scroll-behavior: smooth; }
-
 /* Custom Cursor */
 .cursor {
   width: 20px; height: 20px; border: 2px solid var(--accent);
@@ -208,30 +217,127 @@ footer {
 .footer-bottom { width: 100%; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid var(--border); text-align: center; }
 .footer-bottom span { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; }
 
+.cart {
+  position: fixed; top: 1.25rem; right: 6%; background: var(--accent); color: var(--bg-dark);
+  padding: 0.6rem 1.25rem; cursor: pointer; font-weight: 600; z-index: 2000;
+  font-size: 0.7rem; letter-spacing: 0.15em; transition: background 0.25s;
+}
+.cart:hover { background: var(--accent-hover); }
+
+/* Shopping Cart Sidebar */
+.cart-sidebar {
+  position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
+  background: var(--bg-card); border-left: 1px solid var(--border);
+  z-index: 3000; transition: right 0.3s ease; overflow-y: auto;
+}
+.cart-sidebar.open { right: 0; }
+
+.cart-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1.5rem; border-bottom: 1px solid var(--border);
+}
+.cart-header h3 { color: var(--text); font-size: 1.2rem; }
+.close-cart {
+  background: none; border: none; color: var(--text-muted); font-size: 1.5rem;
+  cursor: pointer; padding: 0.5rem;
+}
+
+.cart-items {
+  padding: 1rem;
+  max-height: calc(100vh - 200px); overflow-y: auto;
+}
+
+.cart-item {
+  display: flex; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border);
+  align-items: center;
+}
+.cart-item img {
+  width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
+}
+.cart-item-info {
+  flex: 1;
+}
+.cart-item-name {
+  font-weight: 600; color: var(--text); margin-bottom: 0.25rem;
+}
+.cart-item-price {
+  color: var(--accent); font-size: 0.9rem;
+}
+.cart-item-quantity {
+  display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;
+}
+.cart-item-quantity button {
+  background: var(--bg-dark); border: 1px solid var(--border); color: var(--text);
+  width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
+}
+.cart-item-quantity button:hover { border-color: var(--accent); }
+
+.cart-footer {
+  position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem;
+  background: var(--bg-card); border-top: 1px solid var(--border);
+}
+.cart-total {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600; color: var(--text);
+}
+.cart-total span:last-child { color: var(--accent); }
+
+.checkout-btn {
+  width: 100%; padding: 1rem; background: var(--accent); color: var(--bg-dark);
+  border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
+  transition: all 0.2s ease;
+}
+.checkout-btn:hover {
+  background: var(--accent-hover); transform: translateY(-1px);
+}
+
+.empty-cart {
+  text-align: center; padding: 3rem; color: var(--text-muted);
+}
+
+.search-container {
+  display: flex; align-items: center; background: var(--bg-dark);
+  border: 1px solid var(--border); border-radius: 4px;
+  margin: 0 1rem;
+}
+
+#search-input {
+  background: transparent; border: none; color: var(--text);
+  padding: 0.5rem 1rem; outline: none; width: 200px;
+}
+
+#search-input::placeholder {
+  color: var(--text-muted);
+}
+
+.search-results {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 8px; max-height: 400px; overflow-y: auto;
+  z-index: 1000; display: none;
+}
+
+.search-result-item {
+  display: flex; align-items: center; gap: 1rem; padding: 1rem;
+  border-bottom: 1px solid var(--border); cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.search-result-item:hover {
+  background: rgba(201, 162, 39, 0.1);
+}
+
+.search-result-item img {
+  width: 50px; height: 50px; object-fit: cover; border-radius: 4px;
+}
+
 @media (max-width: 768px) {
-  header { padding: 1rem 5%; }
-  nav { gap: 1.5rem; }
-  .hero h1 { letter-spacing: 0.12em; }
-  .products { gap: 1.5rem; }
-  .product { width: 100%; max-width: 340px; }
-    footer { flex-direction: column; text-align: center; }
-  .footer-links { justify-content: center; }
-  .footer-social { align-items: center; }
+  .search-container {
+    margin: 0.5rem 0;
+  }
   
-  /* Mobile Order Form */
-  .modal-content {
-    padding: 1.5rem; margin: 1rem; max-width: none;
-  }
-  .form-row {
-    grid-template-columns: 1fr; gap: 0;
-  }
-  .order-form {
-    gap: 1rem;
-  }
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    padding: 0.6rem 0.8rem; font-size: 0.85rem;
+  #search-input {
+    width: 120px;
   }
 }
 </style>
@@ -243,12 +349,91 @@ footer {
 <div class="cursor-follower"></div>
 
 
+<!-- Customer Account Modal -->
+<div class="modal" id="accountModal">
+  <div class="modal-content">
+    <span class="close" onclick="closeAccountModal()">Close</span>
+    
+    <!-- Login Form -->
+    <div id="loginForm">
+      <h3>Login to Your Account</h3>
+      <form onsubmit="handleLogin(event)">
+        <div class="form-group">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="btn confirm-order-btn">Login</button>
+      </form>
+      <p style="margin-top: 1rem; text-align: center;">
+        Don't have an account? 
+        <a href="#" onclick="showRegisterForm()" style="color: var(--accent);">Register here</a>
+      </p>
+    </div>
+    
+    <!-- Register Form -->
+    <div id="registerForm" style="display: none;">
+      <h3>Create Your Account</h3>
+      <form onsubmit="handleRegister(event)">
+        <div class="form-group">
+          <label for="registerName">Full Name</label>
+          <input type="text" id="registerName" required>
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Email Address</label>
+          <input type="email" id="registerEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Password</label>
+          <input type="password" id="registerPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPhone">Phone Number</label>
+          <input type="tel" id="registerPhone" required>
+        </div>
+        <button type="submit" class="btn confirm-order-btn">Register</button>
+      </form>
+      <p style="margin-top: 1rem; text-align: center;">
+        Already have an account? 
+        <a href="#" onclick="showLoginForm()" style="color: var(--accent);">Login here</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- Shopping Cart Sidebar -->
+<div id="cart-sidebar" class="cart-sidebar">
+  <div class="cart-header">
+    <h3>Shopping Cart</h3>
+    <button onclick="toggleCart()" class="close-cart">&times;</button>
+  </div>
+  <div class="cart-items" id="cart-items">
+    <!-- Cart items will be populated here -->
+  </div>
+  <div class="cart-footer">
+    <div class="cart-total">
+      <span>Total:</span>
+      <span id="cart-total">0 TND</span>
+    </div>
+    <button class="checkout-btn" onclick="proceedToCheckout()">Checkout</button>
+  </div>
+</div>
+
 <header>
 <div class="logo" id="header-logo">WATEN</div>
 <nav id="header-nav">
-<a href="#collection">COLLECTION</a>
-<a href="#invest">INVEST</a>
+  <a href="#collection">COLLECTION</a>
+  <a href="#invest">INVEST</a>
+  <a href="#" onclick="openAccountModal()" id="account-link">Account</a>
 </nav>
+<div class="search-container">
+  <input type="text" id="search-input" placeholder="Search products..." onkeyup="handleSearch(event)">
+  <button onclick="performSearch()" style="background: var(--accent); color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 0 4px 4px 0; cursor: pointer;">🔍</button>
+</div>
+<div class="cart" onclick="toggleCart()">Cart (<span id="cart-count">0</span>)</div>
 </header>
 
 <section class="hero show" id="hero-section">
@@ -379,6 +564,389 @@ footer {
 let currentProduct = {};
 let siteContent = null;
 
+// Shopping Cart System
+let cart = JSON.parse(localStorage.getItem('watenCart')) || [];
+
+function toggleCart() {
+  const cartSidebar = document.getElementById('cart-sidebar');
+  cartSidebar.classList.toggle('open');
+}
+
+function addToCart(product) {
+  const existingItem = cart.find(item => item.id === product.id);
+  
+  if (existingItem) {
+    existingItem.quantity += 1;
+  } else {
+    cart.push({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      image: product.image,
+      quantity: 1
+    });
+  }
+  
+  localStorage.setItem('watenCart', JSON.stringify(cart));
+  updateCartUI();
+  showNotification('Product added to cart!');
+}
+
+function removeFromCart(productId) {
+  cart = cart.filter(item => item.id !== productId);
+  localStorage.setItem('watenCart', JSON.stringify(cart));
+  updateCartUI();
+}
+
+function updateQuantity(productId, change) {
+  const item = cart.find(item => item.id === productId);
+  if (item) {
+    item.quantity += change;
+    if (item.quantity <= 0) {
+      removeFromCart(productId);
+    } else {
+      localStorage.setItem('watenCart', JSON.stringify(cart));
+      updateCartUI();
+    }
+  }
+}
+
+function updateCartUI() {
+  const cartCount = document.getElementById('cart-count');
+  const cartItems = document.getElementById('cart-items');
+  const cartTotal = document.getElementById('cart-total');
+  
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  cartCount.textContent = totalItems;
+  
+  if (cart.length === 0) {
+    cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
+    cartTotal.textContent = '0 TND';
+    return;
+  }
+  
+  cartItems.innerHTML = cart.map(item => `
+    <div class="cart-item">
+      <img src="${item.image}" alt="${item.name}" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
+      <div class="cart-item-info">
+        <div class="cart-item-name">${item.name}</div>
+        <div class="cart-item-price">${item.price} TND</div>
+        <div class="cart-item-quantity">
+          <button onclick="updateQuantity(${item.id}, -1)">-</button>
+          <span>${item.quantity}</span>
+          <button onclick="updateQuantity(${item.id}, 1)">+</button>
+        </div>
+      </div>
+      <button onclick="removeFromCart(${item.id})" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">×</button>
+    </div>
+  `).join('');
+  
+  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  cartTotal.textContent = `${total} TND`;
+}
+
+function proceedToCheckout() {
+  if (cart.length === 0) {
+    showNotification('Your cart is empty');
+    return;
+  }
+  
+  // Choose payment method
+  const paymentMethod = confirm('Choose payment method:\n\nOK = Pay with Card (Stripe)\nCancel = Cash on Delivery');
+  
+  if (paymentMethod) {
+    // Stripe payment
+    processStripePayment();
+  } else {
+    // Cash on delivery
+    processCashOnDelivery();
+  }
+}
+
+function processStripePayment() {
+  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  
+  // Create payment intent on your server
+  fetch('/create-payment-intent', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      amount: totalAmount * 100, // Convert to cents
+      currency: 'usd',
+      items: cart
+    })
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.error) {
+      showNotification('Payment error: ' + data.error);
+      return;
+    }
+    
+    // Redirect to Stripe Checkout
+    return stripe.redirectToCheckout({
+      sessionId: data.sessionId
+    });
+  })
+  .then(result => {
+    if (result.error) {
+      showNotification('Payment error: ' + result.error.message);
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showNotification('Payment processing failed. Please try again.');
+  });
+}
+
+function processCashOnDelivery() {
+  // Close cart and open order modal with cart items
+  toggleCart();
+  
+  // Create a combined product from cart items
+  const cartProduct = {
+    name: 'Multiple Items (' + cart.length + ')',
+    price: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
+    image: cart[0].image,
+    cartItems: cart
+  };
+  
+  openProduct(cartProduct.name, cartProduct.price);
+}
+
+// Handle successful payment from Stripe
+function handleStripeSuccess() {
+  // Clear cart after successful payment
+  cart = [];
+  localStorage.setItem('watenCart', JSON.stringify(cart));
+  updateCartUI();
+  
+  showNotification('Payment successful! Your order is confirmed.');
+}
+
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed; top: 100px; right: 20px; background: var(--accent);
+    color: var(--bg-dark); padding: 1rem 1.5rem; border-radius: 8px;
+    z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease;
+  `;
+  notification.textContent = message;
+  
+  document.body.appendChild(notification);
+  
+  setTimeout(() => {
+    notification.style.opacity = '0';
+    setTimeout(() => notification.remove(), 300);
+  }, 3000);
+}
+
+// Customer Account System
+let currentUser = JSON.parse(localStorage.getItem('watenCurrentUser')) || null;
+
+function openAccountModal() {
+  document.getElementById('accountModal').style.display = 'flex';
+  if (currentUser) {
+    showAccountDashboard();
+  } else {
+    showLoginForm();
+  }
+}
+
+function closeAccountModal() {
+  document.getElementById('accountModal').style.display = 'none';
+}
+
+function showLoginForm() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+}
+
+function showRegisterForm() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+}
+
+function showAccountDashboard() {
+  const modalContent = document.querySelector('#accountModal .modal-content');
+  modalContent.innerHTML = `
+    <span class="close" onclick="closeAccountModal()">Close</span>
+    <h3>Welcome, ${currentUser.name}!</h3>
+    <div style="text-align: left; margin-top: 2rem;">
+      <p><strong>Email:</strong> ${currentUser.email}</p>
+      <p><strong>Phone:</strong> ${currentUser.phone}</p>
+      <p><strong>Member Since:</strong> ${new Date(currentUser.createdAt).toLocaleDateString()}</p>
+    </div>
+    
+    <div style="margin-top: 2rem;">
+      <h4>Quick Actions</h4>
+      <div style="display: flex; gap: 1rem; margin-top: 1rem;">
+        <button onclick="viewWishlist()" class="btn" style="flex: 1;">♡ My Wishlist (${wishlist.length})</button>
+        <button onclick="viewMyReviews()" class="btn" style="flex: 1;">⭐ My Reviews</button>
+      </div>
+    </div>
+    
+    <div style="margin-top: 2rem;">
+      <h4>Your Orders</h4>
+      <div id="userOrders" style="margin-top: 1rem;">
+        Loading your orders...
+      </div>
+    </div>
+    <button onclick="logout()" class="btn confirm-order-btn" style="margin-top: 2rem;">Logout</button>
+  `;
+  
+  loadUserOrders();
+}
+
+function viewMyReviews() {
+  const reviews = JSON.parse(localStorage.getItem('watenReviews')) || {};
+  const myReviews = [];
+  
+  // Find all reviews by this user
+  Object.keys(reviews).forEach(productId => {
+    reviews[productId].forEach(review => {
+      if (review.userName === currentUser.name) {
+        myReviews.push({ ...review, productId });
+      }
+    });
+  });
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close" onclick="this.closest('.modal').remove()">Close</span>
+      <h3>My Reviews (${myReviews.length})</h3>
+      <div style="margin-top: 2rem;">
+        ${myReviews.length === 0 ? 
+          '<p style="color: var(--text-muted);">You haven\'t written any reviews yet.</p>' :
+          myReviews.map(review => `
+            <div style="padding: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <span style="color: var(--accent);">Product ID: ${review.productId}</span>
+                <span>${'⭐'.repeat(review.rating)}</span>
+              </div>
+              <p style="margin: 0.5rem 0;">${review.text}</p>
+              <small style="color: var(--text-muted);">${new Date(review.date).toLocaleDateString()}</small>
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+function handleLogin(event) {
+  event.preventDefault();
+  
+  const email = document.getElementById('loginEmail').value;
+  const password = document.getElementById('loginPassword').value;
+  
+  // Get users from localStorage
+  const users = JSON.parse(localStorage.getItem('watenUsers')) || [];
+  const user = users.find(u => u.email === email && u.password === password);
+  
+  if (user) {
+    currentUser = user;
+    localStorage.setItem('watenCurrentUser', JSON.stringify(currentUser));
+    updateAccountLink();
+    showAccountDashboard();
+    showNotification('Login successful!');
+  } else {
+    showNotification('Invalid email or password');
+  }
+}
+
+function handleRegister(event) {
+  event.preventDefault();
+  
+  const name = document.getElementById('registerName').value;
+  const email = document.getElementById('registerEmail').value;
+  const password = document.getElementById('registerPassword').value;
+  const phone = document.getElementById('registerPhone').value;
+  
+  // Get users from localStorage
+  const users = JSON.parse(localStorage.getItem('watenUsers')) || [];
+  
+  // Check if user already exists
+  if (users.find(u => u.email === email)) {
+    showNotification('An account with this email already exists');
+    return;
+  }
+  
+  // Create new user
+  const newUser = {
+    id: Date.now(),
+    name: name,
+    email: email,
+    password: password, // In production, this should be hashed
+    phone: phone,
+    createdAt: new Date().toISOString()
+  };
+  
+  users.push(newUser);
+  localStorage.setItem('watenUsers', JSON.stringify(users));
+  
+  currentUser = newUser;
+  localStorage.setItem('watenCurrentUser', JSON.stringify(currentUser));
+  
+  updateAccountLink();
+  showAccountDashboard();
+  showNotification('Account created successfully!');
+}
+
+function logout() {
+  currentUser = null;
+  localStorage.removeItem('watenCurrentUser');
+  updateAccountLink();
+  closeAccountModal();
+  showNotification('Logged out successfully');
+}
+
+function updateAccountLink() {
+  const accountLink = document.getElementById('account-link');
+  if (currentUser) {
+    accountLink.textContent = 'My Account';
+  } else {
+    accountLink.textContent = 'Account';
+  }
+}
+
+function loadUserOrders() {
+  const allOrders = JSON.parse(localStorage.getItem('watenOrders')) || [];
+  const userOrders = allOrders.filter(order => 
+    order.customer.email === currentUser.email
+  );
+  
+  const ordersContainer = document.getElementById('userOrders');
+  
+  if (userOrders.length === 0) {
+    ordersContainer.innerHTML = '<p style="color: var(--text-muted);">You haven\'t placed any orders yet.</p>';
+    return;
+  }
+  
+  ordersContainer.innerHTML = userOrders.map(order => `
+    <div style="background: var(--bg-dark); padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
+      <p><strong>Order ID:</strong> ${order.orderId}</p>
+      <p><strong>Product:</strong> ${order.product.name}</p>
+      <p><strong>Total:</strong> ${order.totalPrice} TND</p>
+      <p><strong>Status:</strong> <span style="color: var(--accent);">${order.status}</span></p>
+      <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
+    </div>
+  `).join('');
+}
+
+// Initialize systems on page load
+document.addEventListener('DOMContentLoaded', function() {
+  updateCartUI();
+  updateAccountLink();
+});
+
 // Order Management System
 function submitOrder(event) {
   event.preventDefault();
@@ -435,18 +1003,110 @@ function sendOrderNotification(orderData) {
     timestamp: new Date().toISOString()
   };
   
-  // Save notification for admin to see
+  // Save notification to localStorage (backup)
   const notifications = JSON.parse(localStorage.getItem('watenNotifications')) || [];
   notifications.push(notification);
   localStorage.setItem('watenNotifications', JSON.stringify(notifications));
   
-  // In a real application, you would send this to your server/email
-  console.log('ORDER NOTIFICATION:', notification);
+  // Send to external admin dashboard
+  sendToAdminDashboard(notification);
+  
+  // Send email confirmation to customer
+  sendCustomerEmail(orderData);
+  
+  // Send email notification to admin
+  sendAdminEmail(orderData);
   
   // Show admin notification on page (for development)
   if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
     showAdminNotification(notification);
   }
+}
+
+function sendCustomerEmail(orderData) {
+  const templateParams = {
+    customer_name: orderData.customer.name,
+    order_id: orderData.orderId,
+    product_name: orderData.product.name,
+    quantity: orderData.quantity,
+    total_price: orderData.totalPrice,
+    customer_email: orderData.customer.email,
+    delivery_address: orderData.customer.address + ', ' + orderData.customer.city,
+    phone: orderData.customer.phone,
+    order_date: new Date().toLocaleDateString()
+  };
+  
+  emailjs.send('YOUR_SERVICE_ID', 'customer_order_template', templateParams)
+    .then(function(response) {
+      console.log('Customer email sent successfully!', response.status, response.text);
+    }, function(error) {
+      console.log('Failed to send customer email:', error);
+    });
+}
+
+function sendAdminEmail(orderData) {
+  const templateParams = {
+    order_id: orderData.orderId,
+    customer_name: orderData.customer.name,
+    customer_phone: orderData.customer.phone,
+    customer_email: orderData.customer.email,
+    product_name: orderData.product.name,
+    quantity: orderData.quantity,
+    total_price: orderData.totalPrice,
+    delivery_address: orderData.customer.address + ', ' + orderData.customer.city,
+    notes: orderData.notes || 'None',
+    order_date: new Date().toLocaleDateString()
+  };
+  
+  emailjs.send('YOUR_SERVICE_ID', 'admin_notification_template', templateParams)
+    .then(function(response) {
+      console.log('Admin email sent successfully!', response.status, response.text);
+    }, function(error) {
+      console.log('Failed to send admin email:', error);
+    });
+}
+
+function sendToAdminDashboard(orderData) {
+  // Send order to your external dashboard
+  const webhookUrl = 'https://waten.onrender.com/admin.html';
+  
+  // Method 1: Webhook/POST request
+  fetch(webhookUrl + '/api/orders', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(orderData)
+  }).catch(error => {
+    console.log('Webhook failed, trying alternative method...');
+    
+    // Method 2: Email service (you can integrate with EmailJS, SendGrid, etc.)
+    sendEmailNotification(orderData);
+  });
+}
+
+function sendEmailNotification(orderData) {
+  // You can integrate with email services like EmailJS
+  console.log('EMAIL NOTIFICATION:', orderData);
+  
+  // Example with EmailJS (you need to set up EmailJS account)
+  /*
+  emailjs.send('your_service_id', 'your_template_id', {
+    order_id: orderData.orderId,
+    customer_name: orderData.customerName,
+    customer_phone: orderData.customerPhone,
+    customer_email: orderData.customerEmail,
+    product: orderData.product,
+    quantity: orderData.quantity,
+    total_price: orderData.totalPrice,
+    address: orderData.address,
+    notes: orderData.notes
+  }).then(function(response) {
+    console.log('Email sent successfully!', response.status, response.text);
+  }, function(error) {
+    console.log('Failed to send email...', error);
+  });
+  */
 }
 
 function showOrderConfirmation(orderData) {
@@ -795,13 +1455,113 @@ const FALLBACK_PRODUCTS = [
 ];
 const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
 
+// Search Functionality
+let allProducts = [];
+
+function handleSearch(event) {
+  if (event.key === 'Enter') {
+    performSearch();
+  } else {
+    // Live search as user types
+    const query = event.target.value.toLowerCase();
+    if (query.length > 0) {
+      showSearchResults(query);
+    } else {
+      hideSearchResults();
+    }
+  }
+}
+
+function performSearch() {
+  const query = document.getElementById('search-input').value.toLowerCase();
+  if (query.length === 0) return;
+  
+  const filteredProducts = allProducts.filter(product => 
+    product.name.toLowerCase().includes(query) ||
+    product.price.toString().includes(query)
+  );
+  
+  if (filteredProducts.length === 0) {
+    showNotification('No products found matching your search');
+    return;
+  }
+  
+  // Update products display with search results
+  renderProducts(filteredProducts);
+  
+  // Scroll to collection section
+  document.getElementById('collection').scrollIntoView({ behavior: 'smooth' });
+  
+  // Update section header to show search results
+  document.getElementById('collection-heading').textContent = `Search Results (${filteredProducts.length})`;
+  
+  hideSearchResults();
+}
+
+function showSearchResults(query) {
+  const results = allProducts.filter(product => 
+    product.name.toLowerCase().includes(query) ||
+    product.price.toString().includes(query)
+  );
+  
+  // Create or update search results dropdown
+  let searchResults = document.getElementById('search-results');
+  if (!searchResults) {
+    searchResults = document.createElement('div');
+    searchResults.id = 'search-results';
+    searchResults.className = 'search-results';
+    document.querySelector('.search-container').appendChild(searchResults);
+  }
+  
+  if (results.length === 0) {
+    searchResults.innerHTML = '<div style="padding: 1rem; color: var(--text-muted);">No products found</div>';
+  } else {
+    searchResults.innerHTML = results.map(product => `
+      <div class="search-result-item" onclick="selectSearchResult(${product.id})">
+        <img src="${product.image || FALLBACK_IMG}" alt="${product.name}" onerror="this.src='${FALLBACK_IMG}'">
+        <div>
+          <div style="font-weight: 600;">${product.name}</div>
+          <div style="color: var(--accent);">${product.price} TND</div>
+        </div>
+      </div>
+    `).join('');
+  }
+  
+  searchResults.style.display = 'block';
+}
+
+function hideSearchResults() {
+  const searchResults = document.getElementById('search-results');
+  if (searchResults) {
+    searchResults.style.display = 'none';
+  }
+}
+
+function selectSearchResult(productId) {
+  const product = allProducts.find(p => p.id === productId);
+  if (product) {
+    openProduct(product.name, product.price);
+    hideSearchResults();
+    document.getElementById('search-input').value = '';
+  }
+}
+
+// Close search results when clicking outside
+document.addEventListener('click', function(event) {
+  if (!event.target.closest('.search-container')) {
+    hideSearchResults();
+  }
+});
+
+// Update loadProducts to store all products for search
 async function loadProducts() {
   const container = document.getElementById('productsContainer');
   try {
     const res = await fetch('/api/products');
-    const products = await res.json();
-    renderProducts(products.length ? products : FALLBACK_PRODUCTS);
+    allProducts = await res.json();
+    renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
   } catch (e) {
+    allProducts = FALLBACK_PRODUCTS;
     renderProducts(FALLBACK_PRODUCTS);
   }
 }
@@ -811,15 +1571,196 @@ function renderProducts(products) {
   container.innerHTML = products.map(p => {
     const name = (p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const img = (p.image || FALLBACK_IMG).replace(/"/g, '&quot;');
-    const data = JSON.stringify({ name: p.name, price: p.price }).replace(/"/g, '&quot;');
-    return `<div class="product" data-product="${data}" onclick="openProductFromEl(this)">
+    const data = JSON.stringify(p).replace(/"/g, '&quot;');
+    return `<div class="product" data-product="${data}">
       <div class="product-image"><img src="${img}" alt="${name}" onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"></div>
       <div class="product-details">
         <div class="name">${name}</div>
         <div class="price">${p.price} TND</div>
+        <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
+          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem;" onclick="openProductFromEl(this.parentElement.parentElement.parentElement)">Order Now</button>
+          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem; background: var(--accent); color: var(--bg-dark);" onclick="addToCartFromEl(this.parentElement.parentElement.parentElement)">Add to Cart</button>
+          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem; background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="addToWishlistFromEl(this.parentElement.parentElement.parentElement)">♡</button>
+        </div>
       </div>
     </div>`;
   }).join('');
+}
+
+function addToWishlistFromEl(el) {
+  const p = JSON.parse(el.dataset.product);
+  addToWishlist({
+    id: p.id || Date.now(),
+    name: p.name,
+    price: p.price,
+    image: p.image || FALLBACK_IMG
+  });
+}
+
+// Wishlist System
+let wishlist = JSON.parse(localStorage.getItem('watenWishlist')) || [];
+
+function addToWishlist(product) {
+  const existingItem = wishlist.find(item => item.id === product.id);
+  
+  if (existingItem) {
+    showNotification('Product already in wishlist');
+    return;
+  }
+  
+  wishlist.push(product);
+  localStorage.setItem('watenWishlist', JSON.stringify(wishlist));
+  showNotification('Product added to wishlist!');
+}
+
+function removeFromWishlist(productId) {
+  wishlist = wishlist.filter(item => item.id !== productId);
+  localStorage.setItem('watenWishlist', JSON.stringify(wishlist));
+  showNotification('Product removed from wishlist');
+}
+
+function viewWishlist() {
+  if (!currentUser) {
+    showNotification('Please login to view your wishlist');
+    openAccountModal();
+    return;
+  }
+  
+  if (wishlist.length === 0) {
+    showNotification('Your wishlist is empty');
+    return;
+  }
+  
+  // Show wishlist modal
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close" onclick="this.closest('.modal').remove()">Close</span>
+      <h3>My Wishlist (${wishlist.length} items)</h3>
+      <div style="margin-top: 2rem;">
+        ${wishlist.map(item => `
+          <div style="display: flex; gap: 1rem; align-items: center; padding: 1rem; border-bottom: 1px solid var(--border);">
+            <img src="${item.image}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 8px;">
+            <div style="flex: 1;">
+              <div style="font-weight: 600;">${item.name}</div>
+              <div style="color: var(--accent);">${item.price} TND</div>
+            </div>
+            <button onclick="addToCart({id: ${item.id}, name: '${item.name}', price: ${item.price}, image: '${item.image}'})" class="btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Add to Cart</button>
+            <button onclick="removeFromWishlist(${item.id}); this.closest('.modal').remove();" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">×</button>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+// Product Reviews System
+function addProductReview(productId, review) {
+  const reviews = JSON.parse(localStorage.getItem('watenReviews')) || {};
+  
+  if (!reviews[productId]) {
+    reviews[productId] = [];
+  }
+  
+  reviews[productId].push({
+    ...review,
+    date: new Date().toISOString(),
+    userName: currentUser ? currentUser.name : 'Anonymous'
+  });
+  
+  localStorage.setItem('watenReviews', JSON.stringify(reviews));
+  showNotification('Review added successfully!');
+}
+
+function getProductReviews(productId) {
+  const reviews = JSON.parse(localStorage.getItem('watenReviews')) || {};
+  return reviews[productId] || [];
+}
+
+function showProductReviews(productId) {
+  const reviews = getProductReviews(productId);
+  
+  const modal = document.createElement('div');
+  modal.className = 'modal';
+  modal.style.display = 'flex';
+  modal.innerHTML = `
+    <div class="modal-content">
+      <span class="close" onclick="this.closest('.modal').remove()">Close</span>
+      <h3>Customer Reviews (${reviews.length})</h3>
+      
+      ${currentUser ? `
+        <div style="margin: 2rem 0; padding: 1rem; background: var(--bg-dark); border-radius: 8px;">
+          <h4>Write a Review</h4>
+          <form onsubmit="submitReview(event, ${productId})">
+            <div class="form-group">
+              <label>Rating</label>
+              <select id="reviewRating" required>
+                <option value="5">⭐⭐⭐⭐⭐ Excellent</option>
+                <option value="4">⭐⭐⭐⭐ Very Good</option>
+                <option value="3">⭐⭐⭐ Good</option>
+                <option value="2">⭐⭐ Fair</option>
+                <option value="1">⭐ Poor</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Your Review</label>
+              <textarea id="reviewText" rows="3" required placeholder="Share your experience with this product..."></textarea>
+            </div>
+            <button type="submit" class="btn confirm-order-btn">Submit Review</button>
+          </form>
+        </div>
+      ` : '<p style="color: var(--text-muted);">Please login to write a review</p>'}
+      
+      <div style="margin-top: 2rem;">
+        ${reviews.length === 0 ? 
+          '<p style="color: var(--text-muted);">No reviews yet. Be the first to review!</p>' :
+          reviews.map(review => `
+            <div style="padding: 1rem; border-bottom: 1px solid var(--border); margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                <strong>${review.userName}</strong>
+                <span>${'⭐'.repeat(review.rating)}</span>
+              </div>
+              <p style="margin: 0.5rem 0;">${review.text}</p>
+              <small style="color: var(--text-muted);">${new Date(review.date).toLocaleDateString()}</small>
+            </div>
+          `).join('')
+        }
+      </div>
+    </div>
+  `;
+  
+  document.body.appendChild(modal);
+}
+
+function submitReview(event, productId) {
+  event.preventDefault();
+  
+  const rating = parseInt(document.getElementById('reviewRating').value);
+  const text = document.getElementById('reviewText').value;
+  
+  addProductReview(productId, { rating, text });
+  event.target.reset();
+  
+  // Refresh reviews display
+  setTimeout(() => {
+    const modal = document.querySelector('.modal');
+    if (modal) modal.remove();
+    showProductReviews(productId);
+  }, 1000);
+}
+
+function addToCartFromEl(el) {
+  const p = JSON.parse(el.dataset.product);
+  addToCart({
+    id: p.id || Date.now(),
+    name: p.name,
+    price: p.price,
+    image: p.image || FALLBACK_IMG
+  });
 }
 
 function openProductFromEl(el) {

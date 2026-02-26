@@ -223,6 +223,112 @@ body {
   color: var(--text);
 }
 
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+.nav-item {
+  display: block; padding: 0.75rem 1.5rem; color: var(--text-muted);
+  text-decoration: none; font-size: 0.9rem; transition: all 0.2s ease;
+  border-left: 3px solid transparent;
+}
+
+.nav-item:hover {
+  background: rgba(201, 162, 39, 0.1); color: var(--text);
+}
+
+.nav-item.active {
+  background: rgba(201, 162, 39, 0.15); color: var(--accent);
+  border-left-color: var(--accent);
+}
+
+.section-card {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;
+}
+
+.section-card h3 {
+  color: var(--accent); font-size: 1.1rem; margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+.form-row {
+  margin-bottom: 1rem;
+}
+
+.form-row label {
+  display: block; color: var(--text-muted); font-size: 0.9rem;
+  margin-bottom: 0.5rem; font-weight: 500;
+}
+
+.form-row input,
+.form-row textarea {
+  width: 100%; padding: 0.75rem; background: var(--bg-dark);
+  border: 1px solid var(--border); color: var(--text); border-radius: 6px;
+  font-size: 0.9rem; transition: border-color 0.2s ease;
+}
+
+.form-row input:focus,
+.form-row textarea:focus {
+  outline: none; border-color: var(--accent);
+}
+
+.products-list {
+  background: var(--bg-card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 1rem;
+}
+
+.product-item {
+  display: flex; align-items: center; gap: 1rem; padding: 1rem;
+  border-bottom: 1px solid var(--border); transition: background 0.2s ease;
+}
+
+.product-item:last-child {
+  border-bottom: none;
+}
+
+.product-item:hover {
+  background: rgba(201, 162, 39, 0.05);
+}
+
+.product-image {
+  width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
+  background: var(--bg-dark);
+}
+
+.product-info {
+  flex: 1;
+}
+
+.product-name {
+  font-weight: 600; color: var(--text); margin-bottom: 0.25rem;
+}
+
+.product-price {
+  color: var(--accent); font-weight: 500;
+}
+
+.product-actions {
+  display: flex; gap: 0.5rem;
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem; font-size: 0.8rem; border: none;
+  border-radius: 4px; cursor: pointer; font-weight: 500;
+}
+
+.btn-edit {
+  background: var(--accent); color: var(--bg-dark);
+}
+
+.btn-delete {
+  background: var(--danger); color: white;
+}
+
 @media (max-width: 1024px) {
   .dashboard-content {
     grid-template-columns: 1fr;
@@ -230,6 +336,22 @@ body {
   
   .header-stats {
     display: none;
+  }
+  
+  div[style*="display: flex"] {
+    flex-direction: column;
+  }
+  
+  nav {
+    width: 100%; flex-direction: row; overflow-x: auto;
+  }
+  
+  .nav-item {
+    white-space: nowrap; border-left: none; border-bottom: 3px solid transparent;
+  }
+  
+  .nav-item.active {
+    border-left: none; border-bottom-color: var(--accent);
   }
 }
 
@@ -277,67 +399,191 @@ body {
 
 <!-- Dashboard Content (Hidden until login) -->
 <div id="dashboard-content" style="display: none;">
-<header class="dashboard-header">
-  <h1 class="dashboard-title">🎯 WATEN ADMIN</h1>
-  <div class="header-stats">
-    <div class="stat-card">
-      <div class="stat-number" id="total-orders">0</div>
-      <div class="stat-label">Total Orders</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="total-revenue">0</div>
-      <div class="stat-label">Revenue (TND)</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-number" id="pending-orders">0</div>
-      <div class="stat-label">Pending</div>
+  <!-- Dashboard Navigation -->
+  <div style="display: flex; min-height: calc(100vh - 80px);">
+    <!-- Sidebar -->
+    <nav style="width: 220px; background: var(--bg-dark); border-right: 1px solid var(--border); padding: 1rem 0;">
+      <a href="#" class="nav-item active" data-panel="orders" onclick="switchPanel('orders')">
+        📋 Orders
+      </a>
+      <a href="#" class="nav-item" data-panel="products" onclick="switchPanel('products')">
+        👕 Products
+      </a>
+      <a href="#" class="nav-item" data-panel="content" onclick="switchPanel('content')">
+        📝 Content
+      </a>
+      <a href="#" class="nav-item" data-panel="settings" onclick="switchPanel('settings')">
+        ⚙️ Settings
+      </a>
+    </nav>
+
+    <!-- Main Content Area -->
+    <div style="flex: 1; padding: 2rem;">
+      <!-- Orders Panel -->
+      <div id="panel-orders" class="panel active">
+        <header class="dashboard-header">
+          <h1 class="dashboard-title">🎯 WATEN ADMIN</h1>
+          <div class="header-stats">
+            <div class="stat-card">
+              <div class="stat-number" id="total-orders">0</div>
+              <div class="stat-label">Total Orders</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="total-revenue">0</div>
+              <div class="stat-label">Revenue (TND)</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-number" id="pending-orders">0</div>
+              <div class="stat-label">Pending</div>
+            </div>
+          </div>
+        </header>
+
+        <!-- Orders Section -->
+        <section class="orders-section">
+          <div class="section-header">
+            <h2 class="section-title">Orders</h2>
+            <div class="filters">
+              <select class="filter-select" id="status-filter">
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+              </select>
+              <input type="text" class="search-box" id="search-box" placeholder="Search orders...">
+            </div>
+          </div>
+          <div class="orders-list" id="orders-list">
+            <!-- Orders will be populated here -->
+          </div>
+        </section>
+
+        <!-- Sidebar -->
+        <aside class="sidebar">
+          <!-- Notifications Panel -->
+          <div class="notifications-panel">
+            <div class="section-header">
+              <h3 class="section-title">Notifications</h3>
+            </div>
+            <div class="notifications-list" id="notifications-list">
+              <!-- Notifications will be populated here -->
+            </div>
+          </div>
+
+          <!-- Actions Panel -->
+          <div class="actions-panel">
+            <h3 class="section-title" style="margin-bottom: 1rem;">Actions</h3>
+            <button class="action-btn btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
+            <button class="action-btn btn-secondary" onclick="exportOrders()">📥 Export Orders</button>
+            <button class="action-btn btn-secondary" onclick="clearNotifications()">🗑️ Clear Notifications</button>
+          </div>
+        </aside>
+      </div>
+
+      <!-- Products Panel -->
+      <div id="panel-products" class="panel" style="display: none;">
+        <h2 class="section-title">Products Management</h2>
+        <div class="section-card">
+          <h3>Add New Product</h3>
+          <div class="form-row">
+            <label>Product Name</label>
+            <input type="text" id="new-product-name" placeholder="e.g. Black Essential Hoodie">
+          </div>
+          <div class="form-row">
+            <label>Price (TND)</label>
+            <input type="number" id="new-product-price" placeholder="120" min="0">
+          </div>
+          <div class="form-row">
+            <label>Product Image URL</label>
+            <input type="text" id="new-product-image" placeholder="https://...">
+          </div>
+          <button class="action-btn btn-primary" onclick="addProduct()">Add Product</button>
+        </div>
+        <div class="products-list" id="products-list">
+          <!-- Products will be populated here -->
+        </div>
+      </div>
+
+      <!-- Content Panel -->
+      <div id="panel-content" class="panel" style="display: none;">
+        <h2 class="section-title">Website Content</h2>
+        
+        <div class="section-card">
+          <h3>Header & Navigation</h3>
+          <div class="form-row">
+            <label>Logo Text</label>
+            <input type="text" id="site-logo" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Navigation Links (one per line: text|url)</label>
+            <textarea id="site-nav" rows="3" placeholder="COLLECTION|#collection&#10;INVEST|#invest"></textarea>
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Hero Section</h3>
+          <div class="form-row">
+            <label>Main Title</label>
+            <input type="text" id="hero-title" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Tagline</label>
+            <input type="text" id="hero-tagline" placeholder="Built for global dominance">
+          </div>
+          <div class="form-row">
+            <label>Button Text</label>
+            <input type="text" id="hero-cta" placeholder="Shop Now">
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Footer</h3>
+          <div class="form-row">
+            <label>Footer Logo</label>
+            <input type="text" id="footer-logo" placeholder="WATEN">
+          </div>
+          <div class="form-row">
+            <label>Copyright Text</label>
+            <input type="text" id="footer-copyright" placeholder="© 2026 WATEN">
+          </div>
+        </div>
+
+        <button class="action-btn btn-primary" onclick="saveContent()">Save All Content</button>
+      </div>
+
+      <!-- Settings Panel -->
+      <div id="panel-settings" class="panel" style="display: none;">
+        <h2 class="section-title">Settings</h2>
+        
+        <div class="section-card">
+          <h3>Contact Information</h3>
+          <div class="form-row">
+            <label>WhatsApp</label>
+            <input type="text" id="contact-whatsapp" placeholder="https://wa.me/216...">
+          </div>
+          <div class="form-row">
+            <label>Instagram</label>
+            <input type="text" id="contact-instagram" placeholder="https://instagram.com/...">
+          </div>
+          <div class="form-row">
+            <label>Email</label>
+            <input type="text" id="contact-email" placeholder="contact@waten.com">
+          </div>
+        </div>
+
+        <div class="section-card">
+          <h3>Security</h3>
+          <div class="form-row">
+            <label>Change Admin Password</label>
+            <input type="password" id="new-admin-password" placeholder="New password">
+          </div>
+        </div>
+
+        <button class="action-btn btn-primary" onclick="saveSettings()">Save Settings</button>
+      </div>
     </div>
   </div>
-</header>
-
-<!-- Main Dashboard Content -->
-<div class="dashboard-content">
-  <!-- Orders Section -->
-  <section class="orders-section">
-    <div class="section-header">
-      <h2 class="section-title">Orders</h2>
-      <div class="filters">
-        <select class="filter-select" id="status-filter">
-          <option value="all">All Status</option>
-          <option value="pending">Pending</option>
-          <option value="confirmed">Confirmed</option>
-          <option value="shipped">Shipped</option>
-          <option value="delivered">Delivered</option>
-        </select>
-        <input type="text" class="search-box" id="search-box" placeholder="Search orders...">
-      </div>
-    </div>
-    <div class="orders-list" id="orders-list">
-      <!-- Orders will be populated here -->
-    </div>
-  </section>
-
-  <!-- Sidebar -->
-  <aside class="sidebar">
-    <!-- Notifications Panel -->
-    <div class="notifications-panel">
-      <div class="section-header">
-        <h3 class="section-title">Notifications</h3>
-      </div>
-      <div class="notifications-list" id="notifications-list">
-        <!-- Notifications will be populated here -->
-      </div>
-    </div>
-
-    <!-- Actions Panel -->
-    <div class="actions-panel">
-      <h3 class="section-title" style="margin-bottom: 1rem;">Actions</h3>
-      <button class="action-btn btn-primary" onclick="refreshData()">🔄 Refresh Data</button>
-      <button class="action-btn btn-secondary" onclick="exportOrders()">📥 Export Orders</button>
-      <button class="action-btn btn-secondary" onclick="clearNotifications()">🗑️ Clear Notifications</button>
-      <button class="action-btn btn-primary" onclick="showSettings()">⚙️ Settings</button>
-    </div>
-  </aside>
 </div>
 
 <!-- Order Details Modal -->
@@ -393,6 +639,203 @@ function initializeDashboard() {
   loadData();
   setupEventListeners();
   startRealTimeUpdates();
+  loadProducts();
+  loadContent();
+  loadSettings();
+}
+
+// Panel Switching
+function switchPanel(panelName) {
+  // Hide all panels
+  document.querySelectorAll('.panel').forEach(panel => {
+    panel.classList.remove('active');
+  });
+  
+  // Remove active class from all nav items
+  document.querySelectorAll('.nav-item').forEach(item => {
+    item.classList.remove('active');
+  });
+  
+  // Show selected panel
+  const selectedPanel = document.getElementById('panel-' + panelName);
+  if (selectedPanel) {
+    selectedPanel.classList.add('active');
+  }
+  
+  // Add active class to selected nav item
+  const selectedNav = document.querySelector(`[data-panel="${panelName}"]`);
+  if (selectedNav) {
+    selectedNav.classList.add('active');
+  }
+}
+
+// Products Management
+let products = [];
+
+function loadProducts() {
+  const storedProducts = localStorage.getItem('watenProducts');
+  products = storedProducts ? JSON.parse(storedProducts) : [
+    { id: 1, name: 'Black Essential Hoodie', price: 120, image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7' },
+    { id: 2, name: 'White Premium Tee', price: 85, image: 'https://images.unsplash.com/photo-1521572163474-6844f2cf16ab' },
+    { id: 3, name: 'Navy Streetwear Jacket', price: 250, image: 'https://images.unsplash.com/photo-1551698618-1d4a98c205c1' }
+  ];
+  renderProducts();
+}
+
+function renderProducts() {
+  const productsList = document.getElementById('products-list');
+  
+  if (products.length === 0) {
+    productsList.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-muted);">No products yet. Add your first product above.</div>';
+    return;
+  }
+  
+  productsList.innerHTML = products.map(product => `
+    <div class="product-item">
+      <img src="${product.image}" alt="${product.name}" class="product-image" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
+      <div class="product-info">
+        <div class="product-name">${product.name}</div>
+        <div class="product-price">${product.price} TND</div>
+      </div>
+      <div class="product-actions">
+        <button class="btn-small btn-edit" onclick="editProduct(${product.id})">Edit</button>
+        <button class="btn-small btn-delete" onclick="deleteProduct(${product.id})">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function addProduct() {
+  const name = document.getElementById('new-product-name').value.trim();
+  const price = parseInt(document.getElementById('new-product-price').value);
+  const image = document.getElementById('new-product-image').value.trim();
+  
+  if (!name || !price) {
+    showNotification('Please fill in product name and price');
+    return;
+  }
+  
+  const newProduct = {
+    id: Date.now(),
+    name: name,
+    price: price,
+    image: image || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7'
+  };
+  
+  products.push(newProduct);
+  localStorage.setItem('watenProducts', JSON.stringify(products));
+  
+  // Clear form
+  document.getElementById('new-product-name').value = '';
+  document.getElementById('new-product-price').value = '';
+  document.getElementById('new-product-image').value = '';
+  
+  renderProducts();
+  showNotification('Product added successfully');
+}
+
+function editProduct(id) {
+  const product = products.find(p => p.id === id);
+  if (!product) return;
+  
+  const newName = prompt('Product name:', product.name);
+  const newPrice = prompt('Price (TND):', product.price);
+  const newImage = prompt('Image URL:', product.image);
+  
+  if (newName && newPrice) {
+    product.name = newName;
+    product.price = parseInt(newPrice);
+    if (newImage) product.image = newImage;
+    
+    localStorage.setItem('watenProducts', JSON.stringify(products));
+    renderProducts();
+    showNotification('Product updated successfully');
+  }
+}
+
+function deleteProduct(id) {
+  if (!confirm('Are you sure you want to delete this product?')) return;
+  
+  products = products.filter(p => p.id !== id);
+  localStorage.setItem('watenProducts', JSON.stringify(products));
+  renderProducts();
+  showNotification('Product deleted successfully');
+}
+
+// Content Management
+function loadContent() {
+  const storedContent = localStorage.getItem('watenContent');
+  const content = storedContent ? JSON.parse(storedContent) : {
+    logo: 'WATEN',
+    nav: 'COLLECTION|#collection\nINVEST|#invest',
+    heroTitle: 'WATEN',
+    heroTagline: 'Built for global dominance',
+    heroCta: 'Shop Now',
+    footerLogo: 'WATEN',
+    footerCopyright: '© 2026 WATEN — Global Streetwear'
+  };
+  
+  document.getElementById('site-logo').value = content.logo || '';
+  document.getElementById('site-nav').value = content.nav || '';
+  document.getElementById('hero-title').value = content.heroTitle || '';
+  document.getElementById('hero-tagline').value = content.heroTagline || '';
+  document.getElementById('hero-cta').value = content.heroCta || '';
+  document.getElementById('footer-logo').value = content.footerLogo || '';
+  document.getElementById('footer-copyright').value = content.footerCopyright || '';
+}
+
+function saveContent() {
+  const content = {
+    logo: document.getElementById('site-logo').value,
+    nav: document.getElementById('site-nav').value,
+    heroTitle: document.getElementById('hero-title').value,
+    heroTagline: document.getElementById('hero-tagline').value,
+    heroCta: document.getElementById('hero-cta').value,
+    footerLogo: document.getElementById('footer-logo').value,
+    footerCopyright: document.getElementById('footer-copyright').value
+  };
+  
+  localStorage.setItem('watenContent', JSON.stringify(content));
+  showNotification('Content saved successfully');
+}
+
+// Settings Management
+function loadSettings() {
+  const storedSettings = localStorage.getItem('watenSettings');
+  const settings = storedSettings ? JSON.parse(storedSettings) : {
+    whatsapp: '',
+    instagram: '',
+    email: ''
+  };
+  
+  document.getElementById('contact-whatsapp').value = settings.whatsapp || '';
+  document.getElementById('contact-instagram').value = settings.instagram || '';
+  document.getElementById('contact-email').value = settings.email || '';
+}
+
+function saveSettings() {
+  const newPassword = document.getElementById('new-admin-password').value;
+  
+  if (newPassword) {
+    // Update admin password
+    const script = document.createElement('script');
+    script.textContent = `const ADMIN_PASSWORD = '${newPassword}';`;
+    document.head.appendChild(script);
+    showNotification('Admin password updated successfully');
+  }
+  
+  const settings = {
+    whatsapp: document.getElementById('contact-whatsapp').value,
+    instagram: document.getElementById('contact-instagram').value,
+    email: document.getElementById('contact-email').value
+  };
+  
+  localStorage.setItem('watenSettings', JSON.stringify(settings));
+  
+  // Clear password field
+  document.getElementById('new-admin-password').value = '';
+  
+  showNotification('Settings saved successfully');
 }
 
 // Admin Dashboard JavaScript
@@ -724,713 +1167,4 @@ document.head.appendChild(style);
 
 </body>
 </html>
-    .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-    h1 { font-size: 1.5rem; margin-bottom: 2rem; letter-spacing: 0.1em; }
-    .login-box {
-      max-width: 360px; margin: 4rem auto; padding: 2rem; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
-    }
-    .login-box h2 { font-size: 1rem; margin-bottom: 1rem; font-weight: 500; }
-    input[type="password"] {
-      width: 100%; padding: 0.75rem 1rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; font-size: 1rem; margin-bottom: 1rem;
-    }
-    input[type="password"]:focus { outline: none; border-color: #c9a227; }
-    .btn {
-      padding: 0.75rem 1.5rem; background: #c9a227; color: #0a0a0a; border: none;
-      font-weight: 600; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.05em;
-    }
-    .btn:hover { background: #d4af37; }
-    .btn-ghost { background: transparent; color: #c9a227; border: 1px solid #c9a227; }
-    .btn-ghost:hover { background: rgba(201,162,39,0.15); }
-    .btn-danger { background: #8b2635; color: #fff; }
-    .btn-danger:hover { background: #a02d3f; }
-    .error { color: #e57373; font-size: 0.85rem; margin-top: 0.5rem; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .header a { color: #c9a227; text-decoration: none; font-size: 0.85rem; }
-    .products-list { display: flex; flex-direction: column; gap: 1rem; }
-    .product-row {
-      display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: #141414;
-      border: 1px solid rgba(255,255,255,0.08);
-    }
-    .product-row img { width: 60px; height: 75px; object-fit: cover; background: #1a1a1a; }
-    .product-row .info { flex: 1; }
-    .product-row .name { font-weight: 600; margin-bottom: 0.25rem; }
-    .product-row .price { color: #c9a227; font-size: 0.9rem; }
-    .product-row .actions { display: flex; gap: 0.5rem; }
-    .product-row .actions button { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
-    .add-form {
-      background: #1a1a1a; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.08);
-    }
-    .add-form h3 { font-size: 0.95rem; margin-bottom: 1rem; font-weight: 500; }
-    .form-row { margin-bottom: 1rem; }
-    .form-row label { display: block; font-size: 0.8rem; margin-bottom: 0.35rem; color: rgba(255,255,255,0.7); }
-    .form-row input { width: 100%; padding: 0.6rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; }
-    .form-row input:focus { outline: none; border-color: #c9a227; }
-    .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
-    .hidden { display: none !important; }
-    .empty { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); }
-    .dashboard-layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
-    .dashboard-main { flex: 1; min-width: 280px; }
-    .detail-panel {
-      width: 340px; flex-shrink: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
-      padding: 1.5rem; position: sticky; top: 2rem;
-    }
-    .detail-panel.hidden { display: none !important; }
-    .detail-panel h3 { font-size: 0.8rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.6); margin-bottom: 1rem; text-transform: uppercase; }
-    .detail-panel .detail-row { margin-bottom: 1rem; }
-    .detail-panel .detail-label { font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; margin-bottom: 0.25rem; }
-    .detail-panel .detail-value { font-size: 0.95rem; word-break: break-all; }
-    .detail-panel .detail-img { width: 100%; aspect-ratio: 3/4; object-fit: cover; background: #0a0a0a; margin: 0.5rem 0 1rem; }
-    .detail-panel .detail-actions { display: flex; gap: 0.5rem; margin-top: 1.25rem; flex-wrap: wrap; }
-    .stats-bar { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; margin-bottom: 1.5rem; padding: 1rem; background: #141414; border: 1px solid rgba(255,255,255,0.08); }
-    .stats-bar .stat { font-size: 0.9rem; }
-    .stats-bar .stat strong { color: #c9a227; }
-    .search-wrap { flex: 1; min-width: 200px; max-width: 320px; }
-    .search-wrap input { width: 100%; padding: 0.5rem 0.75rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 0.9rem; }
-    .search-wrap input::placeholder { color: rgba(255,255,255,0.4); }
-    .search-wrap input:focus { outline: none; border-color: #c9a227; }
-    .product-row { cursor: pointer; }
-    .product-row:hover { border-color: rgba(201,162,39,0.3); }
-    .product-row.selected { border-color: #c9a227; box-shadow: 0 0 0 1px #c9a227; }
-    .form-row textarea { width: 100%; padding: 0.6rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; min-height: 80px; resize: vertical; font-family: inherit; }
-    .form-row textarea:focus { outline: none; border-color: #c9a227; }
-    .save-status { font-size: 0.8rem; color: #c9a227; margin-left: 0.5rem; }
-    .save-status.err { color: #e57373; }
-    .dashboard-wrap { display: flex; min-height: calc(100vh - 80px); }
-    .sidebar {
-      width: 220px; flex-shrink: 0; background: #0a0a0a; border-right: 1px solid rgba(255,255,255,0.08);
-      padding: 1rem 0;
-    }
-    .sidebar a {
-      display: block; padding: 0.65rem 1.5rem; color: rgba(255,255,255,0.75); text-decoration: none;
-      font-size: 0.8rem; letter-spacing: 0.05em; transition: background 0.2s, color 0.2s;
-    }
-    .sidebar a:hover { background: rgba(255,255,255,0.05); color: #fff; }
-    .sidebar a.active { background: rgba(201,162,39,0.15); color: #c9a227; border-left: 3px solid #c9a227; padding-left: calc(1.5rem - 3px); }
-    .dashboard-content { flex: 1; padding: 1.5rem 2rem; overflow: auto; }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .panel h2 { font-size: 1.1rem; margin-bottom: 1.25rem; font-weight: 600; letter-spacing: 0.05em; }
-    .section-card { background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); padding: 1.5rem; margin-bottom: 1.5rem; max-width: 640px; }
-    .section-card h3 { font-size: 0.85rem; margin-bottom: 1rem; color: rgba(255,255,255,0.8); font-weight: 500; }
-    .link-row { display: flex; gap: 0.5rem; margin-bottom: 0.5rem; align-items: center; }
-    .link-row input { flex: 1; }
-    .link-row .small { width: 120px; flex: none; }
-  </style>
-</head>
-<body>
-  <div id="loginScreen" class="container">
-    <div class="login-box">
-      <h2>WATEN Dashboard</h2>
-      <p style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Enter your admin password to manage the entire site.</p>
-      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-      <div class="error" id="loginError"></div>
-      <button class="btn" onclick="login()">Log in</button>
-    </div>
-  </div>
-
-  <div id="dashboardScreen" class="hidden">
-    <div class="container" style="padding-bottom:0.5rem;">
-      <div class="header">
-        <h1>WATEN Dashboard</h1>
-        <a href="/idex.html" target="_blank">View site →</a>
-      </div>
-    </div>
-    <div class="dashboard-wrap">
-      <nav class="sidebar">
-        <a href="#" class="active" data-panel="products">Products</a>
-        <a href="#" data-panel="home">Home &amp; Hero</a>
-        <a href="#" data-panel="collection">Collection</a>
-        <a href="#" data-panel="invest">Invest</a>
-        <a href="#" data-panel="footer">Footer</a>
-        <a href="#" data-panel="settings">Settings</a>
-      </nav>
-      <div class="dashboard-content">
-        <div id="panel-products" class="panel active">
-          <h2>Products</h2>
-          <div class="stats-bar">
-            <span class="stat">Total: <strong id="totalProducts">0</strong></span>
-            <div class="search-wrap">
-              <input type="text" id="searchProducts" placeholder="Search by name or price..." aria-label="Search products">
-            </div>
-          </div>
-          <div class="add-form">
-            <h3>Add new product</h3>
-            <div class="form-row">
-              <label>Product name</label>
-              <input type="text" id="newName" placeholder="e.g. Black Essential Hoodie">
-            </div>
-            <div class="form-row">
-              <label>Price (TND)</label>
-              <input type="number" id="newPrice" placeholder="120" min="0" step="1">
-            </div>
-            <div class="form-row">
-              <label>Product image</label>
-              <input type="file" id="newImageFile" accept="image/*" style="padding:0.4rem 0;">
-              <small style="display:block;margin-top:0.35rem;color:rgba(255,255,255,0.5);font-size:0.75rem;">Or paste URL below</small>
-              <input type="text" id="newImage" placeholder="https://... (optional if uploading)" style="margin-top:0.5rem;">
-            </div>
-            <div class="form-actions">
-              <button class="btn" onclick="addProduct()">Add product</button>
-            </div>
-          </div>
-          <div class="dashboard-layout">
-            <div class="dashboard-main">
-              <h3 style="font-size:0.95rem;margin-bottom:1rem;font-weight:500;">Your products — click one to see details</h3>
-              <div id="productsList" class="products-list"></div>
-            </div>
-            <div id="detailPanel" class="detail-panel hidden">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-                <h3 style="margin-bottom:0;">Product details</h3>
-                <button type="button" class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick="showDetail(null); renderProductsList(allProducts);" aria-label="Close detail">×</button>
-              </div>
-              <div class="detail-row"><div class="detail-label">ID</div><div class="detail-value" id="detailId">—</div></div>
-              <div class="detail-row"><div class="detail-label">Name</div><div class="detail-value" id="detailName">—</div></div>
-              <div class="detail-row"><div class="detail-label">Price (TND)</div><div class="detail-value" id="detailPrice">—</div></div>
-              <div class="detail-row"><div class="detail-label">Image URL</div><div class="detail-value" id="detailImageUrl">—</div></div>
-              <div class="detail-row">
-                <div class="detail-label">Image preview</div>
-                <img id="detailImagePreview" class="detail-img" alt="" src="" style="display:none;">
-                <div id="detailNoImage" class="detail-value" style="color:rgba(255,255,255,0.4);">No image</div>
-              </div>
-              <div class="detail-actions">
-                <button class="btn" onclick="editFromDetail()">Edit</button>
-                <button class="btn btn-danger" onclick="deleteFromDetail()">Delete</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div id="panel-home" class="panel">
-          <h2>Home &amp; Hero</h2>
-          <div class="section-card">
-            <h3>Meta (browser tab &amp; SEO)</h3>
-            <div class="form-row"><label>Page title</label><input type="text" id="site-meta-title" placeholder="WATEN | Global Streetwear"></div>
-            <div class="form-row"><label>Meta description</label><input type="text" id="site-meta-description" placeholder="Short description for search engines"></div>
-          </div>
-          <div class="section-card">
-            <h3>Header</h3>
-            <div class="form-row"><label>Logo text</label><input type="text" id="site-header-logo" placeholder="WATEN"></div>
-            <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin-bottom:0.5rem;">Navigation links (one per line: label|href)</p>
-            <div class="form-row"><textarea id="site-header-nav" placeholder="COLLECTION|#collection&#10;INVEST|#invest" rows="3"></textarea></div>
-          </div>
-          <div class="section-card">
-            <h3>Hero section</h3>
-            <div class="form-row"><label>Main title</label><input type="text" id="site-hero-title" placeholder="WATEN"></div>
-            <div class="form-row"><label>Tagline</label><input type="text" id="site-hero-tagline" placeholder="Built for global dominance"></div>
-            <div class="form-row"><label>Button text</label><input type="text" id="site-hero-cta" placeholder="Shop Now"></div>
-            <div class="form-row"><label>Background image URL</label><input type="text" id="site-hero-bg" placeholder="https://..."></div>
-          </div>
-          <button class="btn" onclick="saveSiteSection('home')">Save Home &amp; Hero</button>
-          <span id="status-home" class="save-status"></span>
-        </div>
-
-        <div id="panel-collection" class="panel">
-          <h2>Collection section</h2>
-          <div class="section-card">
-            <div class="form-row"><label>Section heading</label><input type="text" id="site-collection-heading" placeholder="New Drop"></div>
-            <div class="form-row"><label>Subtitle</label><input type="text" id="site-collection-subtitle" placeholder="Limited edition pieces — available now"></div>
-          </div>
-          <button class="btn" onclick="saveSiteSection('collection')">Save Collection</button>
-          <span id="status-collection" class="save-status"></span>
-        </div>
-
-        <div id="panel-invest" class="panel">
-          <h2>Invest section</h2>
-          <div class="section-card">
-            <div class="form-row"><label>Heading</label><input type="text" id="site-invest-heading" placeholder="Invest in WATEN"></div>
-            <div class="form-row"><label>Body text</label><textarea id="site-invest-body" rows="5" placeholder="Paragraph about investing..."></textarea></div>
-            <div class="form-row"><label>Button text</label><input type="text" id="site-invest-cta" placeholder="Request Pitch Deck"></div>
-          </div>
-          <button class="btn" onclick="saveSiteSection('invest')">Save Invest</button>
-          <span id="status-invest" class="save-status"></span>
-        </div>
-
-        <div id="panel-footer" class="panel">
-          <h2>Footer</h2>
-          <div class="section-card">
-            <div class="form-row"><label>Logo text</label><input type="text" id="site-footer-logo" placeholder="WATEN"></div>
-            <div class="form-row"><label>Tagline</label><input type="text" id="site-footer-tagline" placeholder="Premium streetwear..."></div>
-            <div class="form-row"><label>Copyright</label><input type="text" id="site-footer-copyright" placeholder="© 2026 WATEN — Global Streetwear"></div>
-            <p style="font-size:0.75rem;color:rgba(255,255,255,0.5);margin:0.5rem 0;">Links (one per line: label|href)</p>
-            <div class="form-row"><textarea id="site-footer-links" rows="3" placeholder="Collection|#collection&#10;Invest|#invest"></textarea></div>
-          </div>
-          <button class="btn" onclick="saveSiteSection('footer')">Save Footer</button>
-          <span id="status-footer" class="save-status"></span>
-        </div>
-
-        <div id="panel-settings" class="panel">
-          <h2>Settings</h2>
-          <div class="section-card">
-            <h3>Contact &amp; Social</h3>
-            <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:0.75rem;">Add links for WhatsApp, Instagram, TikTok and email. Leave blank to hide.</p>
-            <div class="form-row"><label>WhatsApp link (wa.me or full URL)</label><input type="text" id="site-social-whatsapp" placeholder="https://wa.me/216..."></div>
-            <div class="form-row"><label>Instagram profile URL</label><input type="text" id="site-social-instagram" placeholder="https://instagram.com/yourbrand"></div>
-            <div class="form-row"><label>TikTok profile URL</label><input type="text" id="site-social-tiktok" placeholder="https://www.tiktok.com/@yourbrand"></div>
-            <div class="form-row"><label>Email address</label><input type="text" id="site-social-email" placeholder="you@example.com"></div>
-            <div class="form-actions">
-              <button class="btn" onclick="saveSiteSection('social')">Save contact &amp; social</button>
-              <span id="status-social" class="save-status"></span>
-            </div>
-          </div>
-          <div class="section-card">
-            <h3>Default product image</h3>
-            <p style="font-size:0.8rem;color:rgba(255,255,255,0.6);margin-bottom:0.5rem;">Used when a product has no image or image fails to load.</p>
-            <div class="form-row"><label>Fallback image URL</label><input type="text" id="config-fallback-image" placeholder="https://..."></div>
-          </div>
-          <div class="section-card">
-            <h3>Change admin password</h3>
-            <div class="form-row"><label>New password</label><input type="password" id="config-new-password" placeholder="New password" autocomplete="new-password"></div>
-            <div class="form-actions"><button class="btn" onclick="saveConfig()">Update password &amp; settings</button></div>
-          </div>
-          <span id="status-settings" class="save-status"></span>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <div id="editModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;">
-    <div style="background:#1a1a1a;padding:2rem;max-width:400px;width:90%;border:1px solid rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:1rem;">Edit product</h3>
-      <div class="form-row">
-        <label>Name</label>
-        <input type="text" id="editName">
-      </div>
-      <div class="form-row">
-        <label>Price (TND)</label>
-        <input type="number" id="editPrice" min="0">
-      </div>
-      <div class="form-row">
-        <label>Product image</label>
-        <input type="file" id="editImageFile" accept="image/*" style="padding:0.4rem 0;">
-        <input type="text" id="editImage" placeholder="Or paste URL" style="margin-top:0.5rem;">
-      </div>
-      <div style="display:flex;gap:0.5rem;margin-top:1rem;">
-        <button class="btn" onclick="saveEdit()">Save</button>
-        <button class="btn btn-ghost" onclick="closeEdit()">Cancel</button>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    const API = '/api';
-    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
-    let token = sessionStorage.getItem('waten_admin');
-    let editingId = null;
-    let allProducts = [];
-    let selectedProductId = null;
-
-    function authHeaders() {
-      return { 'X-Admin-Password': token, 'Content-Type': 'application/json' };
-    }
-
-    async function login() {
-      const pwd = document.getElementById('password').value;
-      document.getElementById('loginError').textContent = '';
-      const res = await fetch(API + '/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: pwd })
-      });
-      const data = await res.json();
-      if (data.ok) {
-        token = pwd;
-        sessionStorage.setItem('waten_admin', pwd);
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadSiteContent();
-      } else {
-        document.getElementById('loginError').textContent = 'Wrong password.';
-      }
-    }
-
-    function checkAuth() {
-      if (token) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadSiteContent();
-      }
-    }
-
-    let siteContent = {};
-
-    function navLinksToText(links) {
-      if (!links || !links.length) return '';
-      return links.map(function(l) { return (l.label || '') + '|' + (l.href || ''); }).join('\n');
-    }
-    function textToNavLinks(text) {
-      if (!text || !text.trim()) return [];
-      return text.trim().split('\n').map(function(line) {
-        var parts = line.split('|').map(function(p) { return p.trim(); });
-        return { label: parts[0] || '', href: parts[1] || '#' };
-      });
-    }
-
-    async function loadSiteContent() {
-      try {
-        var res = await fetch(API + '/site');
-        siteContent = await res.json();
-      } catch (e) { siteContent = {}; }
-      if (!siteContent.meta) siteContent.meta = {};
-      if (!siteContent.header) siteContent.header = {};
-      if (!siteContent.hero) siteContent.hero = {};
-      if (!siteContent.collection) siteContent.collection = {};
-      if (!siteContent.invest) siteContent.invest = {};
-      if (!siteContent.footer) siteContent.footer = {};
-      if (!siteContent.social) siteContent.social = {};
-      document.getElementById('site-meta-title').value = siteContent.meta.title || '';
-      document.getElementById('site-meta-description').value = siteContent.meta.description || '';
-      document.getElementById('site-header-logo').value = siteContent.header.logoText || '';
-      document.getElementById('site-header-nav').value = navLinksToText(siteContent.header.navLinks);
-      document.getElementById('site-hero-title').value = siteContent.hero.title || '';
-      document.getElementById('site-hero-tagline').value = siteContent.hero.tagline || '';
-      document.getElementById('site-hero-cta').value = siteContent.hero.ctaText || '';
-      document.getElementById('site-hero-bg').value = siteContent.hero.backgroundImage || '';
-      document.getElementById('site-collection-heading').value = siteContent.collection.heading || '';
-      document.getElementById('site-collection-subtitle').value = siteContent.collection.subtitle || '';
-      document.getElementById('site-invest-heading').value = siteContent.invest.heading || '';
-      document.getElementById('site-invest-body').value = siteContent.invest.body || '';
-      document.getElementById('site-invest-cta').value = siteContent.invest.ctaText || '';
-      document.getElementById('site-footer-logo').value = siteContent.footer.logoText || '';
-      document.getElementById('site-footer-tagline').value = siteContent.footer.tagline || '';
-      document.getElementById('site-footer-copyright').value = siteContent.footer.copyright || '';
-      document.getElementById('site-footer-links').value = navLinksToText(siteContent.footer.links);
-      document.getElementById('site-social-whatsapp').value = siteContent.social.whatsapp || '';
-      document.getElementById('site-social-instagram').value = siteContent.social.instagram || '';
-      document.getElementById('site-social-tiktok').value = siteContent.social.tiktok || '';
-      document.getElementById('site-social-email').value = siteContent.social.email || '';
-      try {
-        var cfgRes = await fetch(API + '/config', { headers: authHeaders() });
-        if (cfgRes.ok) {
-          var cfg = await cfgRes.json();
-          document.getElementById('config-fallback-image').value = cfg.fallbackImage || '';
-        }
-      } catch (e) {}
-    }
-
-    function setStatus(panelId, msg, isErr) {
-      var el = document.getElementById('status-' + panelId);
-      if (el) { el.textContent = msg; el.classList.toggle('err', !!isErr); }
-    }
-
-    async function saveSiteSection(section) {
-      var payload = {};
-      if (section === 'home') {
-        payload = {
-          meta: { title: document.getElementById('site-meta-title').value.trim(), description: document.getElementById('site-meta-description').value.trim() },
-          header: { logoText: document.getElementById('site-header-logo').value.trim(), navLinks: textToNavLinks(document.getElementById('site-header-nav').value) },
-          hero: {
-            title: document.getElementById('site-hero-title').value.trim(),
-            tagline: document.getElementById('site-hero-tagline').value.trim(),
-            ctaText: document.getElementById('site-hero-cta').value.trim(),
-            backgroundImage: document.getElementById('site-hero-bg').value.trim()
-          }
-        };
-      } else if (section === 'collection') {
-        payload = {
-          collection: {
-            heading: document.getElementById('site-collection-heading').value.trim(),
-            subtitle: document.getElementById('site-collection-subtitle').value.trim()
-          }
-        };
-      } else if (section === 'invest') {
-        payload = {
-          invest: {
-            heading: document.getElementById('site-invest-heading').value.trim(),
-            body: document.getElementById('site-invest-body').value.trim(),
-            ctaText: document.getElementById('site-invest-cta').value.trim()
-          }
-        };
-      } else if (section === 'footer') {
-        payload = {
-          footer: {
-            logoText: document.getElementById('site-footer-logo').value.trim(),
-            tagline: document.getElementById('site-footer-tagline').value.trim(),
-            copyright: document.getElementById('site-footer-copyright').value.trim(),
-            links: textToNavLinks(document.getElementById('site-footer-links').value)
-          }
-        };
-      } else if (section === 'social') {
-        payload = {
-          social: {
-            whatsapp: document.getElementById('site-social-whatsapp').value.trim(),
-            instagram: document.getElementById('site-social-instagram').value.trim(),
-            tiktok: document.getElementById('site-social-tiktok').value.trim(),
-            email: document.getElementById('site-social-email').value.trim()
-          }
-        };
-      }
-      try {
-        var current = getSiteContentForSave();
-        var merged = {};
-        for (var key in current) merged[key] = current[key];
-        for (var key in payload) merged[key] = Object.assign({}, merged[key] || {}, payload[key]);
-        var res = await fetch(API + '/site', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(merged) });
-        if (res.ok) {
-          siteContent = await res.json();
-          setStatus(section, 'Saved.', false);
-          setTimeout(function() { setStatus(section, '', false); }, 2000);
-        } else setStatus(section, 'Failed to save.', true);
-      } catch (e) { setStatus(section, 'Error.', true); }
-    }
-
-    function getSiteContentForSave() {
-      return {
-        meta: siteContent.meta || {},
-        header: siteContent.header || {},
-        hero: siteContent.hero || {},
-        collection: siteContent.collection || {},
-        invest: siteContent.invest || {},
-        footer: siteContent.footer || {},
-        social: siteContent.social || {}
-      };
-    }
-
-    async function saveConfig() {
-      var fallbackImage = document.getElementById('config-fallback-image').value.trim();
-      var newPassword = document.getElementById('config-new-password').value;
-      var payload = {};
-      if (fallbackImage !== undefined) payload.fallbackImage = fallbackImage;
-      if (newPassword) payload.adminPassword = newPassword;
-      if (!Object.keys(payload).length) { setStatus('settings', 'Enter new password or fallback image.', true); return; }
-      try {
-        var res = await fetch(API + '/config', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
-        if (res.ok) {
-          if (newPassword) { token = newPassword; sessionStorage.setItem('waten_admin', newPassword); }
-          document.getElementById('config-new-password').value = '';
-          setStatus('settings', 'Saved.', false);
-          setTimeout(function() { setStatus('settings', '', false); }, 2000);
-        } else setStatus('settings', 'Failed.', true);
-      } catch (e) { setStatus('settings', 'Error.', true); }
-    }
-
-    document.querySelectorAll('.sidebar a[data-panel]').forEach(function(a) {
-      a.addEventListener('click', function(e) {
-        e.preventDefault();
-        var panelId = this.getAttribute('data-panel');
-        document.querySelectorAll('.sidebar a').forEach(function(l) { l.classList.remove('active'); });
-        this.classList.add('active');
-        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-        var panel = document.getElementById('panel-' + panelId);
-        if (panel) panel.classList.add('active');
-      });
-    });
-
-    function getSearchQuery() {
-      return (document.getElementById('searchProducts').value || '').trim().toLowerCase();
-    }
-
-    function filterProducts(products) {
-      const q = getSearchQuery();
-      if (!q) return products;
-      return products.filter(p => {
-        const name = (p.name || '').toLowerCase();
-        const priceStr = String(p.price || '');
-        return name.includes(q) || priceStr.includes(q);
-      });
-    }
-
-    function renderProductsList(products) {
-      const el = document.getElementById('productsList');
-      const filtered = filterProducts(products);
-      document.getElementById('totalProducts').textContent = products.length;
-      if (!filtered.length) {
-        el.innerHTML = '<div class="empty">' + (products.length ? 'No products match your search.' : 'No products yet. Add one above.') + '</div>';
-        return;
-      }
-      el.innerHTML = filtered.map(p => {
-        const nameEsc = (p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        const imageEsc = (p.image || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        const selected = p.id === selectedProductId ? ' selected' : '';
-        return `
-        <div class="product-row${selected}" data-id="${p.id}" onclick="selectProduct('${String(p.id).replace(/'/g, "\\'")}')">
-          <img src="${imageEsc}" alt="" onerror="this.src='${FALLBACK_IMG}'">
-          <div class="info">
-            <div class="name">${nameEsc}</div>
-            <div class="price">${p.price} TND</div>
-          </div>
-          <div class="actions" onclick="event.stopPropagation()">
-            <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
-            <button class="btn btn-danger" onclick="deleteProduct('${String(p.id).replace(/'/g, "\\'")}')">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    function showDetail(product) {
-      if (!product) {
-        document.getElementById('detailPanel').classList.add('hidden');
-        selectedProductId = null;
-        return;
-      }
-      selectedProductId = product.id;
-      document.getElementById('detailId').textContent = product.id;
-      document.getElementById('detailName').textContent = product.name || '—';
-      document.getElementById('detailPrice').textContent = (product.price != null ? product.price : '—') + ' TND';
-      const imgUrl = product.image || '';
-      document.getElementById('detailImageUrl').textContent = imgUrl || '—';
-      const preview = document.getElementById('detailImagePreview');
-      const noImg = document.getElementById('detailNoImage');
-      if (imgUrl) {
-        preview.src = imgUrl;
-        preview.style.display = 'block';
-        preview.onerror = function() { this.style.display = 'none'; noImg.style.display = 'block'; };
-        noImg.style.display = 'none';
-      } else {
-        preview.style.display = 'none';
-        noImg.style.display = 'block';
-      }
-      document.getElementById('detailPanel').classList.remove('hidden');
-      renderProductsList(allProducts);
-    }
-
-    function selectProduct(id) {
-      const p = allProducts.find(x => x.id === id);
-      showDetail(p || null);
-    }
-
-    function openEditFromRow(btn) {
-      const row = btn.closest('.product-row');
-      const p = allProducts.find(x => x.id === row.dataset.id);
-      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
-    }
-
-    function editFromDetail() {
-      const p = allProducts.find(x => x.id === selectedProductId);
-      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
-    }
-
-    function deleteFromDetail() {
-      if (selectedProductId) deleteProduct(selectedProductId);
-    }
-
-    async function loadProducts() {
-      const res = await fetch(API + '/products');
-      allProducts = await res.json();
-      renderProductsList(allProducts);
-      if (selectedProductId && !allProducts.find(p => p.id === selectedProductId)) {
-        selectedProductId = null;
-        document.getElementById('detailPanel').classList.add('hidden');
-      } else if (selectedProductId) {
-        showDetail(allProducts.find(p => p.id === selectedProductId));
-      }
-    }
-
-    async function addProduct() {
-      const name = document.getElementById('newName').value.trim();
-      const price = parseInt(document.getElementById('newPrice').value) || 0;
-      let image = document.getElementById('newImage').value.trim();
-      const fileInput = document.getElementById('newImageFile');
-      if (!name) { alert('Enter a product name'); return; }
-      if (fileInput.files.length) {
-        const fd = new FormData();
-        fd.append('image', fileInput.files[0]);
-        const up = await fetch(API + '/upload', {
-          method: 'POST',
-          headers: { 'X-Admin-Password': token },
-          body: fd
-        });
-        if (!up.ok) {
-          const err = await up.json().catch(() => ({}));
-          alert('Image upload failed: ' + (err.error || up.statusText));
-          return;
-        }
-        const data = await up.json();
-        image = data.path;
-      }
-      if (!image) { alert('Add an image (upload or URL)'); return; }
-      const res = await fetch(API + '/products', {
-        method: 'POST',
-        headers: authHeaders(),
-        body: JSON.stringify({ name, price, image })
-      });
-      if (res.ok) {
-        document.getElementById('newName').value = '';
-        document.getElementById('newPrice').value = '';
-        document.getElementById('newImage').value = '';
-        fileInput.value = '';
-        loadProducts();
-      } else alert('Failed to add. Check password.');
-    }
-
-    function openEdit(id, name, price, image) {
-      editingId = id;
-      document.getElementById('editName').value = name;
-      document.getElementById('editPrice').value = price;
-      document.getElementById('editImage').value = image || '';
-      document.getElementById('editImageFile').value = '';
-      document.getElementById('editModal').classList.remove('hidden');
-    }
-
-    function closeEdit() {
-      editingId = null;
-      document.getElementById('editModal').classList.add('hidden');
-    }
-
-    async function saveEdit() {
-      const name = document.getElementById('editName').value.trim();
-      const price = parseInt(document.getElementById('editPrice').value) || 0;
-      let image = document.getElementById('editImage').value.trim();
-      const fileInput = document.getElementById('editImageFile');
-      if (fileInput.files.length) {
-        const fd = new FormData();
-        fd.append('image', fileInput.files[0]);
-        const up = await fetch(API + '/upload', {
-          method: 'POST',
-          headers: { 'X-Admin-Password': token },
-          body: fd
-        });
-        if (!up.ok) {
-          const err = await up.json().catch(() => ({}));
-          alert('Image upload failed: ' + (err.error || up.statusText));
-          return;
-        }
-        const data = await up.json();
-        image = data.path;
-      }
-      const body = { name, price };
-      if (image) body.image = image;
-      const res = await fetch(API + '/products/' + editingId, {
-        method: 'PUT',
-        headers: authHeaders(),
-        body: JSON.stringify(body)
-      });
-      if (res.ok) {
-        closeEdit();
-        loadProducts();
-      } else alert('Failed to update.');
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm('Delete this product?')) return;
-      const res = await fetch(API + '/products/' + id, {
-        method: 'DELETE',
-        headers: authHeaders()
-      });
-      if (res.ok) {
-        if (selectedProductId === id) {
-          selectedProductId = null;
-          document.getElementById('detailPanel').classList.add('hidden');
-        }
-        loadProducts();
-      } else alert('Failed to delete.');
-    }
-
-    document.getElementById('password').addEventListener('keydown', e => {
-      if (e.key === 'Enter') login();
-    });
-
-    document.getElementById('searchProducts').addEventListener('input', function() {
-      renderProductsList(allProducts);
-    });
-
-    document.getElementById('searchProducts').addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { this.value = ''; renderProductsList(allProducts); }
-    });
-
-    checkAuth();
-  </script>
-</body>
-</html>
+                                        
