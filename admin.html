@@ -436,9 +436,29 @@
 
     async function loadSiteContent() {
       try {
-        var res = await fetch(API + '/site');
-        siteContent = await res.json();
-      } catch (e) { siteContent = {}; }
+        // Try to load from localStorage first
+        const savedContent = localStorage.getItem('watenContent');
+        if (savedContent) {
+          siteContent = JSON.parse(savedContent);
+        } else {
+          siteContent = {};
+        }
+        
+        // Try to sync with API if available, but don't fail if it's not
+        try {
+          var res = await fetch(API + '/site');
+          if (res.ok) {
+            siteContent = await res.json();
+            localStorage.setItem('watenContent', JSON.stringify(siteContent));
+          }
+        } catch (apiError) {
+          console.log('API not available, using localStorage for content');
+        }
+      } catch (e) { 
+        siteContent = {}; 
+      }
+      
+      // Set defaults for all content sections
       if (!siteContent.meta) siteContent.meta = {};
       if (!siteContent.header) siteContent.header = {};
       if (!siteContent.hero) siteContent.hero = {};
@@ -446,6 +466,8 @@
       if (!siteContent.invest) siteContent.invest = {};
       if (!siteContent.footer) siteContent.footer = {};
       if (!siteContent.social) siteContent.social = {};
+      
+      // Populate form fields
       document.getElementById('site-meta-title').value = siteContent.meta.title || '';
       document.getElementById('site-meta-description').value = siteContent.meta.description || '';
       document.getElementById('site-header-logo').value = siteContent.header.logoText || '';
@@ -467,13 +489,17 @@
       document.getElementById('site-social-instagram').value = siteContent.social.instagram || '';
       document.getElementById('site-social-tiktok').value = siteContent.social.tiktok || '';
       document.getElementById('site-social-email').value = siteContent.social.email || '';
+      
+      // Try to load config from API
       try {
         var cfgRes = await fetch(API + '/config', { headers: authHeaders() });
         if (cfgRes.ok) {
           var cfg = await cfgRes.json();
           document.getElementById('config-fallback-image').value = cfg.fallbackImage || '';
         }
-      } catch (e) {}
+      } catch (configError) {
+        console.log('Config API not available');
+      }
     }
 
     function setStatus(panelId, msg, isErr) {
@@ -865,19 +891,37 @@
 
     async function loadOrders() {
       try {
-        const res = await fetch(API + '/orders', { headers: authHeaders() });
-        allOrders = await res.json();
-        renderOrdersList();
-        updateOrderStats();
-      } catch (e) {
-        console.error('Failed to load orders:', e);
-        // Fallback to localStorage if API fails
+        // Try to load from localStorage first
         const savedOrders = localStorage.getItem('watenOrders');
         if (savedOrders) {
           allOrders = JSON.parse(savedOrders);
           renderOrdersList();
           updateOrderStats();
+        } else {
+          allOrders = [];
+          renderOrdersList();
+          updateOrderStats();
         }
+        
+        // Try to sync with API if available, but don't fail if it's not
+        try {
+          const res = await fetch(API + '/orders', { headers: authHeaders() });
+          if (res.ok) {
+            const apiOrders = await res.json();
+            allOrders = apiOrders;
+            localStorage.setItem('watenOrders', JSON.stringify(allOrders));
+            renderOrdersList();
+            updateOrderStats();
+          }
+        } catch (apiError) {
+          console.log('API not available, using localStorage for orders');
+        }
+      } catch (e) {
+        console.error('Failed to load orders:', e);
+        // Fallback to empty orders
+        allOrders = [];
+        renderOrdersList();
+        updateOrderStats();
       }
     }
 
