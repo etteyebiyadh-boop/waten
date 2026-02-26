@@ -1583,11 +1583,12 @@ function applySiteContent(content) {
     }
   }
   
-  if (content.heroButton) {
+  // Fix: Dashboard saves as heroCta, main site looks for heroButton
+  if (content.heroCta || content.heroButton) {
     const heroButton = document.querySelector('.hero .btn');
     if (heroButton) {
-      heroButton.textContent = content.heroButton;
-      console.log('Updated hero button:', content.heroButton);
+      heroButton.textContent = content.heroCta || content.heroButton;
+      console.log('Updated hero button:', content.heroCta || content.heroButton);
     }
   }
   
@@ -1625,11 +1626,12 @@ function applySiteContent(content) {
     }
   }
   
-  if (content.investButton) {
+  // Fix: Dashboard saves as investCta, main site looks for investButton
+  if (content.investCta || content.investButton) {
     const investButton = document.querySelector('#invest .btn');
     if (investButton) {
-      investButton.textContent = content.investButton;
-      console.log('Updated invest button:', content.investButton);
+      investButton.textContent = content.investCta || content.investButton;
+      console.log('Updated invest button:', content.investCta || content.investButton);
     }
   }
   
@@ -1699,6 +1701,26 @@ document.addEventListener('DOMContentLoaded', function() {
     showNotification('Content refreshed from dashboard');
   };
   document.body.appendChild(refreshBtn);
+  
+  // Add sync test button
+  const testBtn = document.createElement('button');
+  testBtn.innerHTML = '🧪 Test Sync';
+  testBtn.style.cssText = `
+    position: fixed; bottom: 70px; right: 20px; background: var(--accent);
+    color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 8px;
+    cursor: pointer; z-index: 1000; font-weight: 600; font-size: 0.8rem;
+    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4);
+  `;
+  testBtn.onclick = function() {
+    console.log('Testing sync...');
+    const currentTitle = document.title;
+    document.title = 'SYNC TEST - ' + Date.now();
+    setTimeout(() => {
+      document.title = currentTitle;
+      showNotification('Sync test complete - check if title changed');
+    }, 2000);
+  };
+  document.body.appendChild(testBtn);
 });
 
 // Also listen for storage changes (for real-time updates)

@@ -781,6 +781,8 @@ body {
 
         <button class="action-btn btn-primary" onclick="saveContent()">💾 Save All Content</button>
         <button class="action-btn btn-secondary" onclick="loadContent()">🔄 Reload Content</button>
+        <button class="action-btn btn-secondary" onclick="testContentSync()" style="background: var(--accent); color: var(--bg-dark);">🧪 Test Sync</button>
+        <button class="action-btn btn-secondary" onclick="clearLocalStorage()" style="background: var(--danger); color: white;">🗑️ Clear Storage</button>
       </div>
 
       <!-- Settings Panel -->
@@ -1174,6 +1176,83 @@ function closeEditModal() {
   if (modal) modal.remove();
 }
 
+// Test functions for debugging
+function testContentSync() {
+  console.log('🧪 Testing content synchronization...');
+  
+  // Test 1: Check if elements exist
+  const elements = [
+    'meta-title', 'meta-description', 'site-logo', 'site-nav',
+    'hero-title', 'hero-tagline', 'hero-cta',
+    'collection-heading', 'collection-subtitle',
+    'invest-heading', 'invest-body', 'invest-cta',
+    'footer-logo', 'footer-tagline', 'footer-links', 'footer-copyright'
+  ];
+  
+  let missingElements = [];
+  elements.forEach(id => {
+    const element = document.getElementById(id);
+    if (!element) {
+      missingElements.push(id);
+    }
+  });
+  
+  if (missingElements.length > 0) {
+    console.error('❌ Missing elements:', missingElements);
+    showNotification(`Missing elements: ${missingElements.join(', ')}`, 'error');
+    return;
+  }
+  
+  // Test 2: Try to save test content
+  const testContent = {
+    metaTitle: 'TEST TITLE - ' + Date.now(),
+    metaDescription: 'Test description',
+    logo: 'TEST LOGO',
+    nav: 'Test|#test',
+    heroTitle: 'TEST HERO TITLE',
+    heroTagline: 'Test tagline',
+    heroCta: 'Test Button',
+    collectionHeading: 'Test Collection',
+    collectionSubtitle: 'Test subtitle',
+    investHeading: 'Test Invest',
+    investBody: 'Test invest body',
+    investCta: 'Test Invest Button',
+    footerLogo: 'Test Footer Logo',
+    footerTagline: 'Test footer tagline',
+    footerLinks: 'Test|#test',
+    footerCopyright: 'Test copyright'
+  };
+  
+  try {
+    localStorage.setItem('watenContent', JSON.stringify(testContent));
+    console.log('✅ Test content saved');
+    
+    // Test 3: Verify it was saved
+    const saved = localStorage.getItem('watenContent');
+    const parsed = JSON.parse(saved);
+    console.log('🔍 Verification:', parsed);
+    
+    if (parsed.metaTitle === testContent.metaTitle) {
+      showNotification('✅ Content sync test passed! Check main site.', 'success');
+      console.log('🎉 Sync test successful');
+    } else {
+      showNotification('❌ Content sync test failed', 'error');
+      console.error('❌ Sync test failed');
+    }
+  } catch (error) {
+    console.error('❌ Test error:', error);
+    showNotification('Test failed: ' + error.message, 'error');
+  }
+}
+
+function clearLocalStorage() {
+  if (confirm('This will clear all stored content. Are you sure?')) {
+    localStorage.removeItem('watenContent');
+    console.log('🗑️ LocalStorage cleared');
+    showNotification('LocalStorage cleared');
+  }
+}
+
 function deleteProduct(id) {
   console.log('Attempting to delete product with ID:', id);
   console.log('Current products before delete:', products);
@@ -1253,6 +1332,8 @@ function loadContent() {
 }
 
 function saveContent() {
+  console.log('🔧 Saving content...');
+  
   const content = {
     metaTitle: document.getElementById('meta-title').value,
     metaDescription: document.getElementById('meta-description').value,
@@ -1272,13 +1353,26 @@ function saveContent() {
     footerCopyright: document.getElementById('footer-copyright').value
   };
   
-  // Save to localStorage
-  localStorage.setItem('watenContent', JSON.stringify(content));
+  console.log('📝 Content to save:', content);
   
-  // Apply changes to main site (if it's open in same browser)
-  applyContentToSite(content);
-  
-  showNotification('Content saved successfully! Changes applied to website.');
+  try {
+    // Save to localStorage
+    localStorage.setItem('watenContent', JSON.stringify(content));
+    console.log('✅ Content saved to localStorage');
+    
+    // Verify it was saved
+    const savedContent = localStorage.getItem('watenContent');
+    console.log('🔍 Verification - saved content:', savedContent);
+    
+    // Apply changes to main site (if it's open in same browser)
+    applyContentToSite(content);
+    
+    showNotification('Content saved successfully! Changes applied to website.');
+    console.log('🎉 Save complete and notification shown');
+  } catch (error) {
+    console.error('❌ Error saving content:', error);
+    showNotification('Error saving content', 'error');
+  }
 }
 
 function applyContentToSite(content) {
