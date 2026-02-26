@@ -192,8 +192,9 @@ section.show { opacity: 1; transform: translateY(0); }
   backdrop-filter: blur(8px); padding: 2rem;
 }
 .modal-content {
-  background: var(--bg-card); padding: 2.5rem; max-width: 440px; width: 100%;
-  text-align: center; border: 1px solid var(--border);
+  background: var(--bg-card); padding: 2.5rem; max-width: 600px; width: 100%;
+  text-align: left; border: 1px solid var(--border);
+  max-height: 90vh; overflow-y: auto;
 }
 .modal-content h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; margin-bottom: 0.5rem; letter-spacing: 0.1em; }
 .modal-content .price { font-size: 1.1rem; color: var(--accent); font-weight: 600; margin-bottom: 1.5rem; }
@@ -202,6 +203,61 @@ section.show { opacity: 1; transform: translateY(0); }
   font-size: 0.7rem; letter-spacing: 0.15em; transition: color 0.25s;
 }
 .close:hover { color: var(--accent); }
+
+/* Order Form Styling */
+.order-form {
+  display: flex; flex-direction: column; gap: 1.5rem;
+}
+.form-group {
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.form-row {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;
+}
+.form-group label {
+  font-size: 0.85rem; font-weight: 500; letter-spacing: 0.05em; color: var(--text);
+}
+.form-group input,
+.form-group select,
+.form-group textarea {
+  padding: 0.75rem 1rem; background: var(--bg-dark);
+  border: 1px solid var(--border); color: var(--text);
+  font-family: 'DM Sans', sans-serif; font-size: 0.9rem;
+  border-radius: 4px; transition: all 0.3s ease;
+}
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none; border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.1);
+}
+.form-group textarea {
+  resize: vertical; min-height: 80px;
+}
+
+/* Order Summary */
+.order-summary {
+  background: var(--bg-dark); padding: 1.5rem; border-radius: 8px;
+  border: 1px solid var(--border); margin: 1rem 0;
+}
+.summary-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 0.5rem 0; font-size: 0.9rem;
+}
+.summary-row.total {
+  border-top: 1px solid var(--border); margin-top: 0.5rem;
+  padding-top: 1rem; font-weight: 600; font-size: 1rem; color: var(--accent);
+}
+.confirm-order-btn {
+  width: 100%; padding: 1rem 2rem; background: var(--accent);
+  color: var(--bg-dark); border: none; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer;
+  transition: all 0.3s ease; margin-top: 1rem;
+}
+.confirm-order-btn:hover {
+  background: var(--accent-hover); transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(201, 162, 39, 0.3);
+}
 
 .cart {
   position: fixed; top: 1.25rem; right: 6%; background: var(--accent); color: var(--bg-dark);
@@ -240,6 +296,22 @@ footer {
   footer { flex-direction: column; text-align: center; }
   .footer-links { justify-content: center; }
   .footer-social { align-items: center; }
+  
+  /* Mobile Order Form */
+  .modal-content {
+    padding: 1.5rem; margin: 1rem; max-width: none;
+  }
+  .form-row {
+    grid-template-columns: 1fr; gap: 0;
+  }
+  .order-form {
+    gap: 1rem;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 0.6rem 0.8rem; font-size: 0.85rem;
+  }
 }
 </style>
 </head>
@@ -333,9 +405,77 @@ footer {
 <div class="modal" id="productModal">
 <div class="modal-content">
 <span class="close" onclick="closeProduct()">Close</span>
-<h3 id="productName"></h3>
-<p class="price" id="productPrice"></p>
-<button class="btn" onclick="addToCart()">Add to Cart</button>
+<div class="order-form">
+  <h3 id="productName"></h3>
+  <p class="price" id="productPrice"></p>
+  
+  <form id="orderForm" onsubmit="submitOrder(event)">
+    <div class="form-group">
+      <label for="customerName">Full Name *</label>
+      <input type="text" id="customerName" name="customerName" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="phoneNumber">Phone Number *</label>
+      <input type="tel" id="phoneNumber" name="phoneNumber" required>
+    </div>
+    
+    <div class="form-group">
+      <label for="email">Email Address</label>
+      <input type="email" id="email" name="email">
+    </div>
+    
+    <div class="form-group">
+      <label for="address">Street Address *</label>
+      <input type="text" id="address" name="address" required>
+    </div>
+    
+    <div class="form-row">
+      <div class="form-group">
+        <label for="city">City *</label>
+        <input type="text" id="city" name="city" required>
+      </div>
+      
+      <div class="form-group">
+        <label for="postalCode">Postal Code *</label>
+        <input type="text" id="postalCode" name="postalCode" required>
+      </div>
+    </div>
+    
+    <div class="form-group">
+      <label for="quantity">Quantity *</label>
+      <select id="quantity" name="quantity" required>
+        <option value="1">1</option>
+        <option value="2">2</option>
+        <option value="3">3</option>
+        <option value="4">4</option>
+        <option value="5">5</option>
+      </select>
+    </div>
+    
+    <div class="form-group">
+      <label for="notes">Order Notes (Optional)</label>
+      <textarea id="notes" name="notes" rows="3" placeholder="Special instructions or delivery notes..."></textarea>
+    </div>
+    
+    <div class="order-summary">
+      <div class="summary-row">
+        <span>Unit Price:</span>
+        <span id="unitPrice">0 TND</span>
+      </div>
+      <div class="summary-row">
+        <span>Quantity:</span>
+        <span id="summaryQuantity">1</span>
+      </div>
+      <div class="summary-row total">
+        <span>Total:</span>
+        <span id="totalPrice">0 TND</span>
+      </div>
+    </div>
+    
+    <button type="submit" class="btn confirm-order-btn">Confirm Order</button>
+  </form>
+</div>
 </div>
 </div>
 
@@ -494,8 +634,14 @@ function openProduct(name, price) {
   currentProduct = { name, price };
   document.getElementById('productName').innerText = name;
   document.getElementById('productPrice').innerText = price + ' TND';
+  document.getElementById('unitPrice').innerText = price + ' TND';
+  document.getElementById('totalPrice').innerText = price + ' TND';
   document.getElementById('productModal').style.display = 'flex';
   document.body.style.overflow = 'hidden';
+  
+  // Reset form
+  document.getElementById('orderForm').reset();
+  document.getElementById('summaryQuantity').innerText = '1';
 }
 
 function closeProduct() {
@@ -503,11 +649,60 @@ function closeProduct() {
   document.body.style.overflow = '';
 }
 
-function addToCart() {
-  cart.push(currentProduct);
-  localStorage.setItem('cart', JSON.stringify(cart));
-  document.getElementById('cart-count').innerText = cart.length;
+// Update order summary when quantity changes
+document.addEventListener('DOMContentLoaded', function() {
+  const quantitySelect = document.getElementById('quantity');
+  if (quantitySelect) {
+    quantitySelect.addEventListener('change', updateOrderSummary);
+  }
+});
+
+function updateOrderSummary() {
+  const quantity = parseInt(document.getElementById('quantity').value);
+  const unitPrice = currentProduct.price || 0;
+  const totalPrice = unitPrice * quantity;
+  
+  document.getElementById('summaryQuantity').innerText = quantity;
+  document.getElementById('totalPrice').innerText = totalPrice + ' TND';
+}
+
+function submitOrder(event) {
+  event.preventDefault();
+  
+  // Get form data
+  const formData = new FormData(event.target);
+  const orderData = {
+    product: currentProduct,
+    customer: {
+      name: formData.get('customerName'),
+      phone: formData.get('phoneNumber'),
+      email: formData.get('email'),
+      address: formData.get('address'),
+      city: formData.get('city'),
+      postalCode: formData.get('postalCode')
+    },
+    quantity: parseInt(formData.get('quantity')),
+    notes: formData.get('notes'),
+    totalPrice: currentProduct.price * parseInt(formData.get('quantity')),
+    orderDate: new Date().toISOString()
+  };
+  
+  // Save order to localStorage (in a real app, this would be sent to a server)
+  const orders = JSON.parse(localStorage.getItem('orders')) || [];
+  orders.push(orderData);
+  localStorage.setItem('orders', JSON.stringify(orders));
+  
+  // Show confirmation message
+  alert(`Order confirmed!\n\nProduct: ${orderData.product.name}\nQuantity: ${orderData.quantity}\nTotal: ${orderData.totalPrice} TND\n\nWe'll contact you soon at ${orderData.customer.phone}`);
+  
+  // Close modal and reset
   closeProduct();
+  
+  // Optional: Update cart count if you want to track orders
+  const cartCount = document.getElementById('cart-count');
+  if (cartCount) {
+    cartCount.innerText = orders.length;
+  }
 }
 
 function viewCart() {
