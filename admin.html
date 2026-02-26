@@ -571,9 +571,24 @@
         // Update website with new data
         function updateWebsite() {
             saveData();
-            // Trigger storage event for main site
-            window.dispatchEvent(new Event('storage'));
-            showNotification('Website updated successfully!', 'success');
+            
+            // Trigger storage event for main site by updating localStorage with new data
+            // This will trigger the storage event listener in the main site
+            const currentProducts = localStorage.getItem('watenProducts');
+            localStorage.setItem('watenProducts', currentProducts);
+            
+            // Also trigger a custom event as backup
+            window.dispatchEvent(new StorageEvent('storage', {
+                key: 'watenProducts',
+                newValue: currentProducts,
+                oldValue: null
+            }));
+            
+            showNotification('Website updated successfully! Check main site.', 'success');
+            
+            // Log for debugging
+            console.log('🔄 Website update triggered');
+            console.log('Products saved:', products.length);
         }
 
         // Export data
