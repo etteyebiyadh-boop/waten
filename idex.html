@@ -217,84 +217,7 @@ footer {
 .footer-bottom { width: 100%; padding-top: 2rem; margin-top: 2rem; border-top: 1px solid var(--border); text-align: center; }
 .footer-bottom span { font-size: 0.7rem; color: var(--text-muted); letter-spacing: 0.1em; }
 
-.cart {
-  position: fixed; top: 1.25rem; right: 6%; background: var(--accent); color: var(--bg-dark);
-  padding: 0.6rem 1.25rem; cursor: pointer; font-weight: 600; z-index: 2000;
-  font-size: 0.7rem; letter-spacing: 0.15em; transition: background 0.25s;
-}
-.cart:hover { background: var(--accent-hover); }
-
-/* Shopping Cart Sidebar */
-.cart-sidebar {
-  position: fixed; top: 0; right: -400px; width: 400px; height: 100%;
-  background: var(--bg-card); border-left: 1px solid var(--border);
-  z-index: 3000; transition: right 0.3s ease; overflow-y: auto;
-}
-.cart-sidebar.open { right: 0; }
-
-.cart-header {
-  display: flex; justify-content: space-between; align-items: center;
-  padding: 1.5rem; border-bottom: 1px solid var(--border);
-}
-.cart-header h3 { color: var(--text); font-size: 1.2rem; }
-.close-cart {
-  background: none; border: none; color: var(--text-muted); font-size: 1.5rem;
-  cursor: pointer; padding: 0.5rem;
-}
-
-.cart-items {
-  padding: 1rem;
-  max-height: calc(100vh - 200px); overflow-y: auto;
-}
-
-.cart-item {
-  display: flex; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border);
-  align-items: center;
-}
-.cart-item img {
-  width: 60px; height: 60px; object-fit: cover; border-radius: 8px;
-}
-.cart-item-info {
-  flex: 1;
-}
-.cart-item-name {
-  font-weight: 600; color: var(--text); margin-bottom: 0.25rem;
-}
-.cart-item-price {
-  color: var(--accent); font-size: 0.9rem;
-}
-.cart-item-quantity {
-  display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;
-}
-.cart-item-quantity button {
-  background: var(--bg-dark); border: 1px solid var(--border); color: var(--text);
-  width: 24px; height: 24px; border-radius: 4px; cursor: pointer;
-}
-.cart-item-quantity button:hover { border-color: var(--accent); }
-
-.cart-footer {
-  position: absolute; bottom: 0; left: 0; right: 0; padding: 1.5rem;
-  background: var(--bg-card); border-top: 1px solid var(--border);
-}
-.cart-total {
-  display: flex; justify-content: space-between; align-items: center;
-  margin-bottom: 1rem; font-size: 1.1rem; font-weight: 600; color: var(--text);
-}
-.cart-total span:last-child { color: var(--accent); }
-
-.checkout-btn {
-  width: 100%; padding: 1rem; background: var(--accent); color: var(--bg-dark);
-  border: none; border-radius: 6px; font-weight: 600; cursor: pointer;
-  transition: all 0.2s ease;
-}
-.checkout-btn:hover {
-  background: var(--accent-hover); transform: translateY(-1px);
-}
-
-.empty-cart {
-  text-align: center; padding: 3rem; color: var(--text-muted);
-}
-
+/* Search Container */
 .search-container {
   display: flex; align-items: center; background: var(--bg-dark);
   border: 1px solid var(--border); border-radius: 4px;
@@ -404,24 +327,6 @@ footer {
   </div>
 </div>
 
-<!-- Shopping Cart Sidebar -->
-<div id="cart-sidebar" class="cart-sidebar">
-  <div class="cart-header">
-    <h3>Shopping Cart</h3>
-    <button onclick="toggleCart()" class="close-cart">&times;</button>
-  </div>
-  <div class="cart-items" id="cart-items">
-    <!-- Cart items will be populated here -->
-  </div>
-  <div class="cart-footer">
-    <div class="cart-total">
-      <span>Total:</span>
-      <span id="cart-total">0 TND</span>
-    </div>
-    <button class="checkout-btn" onclick="proceedToCheckout()">Checkout</button>
-  </div>
-</div>
-
 <header>
 <div class="logo" id="header-logo">WATEN</div>
 <nav id="header-nav">
@@ -433,7 +338,6 @@ footer {
   <input type="text" id="search-input" placeholder="Search products..." onkeyup="handleSearch(event)">
   <button onclick="performSearch()" style="background: var(--accent); color: var(--bg-dark); border: none; padding: 0.5rem 1rem; border-radius: 0 4px 4px 0; cursor: pointer;">🔍</button>
 </div>
-<div class="cart" onclick="toggleCart()">Cart (<span id="cart-count">0</span>)</div>
 </header>
 
 <section class="hero show" id="hero-section">
@@ -563,185 +467,6 @@ footer {
 <script>
 let currentProduct = {};
 let siteContent = null;
-
-// Shopping Cart System
-let cart = JSON.parse(localStorage.getItem('watenCart')) || [];
-
-function toggleCart() {
-  const cartSidebar = document.getElementById('cart-sidebar');
-  cartSidebar.classList.toggle('open');
-}
-
-function addToCart(product) {
-  const existingItem = cart.find(item => item.id === product.id);
-  
-  if (existingItem) {
-    existingItem.quantity += 1;
-  } else {
-    cart.push({
-      id: product.id,
-      name: product.name,
-      price: product.price,
-      image: product.image,
-      quantity: 1
-    });
-  }
-  
-  localStorage.setItem('watenCart', JSON.stringify(cart));
-  updateCartUI();
-  showNotification('Product added to cart!');
-}
-
-function removeFromCart(productId) {
-  cart = cart.filter(item => item.id !== productId);
-  localStorage.setItem('watenCart', JSON.stringify(cart));
-  updateCartUI();
-}
-
-function updateQuantity(productId, change) {
-  const item = cart.find(item => item.id === productId);
-  if (item) {
-    item.quantity += change;
-    if (item.quantity <= 0) {
-      removeFromCart(productId);
-    } else {
-      localStorage.setItem('watenCart', JSON.stringify(cart));
-      updateCartUI();
-    }
-  }
-}
-
-function updateCartUI() {
-  const cartCount = document.getElementById('cart-count');
-  const cartItems = document.getElementById('cart-items');
-  const cartTotal = document.getElementById('cart-total');
-  
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
-  cartCount.textContent = totalItems;
-  
-  if (cart.length === 0) {
-    cartItems.innerHTML = '<div class="empty-cart">Your cart is empty</div>';
-    cartTotal.textContent = '0 TND';
-    return;
-  }
-  
-  cartItems.innerHTML = cart.map(item => `
-    <div class="cart-item">
-      <img src="${item.image}" alt="${item.name}" onerror="this.src='https://images.unsplash.com/photo-1556821840-3a63f95609a7'">
-      <div class="cart-item-info">
-        <div class="cart-item-name">${item.name}</div>
-        <div class="cart-item-price">${item.price} TND</div>
-        <div class="cart-item-quantity">
-          <button onclick="updateQuantity(${item.id}, -1)">-</button>
-          <span>${item.quantity}</span>
-          <button onclick="updateQuantity(${item.id}, 1)">+</button>
-        </div>
-      </div>
-      <button onclick="removeFromCart(${item.id})" style="background: none; border: none; color: var(--text-muted); cursor: pointer;">×</button>
-    </div>
-  `).join('');
-  
-  const total = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  cartTotal.textContent = `${total} TND`;
-}
-
-function proceedToCheckout() {
-  if (cart.length === 0) {
-    showNotification('Your cart is empty');
-    return;
-  }
-  
-  // Choose payment method
-  const paymentMethod = confirm('Choose payment method:\n\nOK = Pay with Card (Stripe)\nCancel = Cash on Delivery');
-  
-  if (paymentMethod) {
-    // Stripe payment
-    processStripePayment();
-  } else {
-    // Cash on delivery
-    processCashOnDelivery();
-  }
-}
-
-function processStripePayment() {
-  const totalAmount = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  
-  // Create payment intent on your server
-  fetch('/create-payment-intent', {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      amount: totalAmount * 100, // Convert to cents
-      currency: 'usd',
-      items: cart
-    })
-  })
-  .then(response => response.json())
-  .then(data => {
-    if (data.error) {
-      showNotification('Payment error: ' + data.error);
-      return;
-    }
-    
-    // Redirect to Stripe Checkout
-    return stripe.redirectToCheckout({
-      sessionId: data.sessionId
-    });
-  })
-  .then(result => {
-    if (result.error) {
-      showNotification('Payment error: ' + result.error.message);
-    }
-  })
-  .catch(error => {
-    console.error('Error:', error);
-    showNotification('Payment processing failed. Please try again.');
-  });
-}
-
-function processCashOnDelivery() {
-  // Close cart and open order modal with cart items
-  toggleCart();
-  
-  // Create a combined product from cart items
-  const cartProduct = {
-    name: 'Multiple Items (' + cart.length + ')',
-    price: cart.reduce((sum, item) => sum + (item.price * item.quantity), 0),
-    image: cart[0].image,
-    cartItems: cart
-  };
-  
-  openProduct(cartProduct.name, cartProduct.price);
-}
-
-// Handle successful payment from Stripe
-function handleStripeSuccess() {
-  // Clear cart after successful payment
-  cart = [];
-  localStorage.setItem('watenCart', JSON.stringify(cart));
-  updateCartUI();
-  
-  showNotification('Payment successful! Your order is confirmed.');
-}
-
-function showNotification(message) {
-  const notification = document.createElement('div');
-  notification.style.cssText = `
-    position: fixed; top: 100px; right: 20px; background: var(--accent);
-    color: var(--bg-dark); padding: 1rem 1.5rem; border-radius: 8px;
-    z-index: 10000; font-weight: 600; animation: slideIn 0.3s ease;
-  `;
-  notification.textContent = message;
-  
-  document.body.appendChild(notification);
-  
-  setTimeout(() => {
-    notification.style.opacity = '0';
-    setTimeout(() => notification.remove(), 300);
-  }, 3000);
-}
 
 // Customer Account System
 let currentUser = JSON.parse(localStorage.getItem('watenCurrentUser')) || null;
@@ -943,7 +668,6 @@ function loadUserOrders() {
 
 // Initialize systems on page load
 document.addEventListener('DOMContentLoaded', function() {
-  updateCartUI();
   updateAccountLink();
 });
 
@@ -1579,8 +1303,7 @@ function renderProducts(products) {
         <div class="price">${p.price} TND</div>
         <div style="display: flex; gap: 0.5rem; margin-top: 1rem;">
           <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem;" onclick="openProductFromEl(this.parentElement.parentElement.parentElement)">Order Now</button>
-          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem; background: var(--accent); color: var(--bg-dark);" onclick="addToCartFromEl(this.parentElement.parentElement.parentElement)">Add to Cart</button>
-          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem; background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="addToWishlistFromEl(this.parentElement.parentElement.parentElement)">♡</button>
+          <button class="btn" style="flex: 1; padding: 0.5rem; font-size: 0.7rem; background: transparent; border: 1px solid var(--accent); color: var(--accent);" onclick="showProductReviews(${p.id || 'null'})">⭐ Reviews</button>
         </div>
       </div>
     </div>`;
@@ -1751,16 +1474,6 @@ function submitReview(event, productId) {
     if (modal) modal.remove();
     showProductReviews(productId);
   }, 1000);
-}
-
-function addToCartFromEl(el) {
-  const p = JSON.parse(el.dataset.product);
-  addToCart({
-    id: p.id || Date.now(),
-    name: p.name,
-    price: p.price,
-    image: p.image || FALLBACK_IMG
-  });
 }
 
 function openProductFromEl(el) {

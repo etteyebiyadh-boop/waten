@@ -409,9 +409,6 @@ body {
       <a href="#" class="nav-item" data-panel="products" onclick="switchPanel('products')">
         👕 Products
       </a>
-      <a href="#" class="nav-item" data-panel="content" onclick="switchPanel('content')">
-        📝 Content
-      </a>
       <a href="#" class="nav-item" data-panel="settings" onclick="switchPanel('settings')">
         ⚙️ Settings
       </a>
@@ -505,53 +502,6 @@ body {
         </div>
       </div>
 
-      <!-- Content Panel -->
-      <div id="panel-content" class="panel" style="display: none;">
-        <h2 class="section-title">Website Content</h2>
-        
-        <div class="section-card">
-          <h3>Header & Navigation</h3>
-          <div class="form-row">
-            <label>Logo Text</label>
-            <input type="text" id="site-logo" placeholder="WATEN">
-          </div>
-          <div class="form-row">
-            <label>Navigation Links (one per line: text|url)</label>
-            <textarea id="site-nav" rows="3" placeholder="COLLECTION|#collection&#10;INVEST|#invest"></textarea>
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h3>Hero Section</h3>
-          <div class="form-row">
-            <label>Main Title</label>
-            <input type="text" id="hero-title" placeholder="WATEN">
-          </div>
-          <div class="form-row">
-            <label>Tagline</label>
-            <input type="text" id="hero-tagline" placeholder="Built for global dominance">
-          </div>
-          <div class="form-row">
-            <label>Button Text</label>
-            <input type="text" id="hero-cta" placeholder="Shop Now">
-          </div>
-        </div>
-
-        <div class="section-card">
-          <h3>Footer</h3>
-          <div class="form-row">
-            <label>Footer Logo</label>
-            <input type="text" id="footer-logo" placeholder="WATEN">
-          </div>
-          <div class="form-row">
-            <label>Copyright Text</label>
-            <input type="text" id="footer-copyright" placeholder="© 2026 WATEN">
-          </div>
-        </div>
-
-        <button class="action-btn btn-primary" onclick="saveContent()">Save All Content</button>
-      </div>
-
       <!-- Settings Panel -->
       <div id="panel-settings" class="panel" style="display: none;">
         <h2 class="section-title">Settings</h2>
@@ -640,7 +590,6 @@ function initializeDashboard() {
   setupEventListeners();
   startRealTimeUpdates();
   loadProducts();
-  loadContent();
   loadSettings();
 }
 
@@ -760,43 +709,6 @@ function deleteProduct(id) {
   localStorage.setItem('watenProducts', JSON.stringify(products));
   renderProducts();
   showNotification('Product deleted successfully');
-}
-
-// Content Management
-function loadContent() {
-  const storedContent = localStorage.getItem('watenContent');
-  const content = storedContent ? JSON.parse(storedContent) : {
-    logo: 'WATEN',
-    nav: 'COLLECTION|#collection\nINVEST|#invest',
-    heroTitle: 'WATEN',
-    heroTagline: 'Built for global dominance',
-    heroCta: 'Shop Now',
-    footerLogo: 'WATEN',
-    footerCopyright: '© 2026 WATEN — Global Streetwear'
-  };
-  
-  document.getElementById('site-logo').value = content.logo || '';
-  document.getElementById('site-nav').value = content.nav || '';
-  document.getElementById('hero-title').value = content.heroTitle || '';
-  document.getElementById('hero-tagline').value = content.heroTagline || '';
-  document.getElementById('hero-cta').value = content.heroCta || '';
-  document.getElementById('footer-logo').value = content.footerLogo || '';
-  document.getElementById('footer-copyright').value = content.footerCopyright || '';
-}
-
-function saveContent() {
-  const content = {
-    logo: document.getElementById('site-logo').value,
-    nav: document.getElementById('site-nav').value,
-    heroTitle: document.getElementById('hero-title').value,
-    heroTagline: document.getElementById('hero-tagline').value,
-    heroCta: document.getElementById('hero-cta').value,
-    footerLogo: document.getElementById('footer-logo').value,
-    footerCopyright: document.getElementById('footer-copyright').value
-  };
-  
-  localStorage.setItem('watenContent', JSON.stringify(content));
-  showNotification('Content saved successfully');
 }
 
 // Settings Management
