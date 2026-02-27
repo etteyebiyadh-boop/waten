@@ -405,7 +405,7 @@
     function saveProducts() {
       localStorage.setItem('waten_products', JSON.stringify(products));
       
-      // Trigger sync with main site
+      // Trigger sync with official site
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'waten_products',
         newValue: JSON.stringify(products)

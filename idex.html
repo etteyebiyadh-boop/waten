@@ -1695,10 +1695,10 @@ function addDashboardButton() {
   document.body.appendChild(btn);
 }
 
-// Listen for dashboard sync
+// Listen for dashboard sync from official site
 window.addEventListener('storage', function(e) {
   if (e.key === 'waten_products') {
-    console.log('🔄 Dashboard sync received - updating products');
+    console.log('🔄 Official site sync received - updating products');
     try {
       const newProducts = JSON.parse(e.newValue);
       if (Array.isArray(newProducts)) {
@@ -1706,7 +1706,7 @@ window.addEventListener('storage', function(e) {
         renderProducts();
       }
     } catch (error) {
-      console.error('❌ Failed to sync products:', error);
+      console.error('❌ Failed to sync from official site:', error);
     }
   }
 });
