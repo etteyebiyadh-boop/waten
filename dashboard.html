@@ -729,7 +729,7 @@
       document.getElementById('site-footer-copyright').value = siteContent.footer.copyright || '';
     }
 
-    function saveSiteSection(section) {
+    async function saveSiteSection(section) {
       var payload = {};
       if (section === 'home') {
         payload = {
