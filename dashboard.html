@@ -505,12 +505,20 @@
           price: parseInt(newPrice) || 0
         };
         saveProducts();
+        renderProducts();
       }
     }
 
     function deleteProduct(index) {
       const product = products[index];
       if (!product) return;
+      
+      if (confirm(`Delete "${product.name}"?`)) {
+        products.splice(index, 1);
+        saveProducts();
+        renderProducts();
+      }
+    }
       
       if (confirm(`Delete "${product.name}"?`)) {
         products.splice(index, 1);
