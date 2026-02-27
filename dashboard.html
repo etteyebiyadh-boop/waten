@@ -291,30 +291,186 @@
       </div>
     </div>
 
-    <!-- Add Product Form -->
+    <!-- Site Management Panel -->
     <div class="add-product-form">
-      <h2>➕ Add New Product</h2>
+      <h2>🌐 Official Site Management</h2>
       
+      <!-- Hero Section -->
       <div class="form-group">
-        <label>Product Name</label>
-        <input type="text" id="productName" placeholder="Enter product name">
+        <label>Hero Title</label>
+        <input type="text" id="heroTitle" placeholder="WATEN - Global Streetwear">
       </div>
       
       <div class="form-group">
-        <label>Price (TND)</label>
-        <input type="number" id="productPrice" placeholder="0">
+        <label>Hero Tagline</label>
+        <input type="text" id="heroTagline" placeholder="Built for global dominance">
       </div>
       
       <div class="form-group">
-        <label>Product Image</label>
-        <div class="file-input">
-          <input type="file" id="productImage" accept="image/*">
-        </div>
+        <label>Hero CTA Button</label>
+        <input type="text" id="heroButton" placeholder="Shop Now">
       </div>
       
-      <button class="btn" onclick="addProduct()" style="width: 100%; margin-top: 1rem;">
-        Add Product
-      </button>
+      <div class="form-group">
+        <label>Hero Background Image</label>
+        <input type="text" id="heroBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
+      </div>
+      
+      <button class="btn" onclick="saveHeroSection()">Save Hero Section</button>
+    </div>
+
+    <!-- Social Media -->
+    <div class="add-product-form">
+      <h2>📱 Social Media Links</h2>
+      
+      <div class="form-group">
+        <label>Instagram</label>
+        <input type="text" id="instagramUrl" placeholder="https://instagram.com/waten">
+      </div>
+      
+      <div class="form-group">
+        <label>TikTok</label>
+        <input type="text" id="tiktokUrl" placeholder="https://tiktok.com/@waten">
+      </div>
+      
+      <div class="form-group">
+        <label>Twitter</label>
+        <input type="text" id="twitterUrl" placeholder="https://twitter.com/waten">
+      </div>
+      
+      <div class="form-group">
+        <label>YouTube</label>
+        <input type="text" id="youtubeUrl" placeholder="https://youtube.com/waten">
+      </div>
+      
+      <div class="form-group">
+        <label>Facebook</label>
+        <input type="text" id="facebookUrl" placeholder="https://facebook.com/waten">
+      </div>
+      
+      <button class="btn" onclick="saveSocialMedia()">Save Social Media</button>
+    </div>
+
+    <!-- Collection Section -->
+    <div class="add-product-form">
+      <h2>📚 Collection Section</h2>
+      
+      <div class="form-group">
+        <label>Collection Heading</label>
+        <input type="text" id="collectionHeading" placeholder="Our Collection">
+      </div>
+      
+      <div class="form-group">
+        <label>Collection Subtitle</label>
+        <input type="text" id="collectionSubtitle" placeholder="Discover our premium streetwear">
+      </div>
+      
+      <div class="form-group">
+        <label>Collection Background</label>
+        <input type="text" id="collectionBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
+      </div>
+      
+      <button class="btn" onclick="saveCollectionSection()">Save Collection</button>
+    </div>
+
+    <!-- Footer Section -->
+    <div class="add-product-form">
+      <h2>📄 Footer Section</h2>
+      
+      <div class="form-group">
+        <label>Footer Logo</label>
+        <input type="text" id="footerLogo" placeholder="WATEN">
+      </div>
+      
+      <div class="form-group">
+        <label>Footer Tagline</label>
+        <input type="text" id="footerTagline" placeholder="Global Streetwear">
+      </div>
+      
+      <div class="form-group">
+        <label>Footer Copyright</label>
+        <input type="text" id="footerCopyright" placeholder="© 2024 WATEN. All rights reserved.">
+      </div>
+      
+      <div class="form-group">
+        <label>Footer Background</label>
+        <input type="text" id="footerBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
+      </div>
+      
+      <button class="btn" onclick="saveFooterSection()">Save Footer</button>
+    </div>
+
+    <!-- SEO Settings -->
+    <div class="add-product-form">
+      <h2>🔍 SEO Settings</h2>
+      
+      <div class="form-group">
+        <label>Meta Title</label>
+        <input type="text" id="metaTitle" placeholder="WATEN | Premium Streetwear">
+      </div>
+      
+      <div class="form-group">
+        <label>Meta Description</label>
+        <textarea id="metaDescription" placeholder="WATEN — Premium streetwear built for global dominance" style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(10,10,10,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <div class="form-group">
+        <label>Meta Keywords</label>
+        <input type="text" id="metaKeywords" placeholder="streetwear, fashion, luxury, premium">
+      </div>
+      
+      <button class="btn" onclick="saveSEOSettings()">Save SEO Settings</button>
+    </div>
+
+    <!-- Navigation -->
+    <div class="add-product-form">
+      <h2>🧭 Navigation Menu</h2>
+      
+      <div class="form-group">
+        <label>Navigation Items (one per line)</label>
+        <textarea id="navigationItems" placeholder="Home|Shop|About|Contact" style="width: 100%; height: 120px; padding: 0.8rem; background: rgba(10,10,10,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+      </div>
+      
+      <button class="btn" onclick="saveNavigation()">Save Navigation</button>
+    </div>
+
+    <!-- Contact Info -->
+    <div class="add-product-form">
+      <h2>📞 Contact Information</h2>
+      
+      <div class="form-group">
+        <label>Contact Email</label>
+        <input type="email" id="contactEmail" placeholder="contact@waten.com">
+      </div>
+      
+      <div class="form-group">
+        <label>Contact Phone</label>
+        <input type="tel" id="contactPhone" placeholder="+216123456789">
+      </div>
+      
+      <div class="form-group">
+        <label>Contact Address</label>
+        <input type="text" id="contactAddress" placeholder="123 Fashion Street, Tunis, Tunisia">
+      </div>
+      
+      <button class="btn" onclick="saveContactInfo()">Save Contact Info</button>
+    </div>
+
+    <!-- Analytics -->
+    <div class="add-product-form">
+      <h2>📊 Analytics Settings</h2>
+      
+      <div class="form-group">
+        <label>Google Analytics ID</label>
+        <input type="text" id="googleAnalytics" placeholder="G-XXXXXXXXXX">
+      </div>
+      
+      <div class="form-group">
+        <label>Facebook Pixel ID</label>
+        <input type="text" id="facebookPixel" placeholder="XXXXXXXXXX">
+      </div>
+      
+      <button class="btn" onclick="saveAnalytics()">Save Analytics</button>
     </div>
 
     <!-- Products Grid -->
@@ -339,6 +495,7 @@
     document.addEventListener('DOMContentLoaded', function() {
       checkAuth();
       loadData();
+      loadSiteContentForEditing();
     });
 
     // Authentication
@@ -553,12 +710,270 @@
       document.getElementById('totalRevenue').textContent = totalRevenue + ' TND';
     }
 
-    // Dashboard Toggle
-    function toggleDashboard() {
-      if (isLoggedIn) {
-        logout();
-      } else {
-        showLogin();
+    // Site Management Functions
+    function saveHeroSection() {
+      const title = document.getElementById('heroTitle').value.trim();
+      const tagline = document.getElementById('heroTagline').value.trim();
+      const button = document.getElementById('heroButton').value.trim();
+      const background = document.getElementById('heroBackground').value.trim();
+      
+      const siteContent = {
+        hero: {
+          title: title,
+          tagline: tagline,
+          ctaText: button,
+          backgroundImage: background
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Hero section saved and synced to official site!');
+    }
+
+    function saveSocialMedia() {
+      const instagram = document.getElementById('instagramUrl').value.trim();
+      const tiktok = document.getElementById('tiktokUrl').value.trim();
+      const twitter = document.getElementById('twitterUrl').value.trim();
+      const youtube = document.getElementById('youtubeUrl').value.trim();
+      const facebook = document.getElementById('facebookUrl').value.trim();
+      
+      const siteContent = {
+        social: {
+          instagram: instagram,
+          tiktok: tiktok,
+          twitter: twitter,
+          youtube: youtube,
+          facebook: facebook
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Social media links saved and synced to official site!');
+    }
+
+    function saveCollectionSection() {
+      const heading = document.getElementById('collectionHeading').value.trim();
+      const subtitle = document.getElementById('collectionSubtitle').value.trim();
+      const background = document.getElementById('collectionBackground').value.trim();
+      
+      const siteContent = {
+        collection: {
+          heading: heading,
+          subtitle: subtitle,
+          backgroundImage: background
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Collection section saved and synced to official site!');
+    }
+
+    function saveFooterSection() {
+      const logo = document.getElementById('footerLogo').value.trim();
+      const tagline = document.getElementById('footerTagline').value.trim();
+      const copyright = document.getElementById('footerCopyright').value.trim();
+      const background = document.getElementById('footerBackground').value.trim();
+      
+      const siteContent = {
+        footer: {
+          logoText: logo,
+          tagline: tagline,
+          copyright: copyright,
+          backgroundImage: background
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Footer section saved and synced to official site!');
+    }
+
+    function saveSEOSettings() {
+      const title = document.getElementById('metaTitle').value.trim();
+      const description = document.getElementById('metaDescription').value.trim();
+      const keywords = document.getElementById('metaKeywords').value.trim();
+      
+      const siteContent = {
+        meta: {
+          title: title,
+          description: description,
+          keywords: keywords
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('SEO settings saved and synced to official site!');
+    }
+
+    function saveNavigation() {
+      const items = document.getElementById('navigationItems').value.trim();
+      
+      const siteContent = {
+        navigation: items.split('\n').map(item => {
+          const [text, href] = item.split('|').map(part => part.trim());
+          return { label: text || '', url: href || '#' };
+        })
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Navigation menu saved and synced to official site!');
+    }
+
+    function saveContactInfo() {
+      const email = document.getElementById('contactEmail').value.trim();
+      const phone = document.getElementById('contactPhone').value.trim();
+      const address = document.getElementById('contactAddress').value.trim();
+      
+      const siteContent = {
+        contact: {
+          email: email,
+          phone: phone,
+          address: address
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Contact information saved and synced to official site!');
+    }
+
+    function saveAnalytics() {
+      const googleAnalytics = document.getElementById('googleAnalytics').value.trim();
+      const facebookPixel = document.getElementById('facebookPixel').value.trim();
+      
+      const siteContent = {
+        analytics: {
+          googleAnalytics: googleAnalytics,
+          facebookPixel: facebookPixel
+        }
+      };
+      
+      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'watenSiteContent',
+        newValue: JSON.stringify(siteContent)
+      }));
+      
+      alert('Analytics settings saved and synced to official site!');
+    }
+
+    // Load site content for editing
+    function loadSiteContentForEditing() {
+      const savedContent = localStorage.getItem('watenSiteContent');
+      if (savedContent) {
+        try {
+          const content = JSON.parse(savedContent);
+          
+          // Populate hero section
+          if (content.hero) {
+            document.getElementById('heroTitle').value = content.hero.title || '';
+            document.getElementById('heroTagline').value = content.hero.tagline || '';
+            document.getElementById('heroButton').value = content.hero.ctaText || '';
+            document.getElementById('heroBackground').value = content.hero.backgroundImage || '';
+          }
+          
+          // Populate social media
+          if (content.social) {
+            document.getElementById('instagramUrl').value = content.social.instagram || '';
+            document.getElementById('tiktokUrl').value = content.social.tiktok || '';
+            document.getElementById('twitterUrl').value = content.social.twitter || '';
+            document.getElementById('youtubeUrl').value = content.social.youtube || '';
+            document.getElementById('facebookUrl').value = content.social.facebook || '';
+          }
+          
+          // Populate collection section
+          if (content.collection) {
+            document.getElementById('collectionHeading').value = content.collection.heading || '';
+            document.getElementById('collectionSubtitle').value = content.collection.subtitle || '';
+            document.getElementById('collectionBackground').value = content.collection.backgroundImage || '';
+          }
+          
+          // Populate footer section
+          if (content.footer) {
+            document.getElementById('footerLogo').value = content.footer.logoText || '';
+            document.getElementById('footerTagline').value = content.footer.tagline || '';
+            document.getElementById('footerCopyright').value = content.footer.copyright || '';
+            document.getElementById('footerBackground').value = content.footer.backgroundImage || '';
+          }
+          
+          // Populate SEO settings
+          if (content.meta) {
+            document.getElementById('metaTitle').value = content.meta.title || '';
+            document.getElementById('metaDescription').value = content.meta.description || '';
+            document.getElementById('metaKeywords').value = content.meta.keywords || '';
+          }
+          
+          // Populate navigation
+          if (content.navigation) {
+            document.getElementById('navigationItems').value = content.navigation.map(item => 
+              `${item.label || ''}|${item.url || '#'}`
+            ).join('\n');
+          }
+          
+          // Populate contact info
+          if (content.contact) {
+            document.getElementById('contactEmail').value = content.contact.email || '';
+            document.getElementById('contactPhone').value = content.contact.phone || '';
+            document.getElementById('contactAddress').value = content.contact.address || '';
+          }
+          
+          // Populate analytics
+          if (content.analytics) {
+            document.getElementById('googleAnalytics').value = content.analytics.googleAnalytics || '';
+            document.getElementById('facebookPixel').value = content.analytics.facebookPixel || '';
+          }
+        } catch (error) {
+          console.error('Error loading site content:', error);
+        }
       }
     }
 
