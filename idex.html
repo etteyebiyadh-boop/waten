@@ -1428,7 +1428,7 @@ function exportOrders() {
 // Create manager panel when page loads
 window.addEventListener('load', createManagerPanel);
 
-function applySiteContent(site) {
+function applyServerSiteContent(site) {
   if (!site) return;
   if (site.meta) {
     if (site.meta.title) document.title = site.meta.title;
@@ -1514,21 +1514,28 @@ function applySiteContent(site) {
 // Load and apply content from dashboard
 function loadSiteContent() {
   console.log('Loading site content from dashboard...');
-  const storedContent = localStorage.getItem('watenContent');
-  if (storedContent) {
-    try {
-      const content = JSON.parse(storedContent);
-      console.log('Content loaded:', content);
-      applySiteContent(content);
-    } catch (error) {
-      console.error('Error parsing content:', error);
-    }
-  } else {
-    console.log('No stored content found');
-  }
+  fetch('/api/site')
+    .then((res) => {
+      if (!res.ok) throw new Error('Failed to load /api/site');
+      return res.json();
+    })
+    .then((site) => {
+      localStorage.setItem('watenSiteContent', JSON.stringify(site || {}));
+      applyServerSiteContent(site || {});
+    })
+    .catch((error) => {
+      console.warn('Site API unavailable, using local cache:', error);
+      const storedContent = localStorage.getItem('watenSiteContent');
+      if (!storedContent) return;
+      try {
+        applyServerSiteContent(JSON.parse(storedContent));
+      } catch (parseError) {
+        console.error('Error parsing cached site content:', parseError);
+      }
+    });
 }
 
-function applySiteContent(content) {
+function applyLegacySiteContent(content) {
   console.log('Applying content to site:', content);
   
   // Update page title and meta
@@ -1703,7 +1710,7 @@ window.addEventListener('storage', function(e) {
       const newProducts = JSON.parse(e.newValue);
       if (Array.isArray(newProducts)) {
         allProducts = newProducts;
-        renderProducts();
+        renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
         showNotification('Products updated from dashboard!');
       }
     } catch (error) {
@@ -1718,7 +1725,7 @@ window.addEventListener('storage', function(e) {
     console.log('🔄 Site content updated - applying changes');
     try {
       const newContent = JSON.parse(e.newValue);
-      applySiteContent(newContent);
+      applyServerSiteContent(newContent);
       showNotification('Site content updated from dashboard!');
     } catch (error) {
       console.error('❌ Failed to sync site content:', error);
@@ -1733,8 +1740,12 @@ if (typeof BroadcastChannel !== 'undefined') {
     if (event.data.type === 'products_updated') {
       console.log('🔄 Products updated via broadcast channel');
       allProducts = event.data.products;
-      renderProducts();
+      renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
       showNotification('Products updated in real-time!');
+    }
+    if (event.data.type === 'site_updated') {
+      loadSiteContent();
+      showNotification('Site content updated in real-time!');
     }
   };
 }
@@ -1941,7 +1952,7 @@ function loadProducts() {
     .then(products => {
       allProducts = products;
       // Save to localStorage for dashboard sync
-      localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+      localStorage.setItem('waten_products', JSON.stringify(allProducts));
       renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
       console.log('✅ Products loaded from API:', allProducts.length, 'items');
     })
@@ -1949,7 +1960,7 @@ function loadProducts() {
       console.error('❌ API failed, using localStorage fallback:', error);
       // Fallback to localStorage
       try {
-        const storedProducts = localStorage.getItem('watenProducts');
+        const storedProducts = localStorage.getItem('waten_products');
         if (storedProducts) {
           const products = JSON.parse(storedProducts);
           allProducts = products;
@@ -2170,7 +2181,7 @@ function loadProducts() {
     .then(products => {
       allProducts = products;
       // Save to localStorage for dashboard sync
-      localStorage.setItem('watenProducts', JSON.stringify(allProducts));
+      localStorage.setItem('waten_products', JSON.stringify(allProducts));
       renderProducts(allProducts.length ? allProducts : FALLBACK_PRODUCTS);
       console.log('✅ Products loaded from API:', allProducts.length, 'items');
     })
@@ -2178,7 +2189,7 @@ function loadProducts() {
       console.error('❌ API failed, using localStorage:', error);
       // Fallback to localStorage
       try {
-        const storedProducts = localStorage.getItem('watenProducts');
+        const storedProducts = localStorage.getItem('waten_products');
         if (storedProducts) {
           const products = JSON.parse(storedProducts);
           allProducts = products;
@@ -2589,3 +2600,5 @@ if (window.innerWidth > 768) {
 
 </body>
 </html>
+
+

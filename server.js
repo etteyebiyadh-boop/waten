@@ -186,11 +186,14 @@ app.get('/api/config', (req, res) => {
   }
 });
 
+app.get('/admin.html', (req, res) => res.redirect('/dashboard.html'));
 app.get('/', (req, res) => res.redirect('/idex.html'));
 
 app.listen(PORT, '0.0.0.0', () => {
   const url = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
   console.log(`\n  WATEN is live at ${url}`);
   console.log(`  Site:      ${url}/idex.html`);
-  console.log(`  Dashboard: ${url}/admin.html\n`);
+  console.log(`  Dashboard: ${url}/dashboard.html\n`);
 });
+
+

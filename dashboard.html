@@ -512,55 +512,103 @@
   </button>
 
   <script>
-    // Configuration
-    const ADMIN_PASSWORD = 'fubisra06';
+    const ADMIN_STORAGE_KEY = 'waten_admin_password';
+    const PRODUCTS_STORAGE_KEY = 'waten_products';
+    let adminPassword = '';
     let products = [];
     let orders = [];
-    let isLoggedIn = false;
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', () => {
+      const passwordInput = document.getElementById('password');
+      passwordInput.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') login();
+      });
       checkAuth();
-      loadData();
-      loadSiteContentForEditing();
-      loadProductsFromJSON();
     });
 
-    // Authentication
-    function checkAuth() {
-      const savedAuth = localStorage.getItem('waten_admin_auth');
-      if (savedAuth === ADMIN_PASSWORD) {
-        isLoggedIn = true;
-        showDashboard();
+    async function api(path, options = {}, needsAuth = true) {
+      const headers = { ...(options.headers || {}) };
+      const isFormData = options.body instanceof FormData;
+      if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
+      if (needsAuth) headers['x-admin-password'] = adminPassword;
+
+      const response = await fetch(path, { ...options, headers });
+      if (!response.ok) {
+        let message = `Request failed (${response.status})`;
+        try {
+          const data = await response.json();
+          if (data?.error) message = data.error;
+        } catch (_) {}
+        throw new Error(message);
+      }
+      try {
+        return await response.json();
+      } catch (_) {
+        return null;
       }
     }
 
-    function login() {
-      const password = document.getElementById('password').value;
+    async function checkAuth() {
+      const savedPassword = localStorage.getItem(ADMIN_STORAGE_KEY);
+      if (!savedPassword) {
+        showLogin();
+        return;
+      }
+      try {
+        const result = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password: savedPassword })
+        }).then((res) => res.json());
+        if (result?.ok) {
+          adminPassword = savedPassword;
+          showDashboard();
+          await loadData();
+          return;
+        }
+      } catch (_) {}
+      localStorage.removeItem(ADMIN_STORAGE_KEY);
+      showLogin();
+    }
+
+    async function login() {
+      const password = document.getElementById('password').value.trim();
       const errorDiv = document.getElementById('loginError');
-      
-      console.log('🔐 Login attempt');
-      console.log('Password entered:', password);
-      console.log('Expected password:', ADMIN_PASSWORD);
-      console.log('Password match:', password === ADMIN_PASSWORD);
-      
-      if (password === ADMIN_PASSWORD) {
-        localStorage.setItem('waten_admin_auth', ADMIN_PASSWORD);
-        isLoggedIn = true;
-        showDashboard();
+      if (!password) {
+        errorDiv.textContent = 'Password is required';
+        return;
+      }
+
+      try {
+        const result = await fetch('/api/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ password })
+        }).then((res) => res.json());
+
+        if (!result?.ok) {
+          errorDiv.textContent = 'Incorrect password';
+          return;
+        }
+
+        adminPassword = password;
+        localStorage.setItem(ADMIN_STORAGE_KEY, password);
         errorDiv.textContent = '';
-        console.log('✅ Login successful');
-      } else {
-        errorDiv.textContent = '❌ Incorrect password';
-        errorDiv.style.color = '#ff6b6b';
-        console.log('❌ Login failed');
+        showDashboard();
+        await loadData();
+      } catch (_) {
+        errorDiv.textContent = 'Login failed. Check server connection.';
       }
     }
 
     function logout() {
-      localStorage.removeItem('waten_admin_auth');
-      isLoggedIn = false;
+      localStorage.removeItem(ADMIN_STORAGE_KEY);
+      adminPassword = '';
       showLogin();
+    }
+
+    function toggleDashboard() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showLogin() {
@@ -573,83 +621,36 @@
       document.getElementById('dashboardScreen').classList.remove('hidden');
     }
 
-    // Data Management
-    function loadData() {
-      loadProducts();
+    async function loadData() {
       loadOrders();
+      await Promise.all([loadProducts(), loadSiteContentForEditing()]);
       updateStats();
-      loadSiteContentForEditing();
     }
 
-    function loadProducts() {
-      // Load from localStorage first
-      const savedProducts = localStorage.getItem('waten_products');
-      if (savedProducts) {
-        products = JSON.parse(savedProducts);
-      } else {
-        // Load from products.json as fallback
-        fetch('/products.json')
-          .then(response => response.json())
-          .then(data => {
-            products = data.products || [];
-            localStorage.setItem('waten_products', JSON.stringify(products));
-            renderProducts();
-            updateStats();
-          })
-          .catch(error => {
-            console.error('Failed to load products.json:', error);
-            products = [];
-            renderProducts();
-          });
+    async function loadProducts() {
+      try {
+        const data = await api('/api/products', {}, false);
+        products = Array.isArray(data) ? data : [];
+      } catch (_) {
+        products = [];
       }
-      
+      syncProductsLocally();
       renderProducts();
     }
 
-    function saveProducts() {
-      localStorage.setItem('waten_products', JSON.stringify(products));
-      
-      // Save to products.json via server API
-      fetch('/api/products', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ products: products })
-      }).then(response => {
-        if (response.ok) {
-          console.log('✅ Products saved to server');
-        } else {
-          console.warn('⚠️ Server save failed, using localStorage only');
-        }
-      }).catch(error => {
-        console.warn('⚠️ Server not available, using localStorage only');
-      });
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'waten_products',
-        newValue: JSON.stringify(products)
-      }));
-      
-      // Broadcast to all tabs/windows
+    function syncProductsLocally() {
+      localStorage.setItem(PRODUCTS_STORAGE_KEY, JSON.stringify(products));
       if (typeof BroadcastChannel !== 'undefined') {
         const channel = new BroadcastChannel('waten_dashboard');
-        channel.postMessage({
-          type: 'products_updated',
-          products: products
-        });
+        channel.postMessage({ type: 'products_updated', products });
         channel.close();
       }
-      
-      updateStats();
-      showNotification('Products updated and synced!');
     }
 
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
-      
-      if (products.length === 0) {
+
+      if (!products.length) {
         grid.innerHTML = `
           <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(255,255,255,0.6);">
             <h3>No products yet</h3>
@@ -658,98 +659,106 @@
         `;
         return;
       }
-      
-      grid.innerHTML = products.map((product, index) => `
+
+      grid.innerHTML = products.map((product) => `
         <div class="product-card">
           <div class="product-image">
-            ${product.image ? 
-              `<img src="${product.image}" alt="${product.name}">` : 
-              `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #2a2a2a; color: #666;">
-                📷 No Image
-              </div>`
+            ${product.image
+              ? `<img src="${product.image}" alt="${product.name}">`
+              : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #2a2a2a; color: #666;">No Image</div>`
             }
           </div>
-          
           <div class="product-info">
-            <div class="product-name">${product.name}</div>
-            <div class="product-price">${product.price} TND</div>
+            <div class="product-name">${product.name || ''}</div>
+            <div class="product-price">${Number(product.price) || 0} TND</div>
           </div>
-          
           <div class="product-actions">
-            <button class="btn" onclick="editProduct(${index})" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
-              ✏️ Edit
-            </button>
-            <button class="btn" onclick="deleteProduct(${index})" style="background: linear-gradient(135deg, #8b2635, #a02d3f); padding: 0.5rem 1rem; font-size: 0.8rem;">
-              🗑️ Delete
-            </button>
+            <button class="btn" onclick="editProduct('${String(product.id).replace(/'/g, "\\'")}')" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Edit</button>
+            <button class="btn" onclick="deleteProduct('${String(product.id).replace(/'/g, "\\'")}')" style="background: linear-gradient(135deg, #8b2635, #a02d3f); padding: 0.5rem 1rem; font-size: 0.8rem;">Delete</button>
           </div>
         </div>
       `).join('');
     }
 
-    function addProduct() {
+    async function uploadImageIfNeeded() {
+      const fileInput = document.getElementById('productImageFile');
+      const imageFile = fileInput.files?.[0];
+      if (!imageFile) return '';
+
+      const form = new FormData();
+      form.append('image', imageFile);
+      const result = await api('/api/upload', { method: 'POST', body: form }, true);
+      return result?.path || '';
+    }
+
+    async function addProduct() {
       const name = document.getElementById('productName').value.trim();
-      const price = parseInt(document.getElementById('productPrice').value) || 0;
-      let image = document.getElementById('productImage').value.trim();
-      const imageFile = document.getElementById('productImage').files[0];
-      
+      const price = Number(document.getElementById('productPrice').value) || 0;
+      const imageUrl = document.getElementById('productImage').value.trim();
+
       if (!name) {
         alert('Please enter a product name');
         return;
       }
-      
-      const product = {
-        id: Date.now(),
-        name: name,
-        price: price,
-        image: null
-      };
-      
-      // Handle image
-      if (imageFile) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          product.image = e.target.result;
-          products.push(product);
-          saveProducts();
-          clearForm();
-        };
-        reader.readAsDataURL(imageFile);
-      } else {
-        // Use default image if no file uploaded
-        product.image = image || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
-        products.push(product);
-        saveProducts();
+
+      try {
+        const uploadedImage = await uploadImageIfNeeded();
+        await api('/api/products', {
+          method: 'POST',
+          body: JSON.stringify({
+            name,
+            price,
+            image: uploadedImage || imageUrl
+          })
+        }, true);
         clearForm();
+        await loadProducts();
+        updateStats();
+        showNotification('Product added successfully');
+      } catch (error) {
+        alert(error.message || 'Failed to add product');
       }
     }
 
-    function editProduct(index) {
-      const product = products[index];
+    async function editProduct(id) {
+      const product = products.find((p) => String(p.id) === String(id));
       if (!product) return;
-      
-      const newName = prompt('Edit product name:', product.name);
-      const newPrice = prompt('Edit product price (TND):', product.price);
-      
-      if (newName !== null && newPrice !== null) {
-        products[index] = {
-          ...product,
-          name: newName.trim(),
-          price: parseInt(newPrice) || 0
-        };
-        saveProducts();
-        renderProducts();
+
+      const newName = prompt('Edit product name:', product.name || '');
+      if (newName === null) return;
+      const newPrice = prompt('Edit product price (TND):', String(product.price || 0));
+      if (newPrice === null) return;
+      const newImage = prompt('Edit product image URL:', product.image || '');
+      if (newImage === null) return;
+
+      try {
+        await api(`/api/products/${encodeURIComponent(id)}`, {
+          method: 'PUT',
+          body: JSON.stringify({
+            name: newName.trim(),
+            price: Number(newPrice) || 0,
+            image: newImage.trim()
+          })
+        }, true);
+        await loadProducts();
+        showNotification('Product updated');
+      } catch (error) {
+        alert(error.message || 'Failed to update product');
       }
     }
 
-    function deleteProduct(index) {
-      const product = products[index];
+    async function deleteProduct(id) {
+      const product = products.find((p) => String(p.id) === String(id));
       if (!product) return;
-      
-      if (confirm(`Delete "${product.name}"?`)) {
-        products.splice(index, 1);
-        saveProducts();
-        renderProducts();
+      if (!confirm(`Delete "${product.name}"?`)) return;
+
+      try {
+        await api(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' }, true);
+        await loadProducts();
+        updateStats();
+        showNotification('Product deleted');
+      } catch (error) {
+        alert(error.message || 'Failed to delete product');
       }
     }
 
@@ -757,407 +766,193 @@
       document.getElementById('productName').value = '';
       document.getElementById('productPrice').value = '';
       document.getElementById('productImage').value = '';
+      document.getElementById('productImageFile').value = '';
     }
 
     function loadOrders() {
-      // Load from localStorage
-      const savedOrders = localStorage.getItem('waten_orders');
-      if (savedOrders) {
-        orders = JSON.parse(savedOrders);
-      } else {
-        orders = [];
-      }
+      const savedOrders = localStorage.getItem('watenOrders');
+      orders = savedOrders ? JSON.parse(savedOrders) : [];
     }
 
     function updateStats() {
       document.getElementById('totalProducts').textContent = products.length;
       document.getElementById('totalOrders').textContent = orders.length;
-      
       const totalRevenue = orders
-        .filter(order => order.status === 'completed')
+        .filter((order) => order.status === 'completed')
         .reduce((sum, order) => sum + (order.total || 0), 0);
-      
-      document.getElementById('totalRevenue').textContent = totalRevenue + ' TND';
+      document.getElementById('totalRevenue').textContent = `${totalRevenue} TND`;
     }
 
-    // Site Management Functions
-    function saveHeroSection() {
-      const title = document.getElementById('heroTitle').value.trim();
-      const tagline = document.getElementById('heroTagline').value.trim();
-      const button = document.getElementById('heroButton').value.trim();
-      const background = document.getElementById('heroBackground').value.trim();
-      
-      const siteContent = {
-        hero: {
-          title: title,
-          tagline: tagline,
-          ctaText: button,
-          backgroundImage: background
+    async function saveSitePatch(patch, message) {
+      try {
+        await api('/api/site', {
+          method: 'PUT',
+          body: JSON.stringify(patch)
+        }, true);
+        const cachedSite = JSON.parse(localStorage.getItem('watenSiteContent') || '{}');
+        localStorage.setItem('watenSiteContent', JSON.stringify({ ...cachedSite, ...patch }));
+        if (typeof BroadcastChannel !== 'undefined') {
+          const channel = new BroadcastChannel('waten_dashboard');
+          channel.postMessage({ type: 'site_updated' });
+          channel.close();
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Hero section saved and synced to official site!');
+        showNotification(message);
+      } catch (error) {
+        alert(error.message || 'Failed to save site content');
+      }
+    }
+
+    function saveHeroSection() {
+      saveSitePatch({
+        hero: {
+          title: document.getElementById('heroTitle').value.trim(),
+          tagline: document.getElementById('heroTagline').value.trim(),
+          ctaText: document.getElementById('heroButton').value.trim(),
+          backgroundImage: document.getElementById('heroBackground').value.trim()
+        }
+      }, 'Hero section saved');
     }
 
     function saveSocialMedia() {
-      const instagram = document.getElementById('instagramUrl').value.trim();
-      const tiktok = document.getElementById('tiktokUrl').value.trim();
-      const twitter = document.getElementById('twitterUrl').value.trim();
-      const youtube = document.getElementById('youtubeUrl').value.trim();
-      const facebook = document.getElementById('facebookUrl').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         social: {
-          instagram: instagram,
-          tiktok: tiktok,
-          twitter: twitter,
-          youtube: youtube,
-          facebook: facebook
+          instagram: document.getElementById('instagramUrl').value.trim(),
+          tiktok: document.getElementById('tiktokUrl').value.trim(),
+          twitter: document.getElementById('twitterUrl').value.trim(),
+          youtube: document.getElementById('youtubeUrl').value.trim(),
+          facebook: document.getElementById('facebookUrl').value.trim()
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Social media links saved and synced to official site!');
+      }, 'Social media saved');
     }
 
     function saveCollectionSection() {
-      const heading = document.getElementById('collectionHeading').value.trim();
-      const subtitle = document.getElementById('collectionSubtitle').value.trim();
-      const background = document.getElementById('collectionBackground').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         collection: {
-          heading: heading,
-          subtitle: subtitle,
-          backgroundImage: background
+          heading: document.getElementById('collectionHeading').value.trim(),
+          subtitle: document.getElementById('collectionSubtitle').value.trim(),
+          backgroundImage: document.getElementById('collectionBackground').value.trim()
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Collection section saved and synced to official site!');
+      }, 'Collection section saved');
     }
 
     function saveFooterSection() {
-      const logo = document.getElementById('footerLogo').value.trim();
-      const tagline = document.getElementById('footerTagline').value.trim();
-      const copyright = document.getElementById('footerCopyright').value.trim();
-      const background = document.getElementById('footerBackground').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         footer: {
-          logoText: logo,
-          tagline: tagline,
-          copyright: copyright,
-          backgroundImage: background
+          logoText: document.getElementById('footerLogo').value.trim(),
+          tagline: document.getElementById('footerTagline').value.trim(),
+          copyright: document.getElementById('footerCopyright').value.trim(),
+          backgroundImage: document.getElementById('footerBackground').value.trim()
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Footer section saved and synced to official site!');
+      }, 'Footer section saved');
     }
 
     function saveSEOSettings() {
-      const title = document.getElementById('metaTitle').value.trim();
-      const description = document.getElementById('metaDescription').value.trim();
-      const keywords = document.getElementById('metaKeywords').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         meta: {
-          title: title,
-          description: description,
-          keywords: keywords
+          title: document.getElementById('metaTitle').value.trim(),
+          description: document.getElementById('metaDescription').value.trim(),
+          keywords: document.getElementById('metaKeywords').value.trim()
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('SEO settings saved and synced to official site!');
+      }, 'SEO settings saved');
     }
 
     function saveNavigation() {
-      const items = document.getElementById('navigationItems').value.trim();
-      
-      const siteContent = {
-        navigation: items.split('\n').map(item => {
-          const [text, href] = item.split('|').map(part => part.trim());
-          return { label: text || '', url: href || '#' };
-        })
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Navigation menu saved and synced to official site!');
+      const navLinks = document.getElementById('navigationItems').value
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean)
+        .map((line) => {
+          const [label, href] = line.split('|').map((p) => p.trim());
+          return { label: label || '', href: href || '#' };
+        });
+
+      saveSitePatch({ header: { navLinks } }, 'Navigation saved');
     }
 
     function saveContactInfo() {
       const email = document.getElementById('contactEmail').value.trim();
-      const phone = document.getElementById('contactPhone').value.trim();
-      const address = document.getElementById('contactAddress').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         contact: {
-          email: email,
-          phone: phone,
-          address: address
-        }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Contact information saved and synced to official site!');
+          email,
+          phone: document.getElementById('contactPhone').value.trim(),
+          address: document.getElementById('contactAddress').value.trim()
+        },
+        social: { email }
+      }, 'Contact info saved');
     }
 
     function saveAnalytics() {
-      const googleAnalytics = document.getElementById('googleAnalytics').value.trim();
-      const facebookPixel = document.getElementById('facebookPixel').value.trim();
-      
-      const siteContent = {
+      saveSitePatch({
         analytics: {
-          googleAnalytics: googleAnalytics,
-          facebookPixel: facebookPixel
+          googleAnalytics: document.getElementById('googleAnalytics').value.trim(),
+          facebookPixel: document.getElementById('facebookPixel').value.trim()
         }
-      };
-      
-      localStorage.setItem('watenSiteContent', JSON.stringify(siteContent));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenSiteContent',
-        newValue: JSON.stringify(siteContent)
-      }));
-      
-      alert('Analytics settings saved and synced to official site!');
+      }, 'Analytics saved');
     }
 
-    // Load site content for editing
-    function loadSiteContentForEditing() {
-      const savedContent = localStorage.getItem('watenSiteContent');
-      if (savedContent) {
-        try {
-          const content = JSON.parse(savedContent);
-          
-          // Populate hero section
-          if (content.hero) {
-            document.getElementById('heroTitle').value = content.hero.title || '';
-            document.getElementById('heroTagline').value = content.hero.tagline || '';
-            document.getElementById('heroButton').value = content.hero.ctaText || '';
-            document.getElementById('heroBackground').value = content.hero.backgroundImage || '';
-          }
-          
-          // Populate social media
-          if (content.social) {
-            document.getElementById('instagramUrl').value = content.social.instagram || '';
-            document.getElementById('tiktokUrl').value = content.social.tiktok || '';
-            document.getElementById('twitterUrl').value = content.social.twitter || '';
-            document.getElementById('youtubeUrl').value = content.social.youtube || '';
-            document.getElementById('facebookUrl').value = content.social.facebook || '';
-          }
-          
-          // Populate collection section
-          if (content.collection) {
-            document.getElementById('collectionHeading').value = content.collection.heading || '';
-            document.getElementById('collectionSubtitle').value = content.collection.subtitle || '';
-            document.getElementById('collectionBackground').value = content.collection.backgroundImage || '';
-          }
-          
-          // Populate footer section
-          if (content.footer) {
-            document.getElementById('footerLogo').value = content.footer.logoText || '';
-            document.getElementById('footerTagline').value = content.footer.tagline || '';
-            document.getElementById('footerCopyright').value = content.footer.copyright || '';
-            document.getElementById('footerBackground').value = content.footer.backgroundImage || '';
-          }
-          
-          // Populate SEO settings
-          if (content.meta) {
-            document.getElementById('metaTitle').value = content.meta.title || '';
-            document.getElementById('metaDescription').value = content.meta.description || '';
-            document.getElementById('metaKeywords').value = content.meta.keywords || '';
-          }
-          
-          // Populate navigation
-          if (content.navigation) {
-            document.getElementById('navigationItems').value = content.navigation.map(item => 
-              `${item.label || ''}|${item.url || '#'}`
-            ).join('\n');
-          }
-          
-          // Populate contact info
-          if (content.contact) {
-            document.getElementById('contactEmail').value = content.contact.email || '';
-            document.getElementById('contactPhone').value = content.contact.phone || '';
-            document.getElementById('contactAddress').value = content.contact.address || '';
-          }
-          
-          // Populate analytics
-          if (content.analytics) {
-            document.getElementById('googleAnalytics').value = content.analytics.googleAnalytics || '';
-            document.getElementById('facebookPixel').value = content.analytics.facebookPixel || '';
-          }
-        } catch (error) {
-          console.error('Error loading site content:', error);
+    async function loadSiteContentForEditing() {
+      try {
+        const content = await api('/api/site', {}, false) || {};
+        if (content.hero) {
+          document.getElementById('heroTitle').value = content.hero.title || '';
+          document.getElementById('heroTagline').value = content.hero.tagline || '';
+          document.getElementById('heroButton').value = content.hero.ctaText || '';
+          document.getElementById('heroBackground').value = content.hero.backgroundImage || '';
         }
+        if (content.social) {
+          document.getElementById('instagramUrl').value = content.social.instagram || '';
+          document.getElementById('tiktokUrl').value = content.social.tiktok || '';
+          document.getElementById('twitterUrl').value = content.social.twitter || '';
+          document.getElementById('youtubeUrl').value = content.social.youtube || '';
+          document.getElementById('facebookUrl').value = content.social.facebook || '';
+        }
+        if (content.collection) {
+          document.getElementById('collectionHeading').value = content.collection.heading || '';
+          document.getElementById('collectionSubtitle').value = content.collection.subtitle || '';
+          document.getElementById('collectionBackground').value = content.collection.backgroundImage || '';
+        }
+        if (content.footer) {
+          document.getElementById('footerLogo').value = content.footer.logoText || '';
+          document.getElementById('footerTagline').value = content.footer.tagline || '';
+          document.getElementById('footerCopyright').value = content.footer.copyright || '';
+          document.getElementById('footerBackground').value = content.footer.backgroundImage || '';
+        }
+        if (content.meta) {
+          document.getElementById('metaTitle').value = content.meta.title || '';
+          document.getElementById('metaDescription').value = content.meta.description || '';
+          document.getElementById('metaKeywords').value = content.meta.keywords || '';
+        }
+        if (content.header?.navLinks) {
+          document.getElementById('navigationItems').value = content.header.navLinks
+            .map((item) => `${item.label || ''}|${item.href || '#'}`)
+            .join('\n');
+        }
+        if (content.contact) {
+          document.getElementById('contactEmail').value = content.contact.email || '';
+          document.getElementById('contactPhone').value = content.contact.phone || '';
+          document.getElementById('contactAddress').value = content.contact.address || '';
+        }
+        if (content.analytics) {
+          document.getElementById('googleAnalytics').value = content.analytics.googleAnalytics || '';
+          document.getElementById('facebookPixel').value = content.analytics.facebookPixel || '';
+        }
+      } catch (error) {
+        console.error('Failed to load site content:', error);
       }
     }
 
-    // Notification System
     function showNotification(message) {
       const notification = document.createElement('div');
       notification.style.cssText = `
         position: fixed; top: 20px; right: 20px; background: #c9a227; color: #0a0a0a;
         padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 350px;
         box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4); font-weight: 600;
-        animation: slideIn 0.3s ease;
       `;
-      
-      notification.innerHTML = `
-        <div style="margin-bottom: 8px;">✅ SUCCESS</div>
-        <div style="font-size: 14px; font-weight: 400;">${message}</div>
-      `;
-      
+      notification.innerHTML = `<div style="font-size: 14px; font-weight: 500;">${message}</div>`;
       document.body.appendChild(notification);
-      
-      // Auto-remove after 3 seconds
-      setTimeout(() => {
-        if (notification.parentElement) {
-          notification.remove();
-        }
-      }, 3000);
-    }
-
-    // Add dashboard button to main site
-    function addDashboardButton() {
-      // Check if button already exists
-      if (document.querySelector('.dashboard-btn')) return;
-      
-      const btn = document.createElement('button');
-      btn.className = 'dashboard-btn';
-      btn.innerHTML = '🎛 Dashboard';
-      btn.onclick = function() {
-        window.open('/dashboard.html', '_blank');
-      };
-      document.body.appendChild(btn);
-    }
-
-    // Check if we should add dashboard button to main site
-    if (window.location.pathname.includes('idex.html')) {
-      addDashboardButton();
-    }
-
-    // Real-time sync listener
-    window.addEventListener('storage', function(e) {
-      if (e.key === 'waten_products' && e.newValue) {
-        console.log('🔄 Products updated from another tab');
-        loadProducts();
-      }
-    });
-
-    // Broadcast channel for real-time updates
-    if (typeof BroadcastChannel !== 'undefined') {
-      const channel = new BroadcastChannel('waten_dashboard');
-      channel.onmessage = function(event) {
-        if (event.data.type === 'products_updated') {
-          console.log('🔄 Products updated via broadcast channel');
-          products = event.data.products;
-          renderProducts();
-          updateStats();
-        }
-      };
-    }
-
-    // Load products from products.json on initial load
-    function loadProductsFromJSON() {
-      console.log('Loading products from products.json...');
-      
-      fetch('products.json')
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to load products.json');
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Products loaded from JSON:', data);
-          
-          // Save to localStorage for dashboard sync
-          localStorage.setItem('waten_products', JSON.stringify(data));
-          
-          // Update dashboard display
-          products = data;
-          renderProducts();
-          updateStats();
-          
-          // Broadcast to main site
-          if (typeof BroadcastChannel !== 'undefined') {
-            const channel = new BroadcastChannel('waten_dashboard');
-            channel.postMessage({
-              type: 'products_updated',
-              products: data
-            });
-            channel.close();
-          }
-          
-          showNotification(`Loaded ${data.length} products from products.json`);
-        })
-        .catch(error => {
-          console.error('Error loading products.json:', error);
-          showNotification('Error loading products.json - using empty product list');
-          
-          // Create empty product list if JSON fails
-          const emptyProducts = [];
-          localStorage.setItem('waten_products', JSON.stringify(emptyProducts));
-          products = emptyProducts;
-          renderProducts();
-          updateStats();
-        });
+      setTimeout(() => notification.remove(), 2500);
     }
   </script>
 </body>
 </html>
+
