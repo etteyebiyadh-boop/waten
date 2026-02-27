@@ -159,7 +159,6 @@
       <div class="dashboard-layout">
         <nav class="sidebar">
           <a href="#" class="active" data-panel="products">Products</a>
-          <a href="#" data-panel="orders">Orders</a>
           <a href="#" data-panel="home">Home &amp; Hero</a>
           <a href="#" data-panel="collection">Collection</a>
           <a href="#" data-panel="invest">Invest</a>
@@ -224,33 +223,6 @@
                 <button class="btn" onclick="editFromDetail()">Edit</button>
                 <button class="btn btn-danger" onclick="deleteFromDetail()">Delete</button>
               </div>
-            </div>
-          </div>
-
-          <div id="panel-orders" class="panel">
-            <div class="section-card">
-              <h2>Orders Management</h2>
-              <div class="stats-bar">
-                <span class="stat">Total: <strong id="totalOrders">0</strong></span>
-                <span class="stat">Pending: <strong id="pendingOrders">0</strong></span>
-                <span class="stat">Revenue: <strong id="totalRevenue">0 TND</strong></span>
-                <div class="search-wrap">
-                  <input type="text" id="searchOrders" placeholder="Search orders..." aria-label="Search orders">
-                </div>
-              </div>
-              
-              <div class="section-card" style="margin-bottom: 1.5rem;">
-                <h3>Filter by Status</h3>
-                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem;">
-                  <button class="btn btn-ghost" onclick="filterOrdersByStatus('all')" id="filter-all">All</button>
-                  <button class="btn btn-ghost" onclick="filterOrdersByStatus('pending')" id="filter-pending">Pending</button>
-                  <button class="btn btn-ghost" onclick="filterOrdersByStatus('processing')" id="filter-processing">Processing</button>
-                  <button class="btn btn-ghost" onclick="filterOrdersByStatus('completed')" id="filter-completed">Completed</button>
-                  <button class="btn btn-ghost" onclick="filterOrdersByStatus('cancelled')" id="filter-cancelled">Cancelled</button>
-                </div>
-              </div>
-              
-              <div id="ordersList" class="products-list"></div>
             </div>
           </div>
 
@@ -397,7 +369,6 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('dashboardScreen').classList.remove('hidden');
         loadProducts();
-        loadOrders();
         loadSiteContent();
       } else {
         document.getElementById('loginError').textContent = 'Wrong password.';
@@ -409,7 +380,6 @@
         document.getElementById('loginScreen').classList.add('hidden');
         document.getElementById('dashboardScreen').classList.remove('hidden');
         loadProducts();
-        loadOrders();
         loadSiteContent();
       }
     }
@@ -823,147 +793,6 @@
         setTimeout(function() { setStatus('settings', '', false); }, 2000);
       } catch (e) { setStatus('settings', 'Error.', true); }
     }
-
-    // Orders Management
-    let allOrders = [];
-    let currentOrderFilter = 'all';
-
-    function loadOrders() {
-      try {
-        const savedOrders = localStorage.getItem('watenOrders');
-        if (savedOrders) {
-          allOrders = JSON.parse(savedOrders);
-          renderOrdersList();
-          updateOrderStats();
-        } else {
-          allOrders = [];
-          renderOrdersList();
-          updateOrderStats();
-        }
-        
-        try {
-          const res = await fetch(API + '/orders', { headers: authHeaders() });
-          if (res.ok) {
-            const apiOrders = await res.json();
-            allOrders = apiOrders;
-            localStorage.setItem('watenOrders', JSON.stringify(allOrders));
-            renderOrdersList();
-            updateOrderStats();
-          }
-        } catch (apiError) {
-          console.log('API not available, using localStorage for orders');
-        }
-      } catch (e) {
-        console.error('Failed to load orders:', e);
-        allOrders = [];
-        renderOrdersList();
-        updateOrderStats();
-      }
-    }
-
-    function updateOrderStats() {
-      const total = allOrders.length;
-      const pending = allOrders.filter(o => o.status === 'pending').length;
-      const revenue = allOrders
-        .filter(o => o.status === 'completed')
-        .reduce((sum, o) => sum + (o.totalPrice || 0), 0);
-      
-      document.getElementById('totalOrders').textContent = total;
-      document.getElementById('pendingOrders').textContent = pending;
-      document.getElementById('totalRevenue').textContent = revenue + ' TND';
-    }
-
-    function filterOrdersByStatus(status) {
-      currentOrderFilter = status;
-      
-      document.querySelectorAll('[id^="filter-"]').forEach(btn => {
-        btn.classList.remove('active');
-      });
-      document.getElementById('filter-' + status).classList.add('active');
-      
-      renderOrdersList();
-    }
-
-    function renderOrdersList() {
-      const el = document.getElementById('ordersList');
-      let filtered = allOrders;
-      
-      if (currentOrderFilter !== 'all') {
-        filtered = filtered.filter(o => o.status === currentOrderFilter);
-      }
-      
-      const searchTerm = document.getElementById('searchOrders').value.toLowerCase();
-      if (searchTerm) {
-        filtered = filtered.filter(o => {
-          const orderId = (o.orderId || '').toLowerCase();
-          const customer = (o.customer?.name || '').toLowerCase();
-          const product = (o.product?.name || '').toLowerCase();
-          return orderId.includes(searchTerm) || customer.includes(searchTerm) || product.includes(searchTerm);
-        });
-      }
-      
-      if (!filtered.length) {
-        el.innerHTML = '<div class="empty">' + (allOrders.length ? 'No orders match your search.' : 'No orders yet.') + '</div>';
-        return;
-      }
-      
-      el.innerHTML = filtered.map(order => {
-        const orderId = order.orderId || 'N/A';
-        const customerName = order.customer?.name || 'N/A';
-        const productName = order.product?.name || 'N/A';
-        const total = order.totalPrice || 0;
-        const status = order.status || 'pending';
-        const date = order.date ? new Date(order.date).toLocaleDateString() : 'N/A';
-        
-        return `
-        <div class="product-row">
-          <div class="info">
-            <div class="name">#${orderId}</div>
-            <div style="font-size:0.9rem;margin-bottom:0.25rem;">${customerName}</div>
-            <div style="font-size:0.85rem;color:rgba(255,255,255,0.7);">${productName}</div>
-          </div>
-          <div class="price">${total} TND</div>
-          <div class="actions">
-            <select onchange="updateOrderStatus('${orderId}', this.value)">
-              <option value="pending" ${status === 'pending' ? 'selected' : ''}>Pending</option>
-              <option value="processing" ${status === 'processing' ? 'selected' : ''}>Processing</option>
-              <option value="completed" ${status === 'completed' ? 'selected' : ''}>Completed</option>
-              <option value="cancelled" ${status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-            </select>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    function updateOrderStatus(orderId, newStatus) {
-      try {
-        const order = allOrders.find(o => o.orderId === orderId);
-        if (order) {
-          order.status = newStatus;
-          
-          localStorage.setItem('watenOrders', JSON.stringify(allOrders));
-          renderOrdersList();
-          updateOrderStats();
-          
-          try {
-            const res = await fetch(API + '/orders/' + orderId, {
-              method: 'PUT',
-              headers: authHeaders(),
-              body: JSON.stringify({ status: newStatus })
-            });
-            if (res.ok) {
-              console.log('Order status updated in API');
-            }
-          } catch (apiError) {
-            console.log('API not available, order updated locally only');
-          }
-        }
-      } catch (e) {
-        console.error('Failed to update order:', e);
-      }
-    }
-
-    document.getElementById('searchOrders').addEventListener('input', renderOrdersList);
 
     document.getElementById('password').addEventListener('keydown', e => {
       if (e.key === 'Enter') login();
