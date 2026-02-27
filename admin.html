@@ -137,17 +137,7 @@
   </style>
 </head>
 <body>
-  <div id="loginScreen" class="container">
-    <div class="login-box">
-      <h2>WATEN Dashboard</h2>
-      <p style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Enter your admin password to manage the entire site.</p>
-      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
-      <div class="error" id="loginError"></div>
-      <button class="btn" onclick="login()">Log in</button>
-    </div>
-  </div>
-
-  <div id="dashboardScreen" class="hidden">
+  <div id="dashboardScreen">
     <div class="container" style="padding-bottom:0.5rem;">
       <div class="header">
         <h1>WATEN Dashboard</h1>
@@ -382,42 +372,11 @@
     let siteContent = {};
     const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
 
-    function authHeaders() {
-      return { 'X-Admin-Password': token, 'Content-Type': 'application/json' };
-    }
-
-    async function login() {
-      const pwd = document.getElementById('password').value;
-      document.getElementById('loginError').textContent = '';
-      
-      console.log('Login attempt with password:', pwd);
-      console.log('Expected password: fubisra06');
-      console.log('Password match:', pwd === 'fubisra06');
-      
-      // Direct password authentication - fubisra06
-      if (pwd === 'fubisra06') {
-        console.log('✅ PASSWORD CORRECT - Access granted!');
-        token = pwd;
-        sessionStorage.setItem('waten_admin', pwd);
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadOrders();
-        loadSiteContent();
-      } else {
-        console.log('❌ PASSWORD INCORRECT - Access denied!');
-        document.getElementById('loginError').textContent = 'Wrong password. Try: fubisra06';
-      }
-    }
-
-    function checkAuth() {
-      if (token) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadOrders();
-        loadSiteContent();
-      }
+    // Initialize dashboard immediately (no password)
+    function initDashboard() {
+      loadProducts();
+      loadOrders();
+      loadSiteContent();
     }
 
     document.querySelectorAll('.sidebar a[data-panel]').forEach(function(a) {
@@ -971,11 +930,7 @@
 
     document.getElementById('searchOrders').addEventListener('input', renderOrdersList);
 
-    document.getElementById('password').addEventListener('keydown', e => {
-      if (e.key === 'Enter') login();
-    });
-
-    checkAuth();
+    initDashboard();
   </script>
 </body>
 </html>
