@@ -1765,22 +1765,6 @@ document.addEventListener('DOMContentLoaded', function() {
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, loading content...');
   loadSiteContent();
-  
-  // Add refresh button for testing
-  const refreshBtn = document.createElement('button');
-  refreshBtn.textContent = '🔄 Refresh Content';
-  refreshBtn.style.cssText = `
-    position: fixed; top: 20px; left: 20px; z-index: 1000;
-    padding: 10px 15px; background: #27ae60; color: white;
-    border: none; border-radius: 5px; cursor: pointer;
-    font-size: 12px; font-weight: bold;
-  `;
-  refreshBtn.onclick = function() {
-    console.log('Manual content refresh triggered...');
-    loadSiteContent();
-    showNotification('Content refreshed from dashboard');
-  };
-  document.body.appendChild(refreshBtn);
 });
 
 function updateSiteElement(id, content) {
