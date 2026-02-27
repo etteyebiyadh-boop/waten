@@ -390,6 +390,10 @@
       const pwd = document.getElementById('password').value;
       document.getElementById('loginError').textContent = '';
       
+      console.log('Login attempt with password:', pwd);
+      console.log('Expected password: fubisra06');
+      console.log('Password match:', pwd === 'fubisra06');
+      
       // Direct password authentication - fubisra06
       if (pwd === 'fubisra06') {
         token = pwd;
