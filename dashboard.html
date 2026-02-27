@@ -498,83 +498,153 @@
     }
 
     function editFromDetail() {
-      const p = allProducts.find(x => x.id === selectedProductId);
-      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
-    }
-
     function deleteFromDetail() {
       if (selectedProductId) deleteProduct(selectedProductId);
     }
 
     async function addProduct() {
-      const name = document.getElementById('newName').value.trim();
-      const price = parseInt(document.getElementById('newPrice').value) || 0;
-      let image = document.getElementById('newImage').value.trim();
-      const fileInput = document.getElementById('newImageFile');
-      if (!name) { alert('Enter a product name'); return; }
-      if (fileInput.files.length) {
-        const data = new FormData();
-        data.append('image', fileInput.files[0]);
-        try {
-          const up = await fetch(API + '/upload', {
-            method: 'POST',
-            headers: { 'X-Admin-Password': token },
-            body: data
-          });
-          if (up.ok) {
-            const uploaded = await up.json();
-            image = uploaded.path;
-          }
-        } catch (uploadError) {
-          console.log('Upload API not available, using default image');
-          image = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
-        }
-      }
-      if (!image) { alert('Add an image (upload or URL)'); return; }
+      const name = document.getElementById('productName').value.trim();
+      const price = parseInt(document.getElementById('productPrice').value) || 0;
+      let image = document.getElementById('productImage').value.trim();
+      const imageFile = document.getElementById('productImage').files[0];
       
-      // Create new product
-      const newProduct = {
+      if (!name) {
+        alert('Please enter a product name');
+        return;
+      }
+      
+      const product = {
         id: Date.now(),
         name: name,
         price: price,
-        image: image
+        image: null
       };
       
-      // Add to localStorage
-      allProducts.push(newProduct);
+      // Handle image
+      if (imageFile) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          product.image = e.target.result;
+          allProducts.push(product);
+          saveProducts();
+          clearForm();
+        };
+        reader.readAsDataURL(imageFile);
+      } else {
+        // Use default image if no file uploaded
+        product.image = image || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
+        allProducts.push(product);
+        saveProducts();
+        clearForm();
+      }
+    }
+
+    function editProduct(index) {
+      const product = allProducts[index];
+      if (!product) return;
+      
+      const newName = prompt('Edit product name:', product.name);
+      const newPrice = prompt('Edit product price (TND):', product.price);
+      
+      if (newName !== null && newPrice !== null) {
+        allProducts[index] = {
+          ...product,
+          name: newName.trim(),
+          price: parseInt(newPrice) || 0
+        };
+        saveProducts();
+        renderProductsList();
+      }
+    }
+
+    function deleteProduct(index) {
+      const product = allProducts[index];
+      if (!product) return;
+      
+      if (confirm(`Delete "${product.name}"?`)) {
+        allProducts.splice(index, 1);
+        saveProducts();
+        renderProductsList();
+      }
+    }
+
+    function saveProducts() {
       localStorage.setItem('watenProducts', JSON.stringify(allProducts));
       
-      // Try API
-      try {
-        const res = await fetch(API + '/products', {
-          method: 'POST',
-          headers: authHeaders(),
-          body: JSON.stringify({ name, price, image })
-        });
-        if (res.ok) {
-          const savedProduct = await res.json();
-          const index = allProducts.findIndex(p => p.id === newProduct.id);
-          if (index !== -1) {
-            allProducts[index] = savedProduct;
-            localStorage.setItem('watenProducts', JSON.stringify(allProducts));
-          }
-        }
-      } catch (apiError) {
-        console.log('API not available, product saved locally only');
-      }
-      
-      // Clear form and refresh
-      document.getElementById('newName').value = '';
-      document.getElementById('newPrice').value = '';
-      document.getElementById('newImage').value = '';
-      fileInput.value = '';
-      loadProducts();
-      
-      // Trigger storage event
+      // Trigger sync with official site
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'watenProducts',
-        newValue: localStorage.getItem('watenProducts')
+        newValue: JSON.stringify(allProducts)
       }));
+      
+      updateStats();
+    }
+
+    function renderProductsList() {
+      const el = document.getElementById('productsList');
+      
+      if (allProducts.length === 0) {
+        el.innerHTML = '<div class="empty">No products yet. Add one above.</div>';
+        return;
+      }
+      
+      el.innerHTML = allProducts.map((product, index) => `
+        <div class="product-row" data-id="${product.id}" onclick="selectProduct('${String(product.id).replace(/'/g, "\\'")}')">
+          <img src="${product.image}" alt="" onerror="this.src='${FALLBACK_IMG}'">
+          <div class="info">
+            <div class="name">${product.name}</div>
+            <div class="price">${product.price} TND</div>
+          </div>
+          <div class="actions" onclick="event.stopPropagation()">
+            <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
+            <button class="btn btn-danger" onclick="deleteProduct(${index})">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function selectProduct(id) {
+      const p = allProducts.find(x => x.id === id);
+      showDetail(p || null);
+    }
+
+    function showDetail(product) {
+      if (!product) {
+        document.getElementById('detailPanel').classList.add('hidden');
+        selectedProductId = null;
+        return;
+      }
+      selectedProductId = product.id;
+      document.getElementById('detailId').textContent = product.id;
+      document.getElementById('detailName').textContent = product.name;
+      document.getElementById('detailPrice').textContent = product.price + ' TND';
+      document.getElementById('detailImageUrl').textContent = product.image || '—';
+      const preview = document.getElementById('detailImagePreview');
+      const noImg = document.getElementById('detailNoImage');
+      if (product.image) {
+        preview.src = product.image;
+        preview.style.display = 'block';
+        preview.onerror = function() { this.style.display = 'none'; noImg.style.display = 'block'; };
+        noImg.style.display = 'none';
+      } else {
+        preview.style.display = 'none';
+        noImg.style.display = 'block';
+      }
+      document.getElementById('detailPanel').classList.remove('hidden');
+      renderProductsList();
+    }
+
+    function openEditFromRow(btn) {
+      const row = btn.closest('.product-row');
+      const p = allProducts.find(x => x.id === row.dataset.id);
+      if (p) openEdit(p.id, p.name, p.price, p.image);
+    }
+
+    function deleteFromDetail() {
+      if (selectedProductId) {
+        const index = allProducts.findIndex(p => p.id === selectedProductId);
+        if (index !== -1) deleteProduct(index);
+      }
     }
 
     function openEdit(id, name, price, image) {
