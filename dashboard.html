@@ -523,6 +523,7 @@
       checkAuth();
       loadData();
       loadSiteContentForEditing();
+      loadProductsFromJSON();
     });
 
     // Authentication
@@ -1109,6 +1110,53 @@
           updateStats();
         }
       };
+    }
+
+    // Load products from products.json on initial load
+    function loadProductsFromJSON() {
+      console.log('Loading products from products.json...');
+      
+      fetch('products.json')
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to load products.json');
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Products loaded from JSON:', data);
+          
+          // Save to localStorage for dashboard sync
+          localStorage.setItem('waten_products', JSON.stringify(data));
+          
+          // Update dashboard display
+          products = data;
+          renderProducts();
+          updateStats();
+          
+          // Broadcast to main site
+          if (typeof BroadcastChannel !== 'undefined') {
+            const channel = new BroadcastChannel('waten_dashboard');
+            channel.postMessage({
+              type: 'products_updated',
+              products: data
+            });
+            channel.close();
+          }
+          
+          showNotification(`Loaded ${data.length} products from products.json`);
+        })
+        .catch(error => {
+          console.error('Error loading products.json:', error);
+          showNotification('Error loading products.json - using empty product list');
+          
+          // Create empty product list if JSON fails
+          const emptyProducts = [];
+          localStorage.setItem('waten_products', JSON.stringify(emptyProducts));
+          products = emptyProducts;
+          renderProducts();
+          updateStats();
+        });
     }
   </script>
 </body>
