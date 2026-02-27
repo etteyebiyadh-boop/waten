@@ -2158,12 +2158,6 @@ let time = 0;
 function init3DBackground() {
   console.log('Initializing premium 3D background...');
   
-  // Disable 3D background on mobile for performance
-  if (window.innerWidth <= 768) {
-    console.log('Mobile detected - disabling 3D background for performance');
-    return;
-  }
-  
   const container = document.getElementById('canvas-container');
   if (!container) {
     console.error('Canvas container not found!');
