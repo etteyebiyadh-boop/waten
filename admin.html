@@ -396,6 +396,7 @@
       
       // Direct password authentication - fubisra06
       if (pwd === 'fubisra06') {
+        console.log('✅ PASSWORD CORRECT - Access granted!');
         token = pwd;
         sessionStorage.setItem('waten_admin', pwd);
         document.getElementById('loginScreen').classList.add('hidden');
@@ -404,7 +405,8 @@
         loadOrders();
         loadSiteContent();
       } else {
-        document.getElementById('loginError').textContent = 'Wrong password.';
+        console.log('❌ PASSWORD INCORRECT - Access denied!');
+        document.getElementById('loginError').textContent = 'Wrong password. Try: fubisra06';
       }
     }
 
