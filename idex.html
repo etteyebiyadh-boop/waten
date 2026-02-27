@@ -1681,6 +1681,47 @@ function applySiteContent(content) {
   console.log('Content application complete');
 }
 
+// Add dashboard button to main site
+function addDashboardButton() {
+  // Check if button already exists
+  if (document.querySelector('.dashboard-btn')) return;
+  
+  const btn = document.createElement('button');
+  btn.className = 'dashboard-btn';
+  btn.innerHTML = '🎛 Dashboard';
+  btn.onclick = function() {
+    window.open('/dashboard.html', '_blank');
+  };
+  document.body.appendChild(btn);
+}
+
+// Listen for dashboard sync
+window.addEventListener('storage', function(e) {
+  if (e.key === 'waten_products') {
+    console.log('🔄 Dashboard sync received - updating products');
+    try {
+      const newProducts = JSON.parse(e.newValue);
+      if (Array.isArray(newProducts)) {
+        allProducts = newProducts;
+        renderProducts();
+      }
+    } catch (error) {
+      console.error('❌ Failed to sync products:', error);
+    }
+  }
+});
+
+// Add dashboard button when page loads
+if (window.location.pathname.includes('idex.html')) {
+  addDashboardButton();
+}
+
+// Initialize
+document.addEventListener('DOMContentLoaded', function() {
+  console.log('🚀 WATEN Site Loaded');
+  addDashboardButton();
+});
+
 // Load content on page load
 document.addEventListener('DOMContentLoaded', function() {
   console.log('DOM loaded, loading content...');
