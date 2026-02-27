@@ -1698,18 +1698,46 @@ function addDashboardButton() {
 // Listen for dashboard sync from official site
 window.addEventListener('storage', function(e) {
   if (e.key === 'waten_products') {
-    console.log('🔄 Official site sync received - updating products');
+    console.log('🔄 Dashboard sync received - updating products');
     try {
       const newProducts = JSON.parse(e.newValue);
       if (Array.isArray(newProducts)) {
         allProducts = newProducts;
         renderProducts();
+        showNotification('Products updated from dashboard!');
       }
     } catch (error) {
-      console.error('❌ Failed to sync from official site:', error);
+      console.error('❌ Failed to sync from dashboard:', error);
     }
   }
 });
+
+// Listen for site content updates
+window.addEventListener('storage', function(e) {
+  if (e.key === 'watenSiteContent') {
+    console.log('🔄 Site content updated - applying changes');
+    try {
+      const newContent = JSON.parse(e.newValue);
+      applySiteContent(newContent);
+      showNotification('Site content updated from dashboard!');
+    } catch (error) {
+      console.error('❌ Failed to sync site content:', error);
+    }
+  }
+});
+
+// Broadcast channel for real-time updates
+if (typeof BroadcastChannel !== 'undefined') {
+  const channel = new BroadcastChannel('waten_dashboard');
+  channel.onmessage = function(event) {
+    if (event.data.type === 'products_updated') {
+      console.log('🔄 Products updated via broadcast channel');
+      allProducts = event.data.products;
+      renderProducts();
+      showNotification('Products updated in real-time!');
+    }
+  };
+}
 
 // Add dashboard button when page loads
 if (window.location.pathname.includes('idex.html')) {
@@ -1754,6 +1782,31 @@ function scrollToSection(sectionId) {
   if (element) {
     element.scrollIntoView({ behavior: 'smooth' });
   }
+}
+
+// Notification System for Main Site
+function showNotification(message) {
+  const notification = document.createElement('div');
+  notification.style.cssText = `
+    position: fixed; top: 20px; right: 20px; background: #c9a227; color: #0a0a0a;
+    padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 350px;
+    box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4); font-weight: 600;
+    animation: slideIn 0.3s ease;
+  `;
+  
+  notification.innerHTML = `
+    <div style="margin-bottom: 8px;">✅ SUCCESS</div>
+    <div style="font-size: 14px; font-weight: 400;">${message}</div>
+  `;
+  
+  document.body.appendChild(notification);
+  
+  // Auto-remove after 3 seconds
+  setTimeout(() => {
+    if (notification.parentElement) {
+      notification.remove();
+    }
+  }, 3000);
 }
 
 loadSiteContent();
@@ -1864,11 +1917,25 @@ document.addEventListener('click', function(event) {
   }
 });
 
-// Load products - prioritize API for visitor sync
+// Load products - prioritize dashboard sync for real-time updates
 function loadProducts() {
-  console.log('🔄 loadProducts called - loading from API first...');
+  console.log('🔄 loadProducts called - loading from dashboard sync...');
   
-  // Try API first for visitor sync
+  // Try to load from localStorage first (dashboard sync)
+  try {
+    const storedProducts = localStorage.getItem('waten_products');
+    if (storedProducts) {
+      const products = JSON.parse(storedProducts);
+      allProducts = products;
+      renderProducts(products);
+      console.log('✅ Products loaded from dashboard sync:', allProducts.length, 'items');
+      return;
+    }
+  } catch (error) {
+    console.warn('⚠️ Dashboard sync failed, trying API:', error);
+  }
+  
+  // Try API for visitor sync
   fetch('/api/products')
     .then(res => res.json())
     .then(products => {
@@ -1879,7 +1946,7 @@ function loadProducts() {
       console.log('✅ Products loaded from API:', allProducts.length, 'items');
     })
     .catch(error => {
-      console.error('❌ API failed, using localStorage:', error);
+      console.error('❌ API failed, using localStorage fallback:', error);
       // Fallback to localStorage
       try {
         const storedProducts = localStorage.getItem('watenProducts');

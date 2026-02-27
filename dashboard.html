@@ -473,6 +473,33 @@
       <button class="btn" onclick="saveAnalytics()">Save Analytics</button>
     </div>
 
+    <!-- Add Product Form -->
+    <div class="add-product-form">
+      <h2>➕ Add New Product</h2>
+      
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" id="productName" placeholder="Enter product name">
+      </div>
+      
+      <div class="form-group">
+        <label>Product Price (TND)</label>
+        <input type="number" id="productPrice" placeholder="Enter price in TND">
+      </div>
+      
+      <div class="form-group">
+        <label>Product Image URL</label>
+        <input type="text" id="productImage" placeholder="Enter image URL or upload file">
+      </div>
+      
+      <div class="form-group file-input">
+        <label>Or Upload Image</label>
+        <input type="file" id="productImageFile" accept="image/*">
+      </div>
+      
+      <button class="btn" onclick="addProduct()">Add Product</button>
+    </div>
+
     <!-- Products Grid -->
     <div class="products-grid" id="productsGrid">
       <!-- Products will be loaded here -->
@@ -550,15 +577,29 @@
       loadProducts();
       loadOrders();
       updateStats();
+      loadSiteContentForEditing();
     }
 
     function loadProducts() {
-      // Load from localStorage
+      // Load from localStorage first
       const savedProducts = localStorage.getItem('waten_products');
       if (savedProducts) {
         products = JSON.parse(savedProducts);
       } else {
-        products = [];
+        // Load from products.json as fallback
+        fetch('/products.json')
+          .then(response => response.json())
+          .then(data => {
+            products = data.products || [];
+            localStorage.setItem('waten_products', JSON.stringify(products));
+            renderProducts();
+            updateStats();
+          })
+          .catch(error => {
+            console.error('Failed to load products.json:', error);
+            products = [];
+            renderProducts();
+          });
       }
       
       renderProducts();
@@ -567,13 +608,41 @@
     function saveProducts() {
       localStorage.setItem('waten_products', JSON.stringify(products));
       
+      // Save to products.json via server API
+      fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ products: products })
+      }).then(response => {
+        if (response.ok) {
+          console.log('✅ Products saved to server');
+        } else {
+          console.warn('⚠️ Server save failed, using localStorage only');
+        }
+      }).catch(error => {
+        console.warn('⚠️ Server not available, using localStorage only');
+      });
+      
       // Trigger sync with official site
       window.dispatchEvent(new StorageEvent('storage', {
         key: 'waten_products',
         newValue: JSON.stringify(products)
       }));
       
+      // Broadcast to all tabs/windows
+      if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('waten_dashboard');
+        channel.postMessage({
+          type: 'products_updated',
+          products: products
+        });
+        channel.close();
+      }
+      
       updateStats();
+      showNotification('Products updated and synced!');
     }
 
     function renderProducts() {
@@ -977,6 +1046,31 @@
       }
     }
 
+    // Notification System
+    function showNotification(message) {
+      const notification = document.createElement('div');
+      notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; background: #c9a227; color: #0a0a0a;
+        padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 350px;
+        box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4); font-weight: 600;
+        animation: slideIn 0.3s ease;
+      `;
+      
+      notification.innerHTML = `
+        <div style="margin-bottom: 8px;">✅ SUCCESS</div>
+        <div style="font-size: 14px; font-weight: 400;">${message}</div>
+      `;
+      
+      document.body.appendChild(notification);
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => {
+        if (notification.parentElement) {
+          notification.remove();
+        }
+      }, 3000);
+    }
+
     // Add dashboard button to main site
     function addDashboardButton() {
       // Check if button already exists
@@ -994,6 +1088,27 @@
     // Check if we should add dashboard button to main site
     if (window.location.pathname.includes('idex.html')) {
       addDashboardButton();
+    }
+
+    // Real-time sync listener
+    window.addEventListener('storage', function(e) {
+      if (e.key === 'waten_products' && e.newValue) {
+        console.log('🔄 Products updated from another tab');
+        loadProducts();
+      }
+    });
+
+    // Broadcast channel for real-time updates
+    if (typeof BroadcastChannel !== 'undefined') {
+      const channel = new BroadcastChannel('waten_dashboard');
+      channel.onmessage = function(event) {
+        if (event.data.type === 'products_updated') {
+          console.log('🔄 Products updated via broadcast channel');
+          products = event.data.products;
+          renderProducts();
+          updateStats();
+        }
+      };
     }
   </script>
 </body>
