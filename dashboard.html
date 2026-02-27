@@ -7,509 +7,460 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'DM Sans', sans-serif; background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); color: #f5f5f5; min-height: 100vh; }
-    .container { max-width: 900px; margin: 0 auto; padding: 2rem; }
-    h1 { font-size: 1.5rem; margin-bottom: 2rem; letter-spacing: 0.1em; background: linear-gradient(135deg, #c9a227, #d4af37); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+    body { 
+      font-family: 'DM Sans', sans-serif; 
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); 
+      color: #f5f5f5; 
+      min-height: 100vh; 
+    }
+    .container { 
+      max-width: 1200px; 
+      margin: 0 auto; 
+      padding: 2rem; 
+    }
+    h1 { 
+      font-size: 2rem; 
+      margin-bottom: 2rem; 
+      letter-spacing: 0.1em; 
+      background: linear-gradient(135deg, #c9a227, #d4af37); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent; 
+      background-clip: text; 
+      text-align: center;
+    }
+    .header { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: center; 
+      margin-bottom: 3rem; 
+      padding-bottom: 1rem; 
+      border-bottom: 1px solid rgba(201,162,39,0.2);
+    }
+    .header a { 
+      color: #c9a227; 
+      text-decoration: none; 
+      font-size: 1rem; 
+      font-weight: 500;
+    }
     .login-box {
-      max-width: 360px; margin: 4rem auto; padding: 2rem; background: rgba(26,26,26,0.9); border: 1px solid rgba(201,162,39,0.2);
-      backdrop-filter: blur(10px); box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+      max-width: 400px; 
+      margin: 4rem auto; 
+      padding: 2.5rem; 
+      background: rgba(26,26,26,0.95); 
+      border: 1px solid rgba(201,162,39,0.3);
+      border-radius: 12px;
+      backdrop-filter: blur(20px); 
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
     }
-    .login-box h2 { font-size: 1rem; margin-bottom: 1rem; font-weight: 500; }
+    .login-box h2 { 
+      font-size: 1.2rem; 
+      margin-bottom: 1.5rem; 
+      font-weight: 600;
+      text-align: center;
+    }
     input[type="password"] {
-      width: 100%; padding: 0.75rem 1rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; font-size: 1rem; margin-bottom: 1rem;
+      width: 100%; 
+      padding: 1rem; 
+      background: rgba(10,10,10,0.8); 
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff; 
+      font-size: 1rem; 
+      margin-bottom: 1.5rem; 
+      border-radius: 8px;
+      transition: all 0.3s ease;
     }
-    input[type="password"]:focus { outline: none; border-color: #c9a227; }
+    input[type="password"]:focus { 
+      outline: none; 
+      border-color: #c9a227; 
+      box-shadow: 0 0 0 3px rgba(201,162,39,0.3);
+    }
     .btn {
-      padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #c9a227, #d4af37); color: #0a0a0a; border: none;
-      font-weight: 600; cursor: pointer; font-size: 0.85rem; letter-spacing: 0.05em;
-      border-radius: 6px; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(201,162,39,0.3);
+      padding: 1rem 2rem; 
+      background: linear-gradient(135deg, #c9a227, #d4af37); 
+      color: #0a0a0a; 
+      border: none; 
+      font-weight: 600; 
+      cursor: pointer; 
+      font-size: 1rem; 
+      letter-spacing: 0.05em;
+      border-radius: 8px; 
+      transition: all 0.3s ease; 
+      box-shadow: 0 6px 20px rgba(201,162,39,0.3);
+      text-transform: uppercase;
     }
     .btn:hover { 
       background: linear-gradient(135deg, #d4af37, #c9a227); 
-      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(201,162,39,0.4);
+      transform: translateY(-2px); 
+      box-shadow: 0 8px 30px rgba(201,162,39,0.4);
     }
-    .btn-ghost { 
-      background: transparent; color: #c9a227; border: 1px solid #c9a227; 
-      backdrop-filter: blur(10px);
+    .btn:active {
+      transform: translateY(0);
     }
-    .btn-ghost:hover { 
-      background: rgba(201,162,39,0.15); 
-      border-color: #d4af37; color: #d4af37;
+    .error { 
+      color: #ff6b6b; 
+      font-size: 0.9rem; 
+      margin-top: 1rem; 
+      text-align: center;
+      font-weight: 500;
     }
-    .btn-danger { 
-      background: linear-gradient(135deg, #8b2635, #a02d3f); color: #fff; 
-      box-shadow: 0 4px 12px rgba(139,38,53,0.3);
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 3rem;
     }
-    .btn-danger:hover { 
-      background: linear-gradient(135deg, #a02d3f, #8b2635); 
-      transform: translateY(-2px); box-shadow: 0 6px 20px rgba(139,38,53,0.4);
+    .product-card {
+      background: rgba(26,26,26,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 2rem;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
     }
-    .error { color: #e57373; font-size: 0.85rem; margin-top: 0.5rem; }
-    .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
-    .header a { color: #c9a227; text-decoration: none; font-size: 0.85rem; }
-    .products-list { display: flex; flex-direction: column; gap: 1rem; }
-    .product-row {
-      display: flex; align-items: center; gap: 1.5rem; padding: 1rem; background: rgba(20,20,20,0.8);
-      border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
-      backdrop-filter: blur(10px); transition: all 0.3s ease;
+    .product-card:hover {
+      border-color: rgba(201,162,39,0.4);
+      background: rgba(30,30,30,0.95);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
     }
-    .product-row:hover { 
-      border-color: rgba(201,162,39,0.3); 
-      background: rgba(26,26,26,0.9); transform: translateY(-2px);
-      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    .product-image {
+      width: 100%;
+      height: 250px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      background: #1a1a1a;
     }
-    .product-row img { width: 60px; height: 75px; object-fit: cover; background: #1a1a1a; }
-    .product-row .info { flex: 1; }
-    .product-row .name { font-weight: 600; margin-bottom: 0.25rem; }
-    .product-row .price { color: #c9a227; font-size: 0.9rem; }
-    .product-row .actions { display: flex; gap: 0.5rem; }
-    .product-row .actions button { padding: 0.4rem 0.8rem; font-size: 0.75rem; }
-    .btn.active { background: #c9a227; color: #0a0a0a; }
-    .add-form {
-      background: #1a1a1a; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid rgba(255,255,255,0.08);
+    .product-info {
+      margin-bottom: 1.5rem;
     }
-    .add-form h3 { font-size: 0.95rem; margin-bottom: 1rem; font-weight: 500; }
-    .form-row { margin-bottom: 1rem; }
-    .form-row label { display: block; font-size: 0.8rem; margin-bottom: 0.35rem; color: rgba(255,255,255,0.7); }
-    .form-row input { width: 100%; padding: 0.6rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15); color: #fff; }
-    .form-row input:focus { outline: none; border-color: #c9a227; }
-    .form-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .product-name {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+    .product-price {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #c9a227;
+      margin-bottom: 1rem;
+    }
+    .product-actions {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+    .add-product-form {
+      background: rgba(26,26,26,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+    .form-group label {
+      display: block;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      color: rgba(255,255,255,0.8);
+      font-weight: 500;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(10,10,10,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 1rem;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #c9a227;
+      box-shadow: 0 0 0 3px rgba(201,162,39,0.3);
+    }
+    .file-input {
+      position: relative;
+    }
+    .file-input input[type="file"] {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(10,10,10,0.8);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: #fff;
+      font-size: 0.9rem;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: rgba(26,26,26,0.9);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-number {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #c9a227;
+      margin-bottom: 0.5rem;
+    }
+    .stat-label {
+      font-size: 0.9rem;
+      color: rgba(255,255,255,0.7);
+    }
     .hidden { display: none !important; }
-    .empty { text-align: center; padding: 3rem; color: rgba(255,255,255,0.5); }
-    .dashboard-layout { display: flex; gap: 2rem; align-items: flex-start; flex-wrap: wrap; }
-    .dashboard-main { flex: 1; min-width: 280px; }
-    .sidebar {
-      width: 200px; flex-shrink: 0; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08);
-      padding: 1.5rem; position: sticky; top: 2rem;
+    .dashboard-btn {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      background: linear-gradient(135deg, #c9a227, #d4af37);
+      color: #0a0a0a;
+      border: none;
+      padding: 1rem 2rem;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 8px 30px rgba(201,162,39,0.4);
+      z-index: 1000;
+      transition: all 0.3s ease;
     }
-    .sidebar a {
-      display: block; padding: 0.75rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none;
-      border-radius: 6px; transition: all 0.3s ease; margin-bottom: 0.5rem; font-size: 0.85rem;
+    .dashboard-btn:hover {
+      background: linear-gradient(135deg, #d4af37, #c9a227);
+      transform: translateY(-2px);
+      box-shadow: 0 12px 40px rgba(201,162,39,0.5);
     }
-    .sidebar a:hover { 
-      background: rgba(201,162,39,0.15); color: #c9a227; 
-    }
-    .sidebar a.active { 
-      background: rgba(201,162,39,0.2); color: #c9a227; font-weight: 600;
-    }
-    .panel { display: none; }
-    .panel.active { display: block; }
-    .section-card {
-      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
-      padding: 1.5rem; margin-bottom: 1.5rem;
-    }
-    .section-card h3 { font-size: 0.9rem; margin-bottom: 1rem; font-weight: 500; }
-    .save-status {
-      font-size: 0.8rem; margin-top: 0.5rem; opacity: 0.8;
-    }
-    .save-status.err { color: #e57373; }
-    .search-wrap {
-      flex: 1; max-width: 300px; margin-left: 1rem;
-    }
-    .search-wrap input {
-      width: 100%; padding: 0.5rem 1rem; background: #0a0a0a; border: 1px solid rgba(255,255,255,0.15);
-      color: #fff; font-size: 0.85rem; border-radius: 6px;
-    }
-    .stats-bar {
-      display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;
-    }
-    .stat {
-      background: rgba(201,162,39,0.1); border: 1px solid rgba(201,162,39,0.2);
-      padding: 0.5rem 1rem; border-radius: 6px; font-size: 0.8rem;
-    }
-    .stat strong { color: #c9a227; font-weight: 600; }
-    .detail-panel {
-      background: #1a1a1a; border: 1px solid rgba(255,255,255,0.08); border-radius: 8px;
-      padding: 1.5rem; margin-bottom: 1.5rem;
-    }
-    .detail-panel.hidden { display: none !important; }
-    .detail-panel h3 { font-size: 0.8rem; letter-spacing: 0.15em; color: rgba(255,255,255,0.6); margin-bottom: 1rem; text-transform: uppercase; }
-    .detail-panel .detail-row { margin-bottom: 1rem; }
-    .detail-panel .detail-label { font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.1em; margin-bottom: 0.25rem; }
-    .detail-panel .detail-value { font-size: 0.9rem; color: #fff; }
-    .detail-panel img { max-width: 100%; height: 200px; object-fit: cover; border-radius: 6px; margin-bottom: 1rem; }
     @media (max-width: 768px) {
-      .dashboard-layout { flex-direction: column; }
-      .sidebar { width: 100%; position: static; }
-      .search-wrap { max-width: none; margin: 1rem 0 0 0; }
+      .container { padding: 1rem; }
+      .products-grid { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: 1fr; }
+      .dashboard-btn { 
+        bottom: 1rem; 
+        right: 1rem; 
+        padding: 0.8rem 1.5rem;
+        font-size: 0.9rem;
+      }
     }
   </style>
 </head>
 <body>
   <div id="loginScreen" class="container">
     <div class="login-box">
-      <h2>WATEN Dashboard</h2>
-      <p style="font-size:0.85rem;color:rgba(255,255,255,0.6);margin-bottom:1rem;">Enter your admin password to manage the entire site.</p>
-      <input type="password" id="password" placeholder="Password" autocomplete="current-password">
+      <h2>🔐 WATEN ADMIN</h2>
+      <p style="text-align: center; margin-bottom: 2rem; color: rgba(255,255,255,0.8);">
+        Enter your admin password to access the dashboard
+      </p>
+      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
       <div class="error" id="loginError"></div>
-      <button class="btn" onclick="login()">Log in</button>
+      <button class="btn" onclick="login()">Access Dashboard</button>
     </div>
   </div>
 
-  <div id="dashboardScreen" class="hidden">
-    <div class="container" style="padding-bottom:0.5rem;">
-      <div class="header">
-        <h1>WATEN Dashboard</h1>
-        <div style="display: flex; gap: 1rem; align-items: center;">
-          <a href="/idex.html" target="_blank">View site →</a>
-        </div>
-      </div>
-
-      <div class="dashboard-layout">
-        <nav class="sidebar">
-          <a href="#" class="active" data-panel="products">Products</a>
-          <a href="#" data-panel="home">Home &amp; Hero</a>
-          <a href="#" data-panel="collection">Collection</a>
-          <a href="#" data-panel="invest">Invest</a>
-          <a href="#" data-panel="footer">Footer</a>
-          <a href="#" data-panel="settings">Settings</a>
-        </nav>
-
-        <div class="dashboard-main">
-          <div id="panel-products" class="panel active">
-            <div class="add-form">
-              <h3>Add New Product</h3>
-              <div class="form-row">
-                <label>Product name</label>
-                <input type="text" id="newName" placeholder="Product name">
-              </div>
-              <div class="form-row">
-                <label>Price (TND)</label>
-                <input type="number" id="newPrice" placeholder="0">
-              </div>
-              <div class="form-row">
-                <label>Image URL</label>
-                <input type="text" id="newImage" placeholder="https://...">
-              </div>
-              <div class="form-row">
-                <label>Or upload image</label>
-                <input type="file" id="newImageFile" accept="image/*">
-              </div>
-              <div class="form-actions">
-                <button class="btn" onclick="addProduct()">Add product</button>
-              </div>
-            </div>
-
-            <div class="section-card">
-              <h3 style="font-size:0.95rem;margin-bottom:1rem;font-weight:500;">Your products — click one to see details</h3>
-              <div id="productsList" class="products-list"></div>
-            </div>
-
-            <div id="detailPanel" class="detail-panel hidden">
-              <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">
-                <h3 style="margin-bottom:0;">Product details</h3>
-                <button type="button" class="btn btn-ghost" style="padding:0.25rem 0.5rem;font-size:0.75rem;" onclick="showDetail(null); renderProductsList(allProducts);" aria-label="Close detail">×</button>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">ID</div>
-                <div class="detail-value" id="detailId">—</div>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">Name</div>
-                <div class="detail-value" id="detailName">—</div>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">Price</div>
-                <div class="detail-value" id="detailPrice">—</div>
-              </div>
-              <div class="detail-row">
-                <div class="detail-label">Image URL</div>
-                <div class="detail-value" id="detailImageUrl">—</div>
-              </div>
-              <img id="detailImagePreview" style="display:none;">
-              <div id="detailNoImage" style="color:rgba(255,255,255,0.5);font-size:0.8rem;">No image</div>
-              <div class="form-actions" style="margin-top:1.5rem;">
-                <button class="btn" onclick="editFromDetail()">Edit</button>
-                <button class="btn btn-danger" onclick="deleteFromDetail()">Delete</button>
-              </div>
-            </div>
-          </div>
-
-          <div id="panel-home" class="panel">
-            <div class="section-card">
-              <h3>Home &amp; Hero Section</h3>
-              <div class="form-row">
-                <label>Page title</label>
-                <input type="text" id="site-meta-title" placeholder="WATEN | Global Streetwear">
-              </div>
-              <div class="form-row">
-                <label>Meta description</label>
-                <input type="text" id="site-meta-description" placeholder="WATEN — Premium streetwear built for global dominance.">
-              </div>
-              <div class="form-actions">
-                <button class="btn" onclick="saveSiteSection('home')">Save Home &amp; Hero</button>
-              </div>
-              <span id="status-home" class="save-status"></span>
-            </div>
-          </div>
-
-          <div id="panel-collection" class="panel">
-            <div class="section-card">
-              <h3>Collection Section</h3>
-              <div class="form-row">
-                <label>Section heading</label>
-                <input type="text" id="site-collection-heading" placeholder="Our Collection">
-              </div>
-              <div class="form-row">
-                <label>Section subtitle</label>
-                <input type="text" id="site-collection-subtitle" placeholder="Discover our premium streetwear">
-              </div>
-              <div class="form-actions">
-                <button class="btn" onclick="saveSiteSection('collection')">Save Collection</button>
-              </div>
-              <span id="status-collection" class="save-status"></span>
-            </div>
-          </div>
-
-          <div id="panel-invest" class="panel">
-            <div class="section-card">
-              <h3>Invest Section</h3>
-              <div class="form-row">
-                <label>Section heading</label>
-                <input type="text" id="site-invest-heading" placeholder="Invest in WATEN">
-              </div>
-              <div class="form-row">
-                <label>Section body</label>
-                <input type="text" id="site-invest-body" placeholder="Join the WATEN movement">
-              </div>
-              <div class="form-row">
-                <label>CTA button text</label>
-                <input type="text" id="site-invest-cta" placeholder="Get Started">
-              </div>
-              <div class="form-actions">
-                <button class="btn" onclick="saveSiteSection('invest')">Save Invest</button>
-              </div>
-              <span id="status-invest" class="save-status"></span>
-            </div>
-          </div>
-
-          <div id="panel-footer" class="panel">
-            <div class="section-card">
-              <h3>Footer Section</h3>
-              <div class="form-row">
-                <label>Logo text</label>
-                <input type="text" id="site-footer-logo" placeholder="WATEN">
-              </div>
-              <div class="form-row">
-                <label>Tagline</label>
-                <input type="text" id="site-footer-tagline" placeholder="Global Streetwear">
-              </div>
-              <div class="form-row">
-                <label>Copyright text</label>
-                <input type="text" id="site-footer-copyright" placeholder="© 2024 WATEN. All rights reserved.">
-              </div>
-              <div class="form-actions">
-                <button class="btn" onclick="saveSiteSection('footer')">Save Footer</button>
-              </div>
-              <span id="status-footer" class="save-status"></span>
-            </div>
-          </div>
-
-          <div id="panel-settings" class="panel">
-            <div class="section-card">
-              <h3>Change admin password</h3>
-              <div class="form-row"><label>New password</label><input type="password" id="config-new-password" placeholder="New password" autocomplete="new-password"></div>
-              <div class="form-actions"><button class="btn" onclick="saveConfig()">Update password</button></div>
-            </div>
-            <span id="status-settings" class="save-status"></span>
-          </div>
-        </div>
+  <div id="dashboardScreen" class="container hidden">
+    <div class="header">
+      <h1>📊 WATEN DASHBOARD</h1>
+      <div>
+        <a href="/idex.html" target="_blank">🌐 View Site</a>
       </div>
     </div>
-  </div>
 
-  <div id="editModal" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:100;">
-    <div style="background:#1a1a1a;padding:2rem;max-width:400px;width:90%;border:1px solid rgba(255,255,255,0.08);">
-      <h3 style="margin-bottom:1rem;">Edit product</h3>
-      <div class="form-row">
-        <label>Product name</label>
-        <input type="text" id="editName">
+    <!-- Statistics Overview -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-number" id="totalProducts">0</div>
+        <div class="stat-label">Total Products</div>
       </div>
-      <div class="form-row">
+      <div class="stat-card">
+        <div class="stat-number" id="totalOrders">0</div>
+        <div class="stat-label">Total Orders</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="totalRevenue">0 TND</div>
+        <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+
+    <!-- Add Product Form -->
+    <div class="add-product-form">
+      <h2>➕ Add New Product</h2>
+      
+      <div class="form-group">
+        <label>Product Name</label>
+        <input type="text" id="productName" placeholder="Enter product name">
+      </div>
+      
+      <div class="form-group">
         <label>Price (TND)</label>
-        <input type="number" id="editPrice">
+        <input type="number" id="productPrice" placeholder="0">
       </div>
-      <div class="form-row">
-        <label>Image URL</label>
-        <input type="text" id="editImage">
+      
+      <div class="form-group">
+        <label>Product Image</label>
+        <div class="file-input">
+          <input type="file" id="productImage" accept="image/*">
+        </div>
       </div>
-      <div class="form-row">
-        <label>Or upload new image</label>
-        <input type="file" id="editImageFile" accept="image/*">
-      </div>
-      <div class="form-actions">
-        <button class="btn" onclick="saveEdit()">Save changes</button>
-        <button class="btn btn-ghost" onclick="closeEdit()">Cancel</button>
-      </div>
+      
+      <button class="btn" onclick="addProduct()" style="width: 100%; margin-top: 1rem;">
+        Add Product
+      </button>
+    </div>
+
+    <!-- Products Grid -->
+    <div class="products-grid" id="productsGrid">
+      <!-- Products will be loaded here -->
     </div>
   </div>
+
+  <!-- Floating Dashboard Button -->
+  <button class="dashboard-btn" onclick="toggleDashboard()">
+    🎛 Dashboard
+  </button>
 
   <script>
-    const API = '/api';
-    let token = sessionStorage.getItem('waten_admin') || '';
-    let allProducts = [];
-    let selectedProductId = null;
-    let editingId = null;
-    let siteContent = {};
-    const FALLBACK_IMG = 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
+    // Configuration
+    const ADMIN_PASSWORD = 'fubisra06';
+    let products = [];
+    let orders = [];
+    let isLoggedIn = false;
 
-    function authHeaders() {
-      return { 'X-Admin-Password': token, 'Content-Type': 'application/json' };
-    }
-
-    async function login() {
-      const pwd = document.getElementById('password').value;
-      document.getElementById('loginError').textContent = '';
-      
-      console.log('🔐 Login attempt');
-      console.log('Password entered:', pwd);
-      console.log('Expected password: fubisra06');
-      console.log('Password match:', pwd === 'fubisra06');
-      
-      // Direct password authentication - fubisra06
-      if (pwd === 'fubisra06') {
-        console.log('✅ Login successful');
-        token = pwd;
-        sessionStorage.setItem('waten_admin', pwd);
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadSiteContent();
-      } else {
-        console.log('❌ Login failed');
-        document.getElementById('loginError').textContent = 'Wrong password.';
-      }
-    }
-
-    function checkAuth() {
-      if (token) {
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('dashboardScreen').classList.remove('hidden');
-        loadProducts();
-        loadSiteContent();
-      }
-    }
-
-    document.querySelectorAll('.sidebar a[data-panel]').forEach(function(a) {
-      a.addEventListener('click', function(e) {
-        e.preventDefault();
-        var panelId = this.getAttribute('data-panel');
-        document.querySelectorAll('.sidebar a').forEach(function(l) { l.classList.remove('active'); });
-        this.classList.add('active');
-        document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
-        var panel = document.getElementById('panel-' + panelId);
-        if (panel) panel.classList.add('active');
-      });
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      checkAuth();
+      loadData();
     });
 
-    async function loadProducts() {
-      try {
-        // Load from localStorage first
-        const savedProducts = localStorage.getItem('watenProducts');
-        if (savedProducts) {
-          allProducts = JSON.parse(savedProducts);
-          renderProductsList(allProducts);
-        } else {
-          allProducts = [];
-          renderProductsList(allProducts);
-        }
-        
-        // Try API if available
-        try {
-          const res = await fetch(API + '/products');
-          if (res.ok) {
-            const apiProducts = await res.json();
-            allProducts = apiProducts;
-            localStorage.setItem('watenProducts', JSON.stringify(allProducts));
-            renderProductsList(allProducts);
-          }
-        } catch (apiError) {
-          console.log('API not available, using localStorage');
-        }
-        
-        if (selectedProductId && !allProducts.find(p => p.id === selectedProductId)) {
-          selectedProductId = null;
-          document.getElementById('detailPanel').classList.add('hidden');
-        } else if (selectedProductId) {
-          showDetail(allProducts.find(p => p.id === selectedProductId));
-        }
-      } catch (e) {
-        console.error('Failed to load products:', e);
-        allProducts = [];
-        renderProductsList(allProducts);
+    // Authentication
+    function checkAuth() {
+      const savedAuth = localStorage.getItem('waten_admin_auth');
+      if (savedAuth === ADMIN_PASSWORD) {
+        isLoggedIn = true;
+        showDashboard();
       }
     }
 
-    function renderProductsList(products) {
-      const el = document.getElementById('productsList');
-      if (!products.length) {
-        el.innerHTML = '<div class="empty">No products yet. Add one above.</div>';
-        return;
-      }
-      el.innerHTML = products.map(p => {
-        const nameEsc = (p.name || '').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-        const imageEsc = (p.image || '').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-        const selected = p.id === selectedProductId ? ' selected' : '';
-        return `
-        <div class="product-row${selected}" data-id="${p.id}" onclick="selectProduct('${String(p.id).replace(/'/g, "\\'")}')">
-          <img src="${imageEsc}" alt="" onerror="this.src='${FALLBACK_IMG}'">
-          <div class="info">
-            <div class="name">${nameEsc}</div>
-            <div class="price">${p.price} TND</div>
-          </div>
-          <div class="actions" onclick="event.stopPropagation()">
-            <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
-            <button class="btn btn-danger" onclick="deleteProduct('${String(p.id).replace(/'/g, "\\'")}')">Delete</button>
-          </div>
-        </div>`;
-      }).join('');
-    }
-
-    function showDetail(product) {
-      if (!product) {
-        document.getElementById('detailPanel').classList.add('hidden');
-        selectedProductId = null;
-        return;
-      }
-      selectedProductId = product.id;
-      document.getElementById('detailId').textContent = product.id;
-      document.getElementById('detailName').textContent = product.name || '—';
-      document.getElementById('detailPrice').textContent = (product.price != null ? product.price : '—') + ' TND';
-      const imgUrl = product.image || '';
-      document.getElementById('detailImageUrl').textContent = imgUrl || '—';
-      const preview = document.getElementById('detailImagePreview');
-      const noImg = document.getElementById('detailNoImage');
-      if (imgUrl) {
-        preview.src = imgUrl;
-        preview.style.display = 'block';
-        preview.onerror = function() { this.style.display = 'none'; noImg.style.display = 'block'; };
-        noImg.style.display = 'none';
+    function login() {
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('loginError');
+      
+      console.log('🔐 Login attempt');
+      console.log('Password entered:', password);
+      console.log('Expected password:', ADMIN_PASSWORD);
+      console.log('Password match:', password === ADMIN_PASSWORD);
+      
+      if (password === ADMIN_PASSWORD) {
+        localStorage.setItem('waten_admin_auth', ADMIN_PASSWORD);
+        isLoggedIn = true;
+        showDashboard();
+        errorDiv.textContent = '';
+        console.log('✅ Login successful');
       } else {
-        preview.style.display = 'none';
-        noImg.style.display = 'block';
+        errorDiv.textContent = '❌ Incorrect password';
+        errorDiv.style.color = '#ff6b6b';
+        console.log('❌ Login failed');
       }
-      document.getElementById('detailPanel').classList.remove('hidden');
-      renderProductsList(allProducts);
     }
 
-    function selectProduct(id) {
-      const p = allProducts.find(x => x.id === id);
-      showDetail(p || null);
+    function logout() {
+      localStorage.removeItem('waten_admin_auth');
+      isLoggedIn = false;
+      showLogin();
     }
 
-    function openEditFromRow(btn) {
-      const row = btn.closest('.product-row');
-      const p = allProducts.find(x => x.id === row.dataset.id);
-      if (p) openEdit(p.id, p.name || '', p.price, p.image || '');
+    function showLogin() {
+      document.getElementById('loginScreen').classList.remove('hidden');
+      document.getElementById('dashboardScreen').classList.add('hidden');
     }
 
-    function editFromDetail() {
-    function deleteFromDetail() {
-      if (selectedProductId) deleteProduct(selectedProductId);
+    function showDashboard() {
+      document.getElementById('loginScreen').classList.add('hidden');
+      document.getElementById('dashboardScreen').classList.remove('hidden');
     }
 
-    async function addProduct() {
+    // Data Management
+    function loadData() {
+      loadProducts();
+      loadOrders();
+      updateStats();
+    }
+
+    function loadProducts() {
+      // Load from localStorage
+      const savedProducts = localStorage.getItem('waten_products');
+      if (savedProducts) {
+        products = JSON.parse(savedProducts);
+      } else {
+        products = [];
+      }
+      
+      renderProducts();
+    }
+
+    function saveProducts() {
+      localStorage.setItem('waten_products', JSON.stringify(products));
+      
+      // Trigger sync with official site
+      window.dispatchEvent(new StorageEvent('storage', {
+        key: 'waten_products',
+        newValue: JSON.stringify(products)
+      }));
+      
+      updateStats();
+    }
+
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      
+      if (products.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(255,255,255,0.6);">
+            <h3>No products yet</h3>
+            <p>Add your first product to get started</p>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = products.map((product, index) => `
+        <div class="product-card">
+          <div class="product-image">
+            ${product.image ? 
+              `<img src="${product.image}" alt="${product.name}">` : 
+              `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #2a2a2a; color: #666;">
+                📷 No Image
+              </div>`
+            }
+          </div>
+          
+          <div class="product-info">
+            <div class="product-name">${product.name}</div>
+            <div class="product-price">${product.price} TND</div>
+          </div>
+          
+          <div class="product-actions">
+            <button class="btn" onclick="editProduct(${index})" style="padding: 0.5rem 1rem; font-size: 0.8rem;">
+              ✏️ Edit
+            </button>
+            <button class="btn" onclick="deleteProduct(${index})" style="background: linear-gradient(135deg, #8b2635, #a02d3f); padding: 0.5rem 1rem; font-size: 0.8rem;">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addProduct() {
       const name = document.getElementById('productName').value.trim();
       const price = parseInt(document.getElementById('productPrice').value) || 0;
       let image = document.getElementById('productImage').value.trim();
@@ -532,7 +483,7 @@
         const reader = new FileReader();
         reader.onload = function(e) {
           product.image = e.target.result;
-          allProducts.push(product);
+          products.push(product);
           saveProducts();
           clearForm();
         };
@@ -540,342 +491,95 @@
       } else {
         // Use default image if no file uploaded
         product.image = image || 'https://images.unsplash.com/photo-1556821840-3a63f95609a7';
-        allProducts.push(product);
+        products.push(product);
         saveProducts();
         clearForm();
       }
     }
 
     function editProduct(index) {
-      const product = allProducts[index];
+      const product = products[index];
       if (!product) return;
       
       const newName = prompt('Edit product name:', product.name);
       const newPrice = prompt('Edit product price (TND):', product.price);
       
       if (newName !== null && newPrice !== null) {
-        allProducts[index] = {
+        products[index] = {
           ...product,
           name: newName.trim(),
           price: parseInt(newPrice) || 0
         };
         saveProducts();
-        renderProductsList();
+        renderProducts();
       }
     }
 
     function deleteProduct(index) {
-      const product = allProducts[index];
+      const product = products[index];
       if (!product) return;
       
       if (confirm(`Delete "${product.name}"?`)) {
-        allProducts.splice(index, 1);
+        products.splice(index, 1);
         saveProducts();
-        renderProductsList();
+        renderProducts();
       }
     }
 
-    function saveProducts() {
-      localStorage.setItem('watenProducts', JSON.stringify(allProducts));
-      
-      // Trigger sync with official site
-      window.dispatchEvent(new StorageEvent('storage', {
-        key: 'watenProducts',
-        newValue: JSON.stringify(allProducts)
-      }));
-      
-      updateStats();
+    function clearForm() {
+      document.getElementById('productName').value = '';
+      document.getElementById('productPrice').value = '';
+      document.getElementById('productImage').value = '';
     }
 
-    function renderProductsList() {
-      const el = document.getElementById('productsList');
-      
-      if (allProducts.length === 0) {
-        el.innerHTML = '<div class="empty">No products yet. Add one above.</div>';
-        return;
-      }
-      
-      el.innerHTML = allProducts.map((product, index) => `
-        <div class="product-row" data-id="${product.id}" onclick="selectProduct('${String(product.id).replace(/'/g, "\\'")}')">
-          <img src="${product.image}" alt="" onerror="this.src='${FALLBACK_IMG}'">
-          <div class="info">
-            <div class="name">${product.name}</div>
-            <div class="price">${product.price} TND</div>
-          </div>
-          <div class="actions" onclick="event.stopPropagation()">
-            <button class="btn btn-ghost" onclick="openEditFromRow(this)">Edit</button>
-            <button class="btn btn-danger" onclick="deleteProduct(${index})">Delete</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function selectProduct(id) {
-      const p = allProducts.find(x => x.id === id);
-      showDetail(p || null);
-    }
-
-    function showDetail(product) {
-      if (!product) {
-        document.getElementById('detailPanel').classList.add('hidden');
-        selectedProductId = null;
-        return;
-      }
-      selectedProductId = product.id;
-      document.getElementById('detailId').textContent = product.id;
-      document.getElementById('detailName').textContent = product.name;
-      document.getElementById('detailPrice').textContent = product.price + ' TND';
-      document.getElementById('detailImageUrl').textContent = product.image || '—';
-      const preview = document.getElementById('detailImagePreview');
-      const noImg = document.getElementById('detailNoImage');
-      if (product.image) {
-        preview.src = product.image;
-        preview.style.display = 'block';
-        preview.onerror = function() { this.style.display = 'none'; noImg.style.display = 'block'; };
-        noImg.style.display = 'none';
+    function loadOrders() {
+      // Load from localStorage
+      const savedOrders = localStorage.getItem('waten_orders');
+      if (savedOrders) {
+        orders = JSON.parse(savedOrders);
       } else {
-        preview.style.display = 'none';
-        noImg.style.display = 'block';
-      }
-      document.getElementById('detailPanel').classList.remove('hidden');
-      renderProductsList();
-    }
-
-    function openEditFromRow(btn) {
-      const row = btn.closest('.product-row');
-      const p = allProducts.find(x => x.id === row.dataset.id);
-      if (p) openEdit(p.id, p.name, p.price, p.image);
-    }
-
-    function deleteFromDetail() {
-      if (selectedProductId) {
-        const index = allProducts.findIndex(p => p.id === selectedProductId);
-        if (index !== -1) deleteProduct(index);
+        orders = [];
       }
     }
 
-    function openEdit(id, name, price, image) {
-      editingId = id;
-      document.getElementById('editName').value = name;
-      document.getElementById('editPrice').value = price;
-      document.getElementById('editImage').value = image || '';
-      document.getElementById('editImageFile').value = '';
-      document.getElementById('editModal').classList.remove('hidden');
-    }
-
-    function closeEdit() {
-      editingId = null;
-      document.getElementById('editModal').classList.add('hidden');
-    }
-
-    async function saveEdit() {
-      const name = document.getElementById('editName').value.trim();
-      const price = parseInt(document.getElementById('editPrice').value) || 0;
-      let image = document.getElementById('editImage').value.trim();
-      const fileInput = document.getElementById('editImageFile');
-      if (fileInput.files.length) {
-        const fd = new FormData();
-        fd.append('image', fileInput.files[0]);
-        try {
-          const up = await fetch(API + '/upload', {
-            method: 'POST',
-            headers: { 'X-Admin-Password': token },
-            body: fd
-          });
-          if (up.ok) {
-            const data = await up.json();
-            image = data.path;
-          }
-        } catch (uploadError) {
-          console.log('Upload API not available, keeping existing image');
-        }
-      }
+    function updateStats() {
+      document.getElementById('totalProducts').textContent = products.length;
+      document.getElementById('totalOrders').textContent = orders.length;
       
-      // Update in localStorage
-      const index = allProducts.findIndex(p => p.id === editingId);
-      if (index !== -1) {
-        allProducts[index] = {
-          ...allProducts[index],
-          name: name,
-          price: price,
-          image: image || allProducts[index].image
-        };
-        localStorage.setItem('watenProducts', JSON.stringify(allProducts));
-        
-        // Try API
-        try {
-          const body = { name, price };
-          if (image) body.image = image;
-          const res = await fetch(API + '/products/' + editingId, {
-            method: 'PUT',
-            headers: authHeaders(),
-            body: JSON.stringify(body)
-          });
-          if (res.ok) {
-            console.log('Product updated in API');
-          }
-        } catch (apiError) {
-          console.log('API not available, product updated locally only');
-        }
-        
-        closeEdit();
-        loadProducts();
-        
-        // Trigger storage event
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'watenProducts',
-          newValue: localStorage.getItem('watenProducts')
-        }));
-      }
-    }
-
-    async function deleteProduct(id) {
-      if (!confirm('Delete this product?')) return;
+      const totalRevenue = orders
+        .filter(order => order.status === 'completed')
+        .reduce((sum, order) => sum + (order.total || 0), 0);
       
-      // Remove from localStorage
-      const index = allProducts.findIndex(p => p.id === id);
-      if (index !== -1) {
-        allProducts.splice(index, 1);
-        localStorage.setItem('watenProducts', JSON.stringify(allProducts));
-        
-        if (selectedProductId === id) {
-          selectedProductId = null;
-          document.getElementById('detailPanel').classList.add('hidden');
-        }
-        loadProducts();
-        
-        // Try API
-        try {
-          const res = await fetch(API + '/products/' + id, {
-            method: 'DELETE',
-            headers: authHeaders()
-          });
-          if (res.ok) {
-            console.log('Product deleted from API');
-          }
-        } catch (apiError) {
-          console.log('API not available, product deleted locally only');
-        }
-        
-        // Trigger storage event
-        window.dispatchEvent(new StorageEvent('storage', {
-          key: 'watenProducts',
-          newValue: localStorage.getItem('watenProducts')
-        }));
+      document.getElementById('totalRevenue').textContent = totalRevenue + ' TND';
+    }
+
+    // Dashboard Toggle
+    function toggleDashboard() {
+      if (isLoggedIn) {
+        logout();
+      } else {
+        showLogin();
       }
     }
 
-    async function loadSiteContent() {
-      try {
-        const savedContent = localStorage.getItem('watenContent');
-        if (savedContent) {
-          siteContent = JSON.parse(savedContent);
-        } else {
-          siteContent = {};
-        }
-        
-        try {
-          var res = await fetch(API + '/site');
-          if (res.ok) {
-            siteContent = await res.json();
-            localStorage.setItem('watenContent', JSON.stringify(siteContent));
-          }
-        } catch (apiError) {
-          console.log('API not available, using localStorage for content');
-        }
-      } catch (e) { 
-        siteContent = {}; 
-      }
+    // Add dashboard button to main site
+    function addDashboardButton() {
+      // Check if button already exists
+      if (document.querySelector('.dashboard-btn')) return;
       
-      if (!siteContent.meta) siteContent.meta = {};
-      if (!siteContent.header) siteContent.header = {};
-      if (!siteContent.hero) siteContent.hero = {};
-      if (!siteContent.collection) siteContent.collection = {};
-      if (!siteContent.invest) siteContent.invest = {};
-      if (!siteContent.footer) siteContent.footer = {};
-      
-      document.getElementById('site-meta-title').value = siteContent.meta.title || '';
-      document.getElementById('site-meta-description').value = siteContent.meta.description || '';
-      document.getElementById('site-collection-heading').value = siteContent.collection.heading || '';
-      document.getElementById('site-collection-subtitle').value = siteContent.collection.subtitle || '';
-      document.getElementById('site-invest-heading').value = siteContent.invest.heading || '';
-      document.getElementById('site-invest-body').value = siteContent.invest.body || '';
-      document.getElementById('site-invest-cta').value = siteContent.invest.ctaText || '';
-      document.getElementById('site-footer-logo').value = siteContent.footer.logoText || '';
-      document.getElementById('site-footer-tagline').value = siteContent.footer.tagline || '';
-      document.getElementById('site-footer-copyright').value = siteContent.footer.copyright || '';
+      const btn = document.createElement('button');
+      btn.className = 'dashboard-btn';
+      btn.innerHTML = '🎛 Dashboard';
+      btn.onclick = function() {
+        window.open('/dashboard.html', '_blank');
+      };
+      document.body.appendChild(btn);
     }
 
-    async function saveSiteSection(section) {
-      var payload = {};
-      if (section === 'home') {
-        payload = {
-          meta: {
-            title: document.getElementById('site-meta-title').value.trim(),
-            description: document.getElementById('site-meta-description').value.trim()
-          }
-        };
-      } else if (section === 'collection') {
-        payload = {
-          collection: {
-            heading: document.getElementById('site-collection-heading').value.trim(),
-            subtitle: document.getElementById('site-collection-subtitle').value.trim()
-          }
-        };
-      } else if (section === 'invest') {
-        payload = {
-          invest: {
-            heading: document.getElementById('site-invest-heading').value.trim(),
-            body: document.getElementById('site-invest-body').value.trim(),
-            ctaText: document.getElementById('site-invest-cta').value.trim()
-          }
-        };
-      } else if (section === 'footer') {
-        payload = {
-          footer: {
-            logoText: document.getElementById('site-footer-logo').value.trim(),
-            tagline: document.getElementById('site-footer-tagline').value.trim(),
-            copyright: document.getElementById('site-footer-copyright').value.trim()
-          }
-        };
-      }
-      try {
-        localStorage.setItem('watenContent', JSON.stringify(Object.assign({}, siteContent, payload)));
-        siteContent = Object.assign({}, siteContent, payload);
-        setStatus(section, 'Saved.', false);
-        setTimeout(function() { setStatus(section, '', false); }, 2000);
-        
-        // Try API
-        var res = await fetch(API + '/site', { method: 'PUT', headers: authHeaders(), body: JSON.stringify(payload) });
-        if (res.ok) {
-          console.log('Content saved to API');
-        }
-      } catch (e) { setStatus(section, 'Error.', true); }
+    // Check if we should add dashboard button to main site
+    if (window.location.pathname.includes('idex.html')) {
+      addDashboardButton();
     }
-
-    function setStatus(panelId, msg, isErr) {
-      var el = document.getElementById('status-' + panelId);
-      if (el) { el.textContent = msg; el.classList.toggle('err', !!isErr); }
-    }
-
-    async function saveConfig() {
-      var newPassword = document.getElementById('config-new-password').value;
-      if (!newPassword) { setStatus('settings', 'Enter new password.', true); return; }
-      try {
-        localStorage.setItem('waten_admin', newPassword);
-        token = newPassword;
-        sessionStorage.setItem('waten_admin', newPassword);
-        document.getElementById('config-new-password').value = '';
-        setStatus('settings', 'Password updated.', false);
-        setTimeout(function() { setStatus('settings', '', false); }, 2000);
-      } catch (e) { setStatus('settings', 'Error.', true); }
-    }
-
-    document.getElementById('password').addEventListener('keydown', e => {
-      if (e.key === 'Enter') login();
-    });
-
-    checkAuth();
   </script>
 </body>
 </html>
