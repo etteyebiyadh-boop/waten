@@ -39,6 +39,10 @@ function getSitePath() {
   return path.join(DATA_DIR, 'site.json');
 }
 
+function getOrdersPath() {
+  return path.join(DATA_DIR, 'orders.json');
+}
+
 function getSite() {
   try {
     return JSON.parse(fs.readFileSync(getSitePath(), 'utf8'));
@@ -49,6 +53,61 @@ function getSite() {
 
 function saveSite(data) {
   fs.writeFileSync(getSitePath(), JSON.stringify(data, null, 2));
+}
+
+function getOrders() {
+  try {
+    const parsed = JSON.parse(fs.readFileSync(getOrdersPath(), 'utf8'));
+    if (Array.isArray(parsed)) return parsed;
+    if (Array.isArray(parsed.orders)) return parsed.orders;
+    return [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveOrders(orders) {
+  fs.writeFileSync(getOrdersPath(), JSON.stringify({ orders }, null, 2));
+}
+
+const ORDER_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
+
+function toSafeString(value) {
+  if (value == null) return '';
+  return String(value).trim();
+}
+
+function normalizeOrder(payload = {}) {
+  const quantity = Math.max(1, Number(payload.quantity) || 1);
+  const unitPrice = Number(payload?.product?.price) || 0;
+  const totalCandidate = Number(payload.totalPrice ?? payload.total);
+  const totalPrice = Number.isFinite(totalCandidate) ? totalCandidate : unitPrice * quantity;
+  const status = ORDER_STATUSES.includes(payload.status) ? payload.status : 'pending';
+  const parsedDate = Date.parse(payload.orderDate);
+  const orderDate = Number.isNaN(parsedDate) ? new Date().toISOString() : new Date(parsedDate).toISOString();
+
+  return {
+    orderId: toSafeString(payload.orderId) || `ORD-${Date.now()}`,
+    product: {
+      id: payload?.product?.id != null ? String(payload.product.id) : '',
+      name: toSafeString(payload?.product?.name) || 'Unknown product',
+      price: unitPrice,
+      image: toSafeString(payload?.product?.image)
+    },
+    customer: {
+      name: toSafeString(payload?.customer?.name),
+      phone: toSafeString(payload?.customer?.phone),
+      email: toSafeString(payload?.customer?.email),
+      address: toSafeString(payload?.customer?.address),
+      city: toSafeString(payload?.customer?.city),
+      postalCode: toSafeString(payload?.customer?.postalCode)
+    },
+    quantity,
+    notes: toSafeString(payload.notes),
+    totalPrice,
+    orderDate,
+    status
+  };
 }
 
 // Simple session check (password in body or cookie)
@@ -136,6 +195,57 @@ app.post('/api/upload', (req, res, next) => {
 app.post('/api/login', (req, res) => {
   const ok = isAuthenticated(req);
   res.json({ ok });
+});
+
+// API: Create order (public)
+app.post('/api/orders', (req, res) => {
+  try {
+    const newOrder = normalizeOrder(req.body || {});
+    if (!newOrder.customer.name || !newOrder.customer.phone || !newOrder.customer.address || !newOrder.customer.city) {
+      return res.status(400).json({ error: 'Missing required customer information' });
+    }
+
+    const orders = getOrders();
+    if (orders.some((order) => order.orderId === newOrder.orderId)) {
+      newOrder.orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+    }
+    orders.push(newOrder);
+    saveOrders(orders);
+    res.status(201).json({ ok: true, order: newOrder });
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to save order' });
+  }
+});
+
+// API: Get orders (admin)
+app.get('/api/orders', (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    res.json(getOrders());
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to load orders' });
+  }
+});
+
+// API: Update order status (admin)
+app.put('/api/orders/:orderId/status', (req, res) => {
+  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+  try {
+    const status = toSafeString(req.body?.status).toLowerCase();
+    if (!ORDER_STATUSES.includes(status)) {
+      return res.status(400).json({ error: `Invalid status. Use: ${ORDER_STATUSES.join(', ')}` });
+    }
+
+    const orders = getOrders();
+    const index = orders.findIndex((order) => String(order.orderId) === String(req.params.orderId));
+    if (index === -1) return res.status(404).json({ error: 'Order not found' });
+
+    orders[index] = { ...orders[index], status };
+    saveOrders(orders);
+    res.json(orders[index]);
+  } catch (e) {
+    res.status(500).json({ error: 'Failed to update order status' });
+  }
 });
 
 // API: Get site content (public)

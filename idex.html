@@ -953,9 +953,9 @@ function updateAccountLink() {
 
 function loadUserOrders() {
   const allOrders = JSON.parse(localStorage.getItem('watenOrders')) || [];
-  const userOrders = allOrders.filter(order => 
-    order.customer.email === currentUser.email
-  );
+  const userOrders = allOrders
+    .filter(order => (order?.customer?.email || '') === currentUser.email)
+    .sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
   
   const ordersContainer = document.getElementById('userOrders');
   
@@ -967,9 +967,9 @@ function loadUserOrders() {
   ordersContainer.innerHTML = userOrders.map(order => `
     <div style="background: var(--bg-dark); padding: 1rem; margin-bottom: 1rem; border-radius: 8px;">
       <p><strong>Order ID:</strong> ${order.orderId}</p>
-      <p><strong>Product:</strong> ${order.product.name}</p>
-      <p><strong>Total:</strong> ${order.totalPrice} TND</p>
-      <p><strong>Status:</strong> <span style="color: var(--accent);">${order.status}</span></p>
+      <p><strong>Product:</strong> ${order?.product?.name || 'N/A'}</p>
+      <p><strong>Total:</strong> ${order.totalPrice || 0} TND</p>
+      <p><strong>Status:</strong> <span style="color: var(--accent);">${order.status || 'pending'}</span></p>
       <p><strong>Date:</strong> ${new Date(order.orderDate).toLocaleDateString()}</p>
     </div>
   `).join('');
@@ -1022,11 +1022,18 @@ window.addEventListener('resize', function() {
 });
 
 // Order Management System
-function submitOrder(event) {
+async function submitOrder(event) {
   event.preventDefault();
-  
-  // Get form data
+
+  if (!currentProduct || !currentProduct.name) {
+    showNotification('Please choose a product first');
+    return;
+  }
+
   const formData = new FormData(event.target);
+  const quantity = Math.max(1, parseInt(formData.get('quantity'), 10) || 1);
+  const unitPrice = Number(currentProduct.price) || 0;
+
   const orderData = {
     orderId: 'ORD-' + Date.now(),
     product: currentProduct,
@@ -1038,26 +1045,59 @@ function submitOrder(event) {
       city: formData.get('city'),
       postalCode: formData.get('postalCode')
     },
-    quantity: parseInt(formData.get('quantity')),
+    quantity,
     notes: formData.get('notes'),
-    totalPrice: currentProduct.price * parseInt(formData.get('quantity')),
+    totalPrice: unitPrice * quantity,
     orderDate: new Date().toISOString(),
     status: 'pending'
   };
-  
-  // Save order to localStorage
-  const orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
-  orders.push(orderData);
-  localStorage.setItem('watenOrders', JSON.stringify(orders));
-  
-  // Send notification (in real app, this would be sent to server)
-  sendOrderNotification(orderData);
-  
-  // Show confirmation message
-  showOrderConfirmation(orderData);
-  
-  // Close modal and reset
+
+  let savedOrder = orderData;
+  try {
+    const response = await fetch('/api/orders', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    if (!response.ok) {
+      let message = `Failed to confirm order (${response.status})`;
+      try {
+        const data = await response.json();
+        if (data?.error) message = data.error;
+      } catch (_) {}
+      throw new Error(message);
+    }
+
+    const payload = await response.json().catch(() => null);
+    if (payload?.order) savedOrder = payload.order;
+  } catch (error) {
+    console.warn('Server order sync failed, using local fallback:', error);
+    showNotification('Order saved locally. Server sync failed.');
+  }
+
+  persistOrderLocally(savedOrder);
+  sendOrderNotification(savedOrder);
+  showOrderConfirmation(savedOrder);
   closeProduct();
+}
+
+function persistOrderLocally(orderData) {
+  let orders = [];
+  try {
+    orders = JSON.parse(localStorage.getItem('watenOrders')) || [];
+  } catch (_) {
+    orders = [];
+  }
+
+  const index = orders.findIndex(order => String(order.orderId) === String(orderData.orderId));
+  if (index >= 0) {
+    orders[index] = orderData;
+  } else {
+    orders.push(orderData);
+  }
+
+  localStorage.setItem('watenOrders', JSON.stringify(orders));
 }
 
 function sendOrderNotification(orderData) {
@@ -1081,9 +1121,6 @@ function sendOrderNotification(orderData) {
   const notifications = JSON.parse(localStorage.getItem('watenNotifications')) || [];
   notifications.push(notification);
   localStorage.setItem('watenNotifications', JSON.stringify(notifications));
-  
-  // Send to external admin dashboard
-  sendToAdminDashboard(notification);
   
   // Send email confirmation to customer
   sendCustomerEmail(orderData);

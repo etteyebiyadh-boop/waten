@@ -220,6 +220,54 @@
       font-size: 0.9rem;
       color: rgba(255,255,255,0.7);
     }
+    .orders-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .orders-table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 8px;
+      background: rgba(10,10,10,0.45);
+    }
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1100px;
+    }
+    .orders-table th,
+    .orders-table td {
+      padding: 0.75rem;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      text-align: left;
+      vertical-align: top;
+      font-size: 0.9rem;
+    }
+    .orders-table th {
+      font-size: 0.75rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #c9a227;
+      background: rgba(10,10,10,0.8);
+    }
+    .orders-empty {
+      text-align: center;
+      color: rgba(255,255,255,0.6);
+      padding: 1.2rem;
+    }
+    .order-status {
+      width: 100%;
+      min-width: 130px;
+      padding: 0.45rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid rgba(255,255,255,0.25);
+      background: rgba(10,10,10,0.9);
+      color: #fff;
+    }
     .hidden { display: none !important; }
     .dashboard-btn {
       position: fixed;
@@ -288,6 +336,35 @@
       <div class="stat-card">
         <div class="stat-number" id="totalRevenue">0 TND</div>
         <div class="stat-label">Total Revenue</div>
+      </div>
+    </div>
+
+    <!-- Orders -->
+    <div class="add-product-form">
+      <div class="orders-panel-header">
+        <h2>Orders</h2>
+        <button class="btn" onclick="refreshOrders()" style="padding: 0.6rem 1rem; font-size: 0.8rem;">Refresh Orders</button>
+      </div>
+      <div class="orders-table-wrap">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Date</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Email</th>
+              <th>Product</th>
+              <th>Qty</th>
+              <th>Total</th>
+              <th>Address</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="ordersTableBody">
+            <tr><td class="orders-empty" colspan="10">No orders yet</td></tr>
+          </tbody>
+        </table>
       </div>
     </div>
 
@@ -514,6 +591,7 @@
   <script>
     const ADMIN_STORAGE_KEY = 'waten_admin_password';
     const PRODUCTS_STORAGE_KEY = 'waten_products';
+    const ORDER_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
     let adminPassword = '';
     let products = [];
     let orders = [];
@@ -622,8 +700,7 @@
     }
 
     async function loadData() {
-      loadOrders();
-      await Promise.all([loadProducts(), loadSiteContentForEditing()]);
+      await Promise.all([loadProducts(), loadSiteContentForEditing(), loadOrders()]);
       updateStats();
     }
 
@@ -769,9 +846,21 @@
       document.getElementById('productImageFile').value = '';
     }
 
-    function loadOrders() {
-      const savedOrders = localStorage.getItem('watenOrders');
-      orders = savedOrders ? JSON.parse(savedOrders) : [];
+    async function loadOrders() {
+      try {
+        const data = await api('/api/orders');
+        orders = Array.isArray(data) ? data : [];
+        localStorage.setItem('watenOrders', JSON.stringify(orders));
+      } catch (_) {
+        try {
+          const savedOrders = localStorage.getItem('watenOrders');
+          orders = savedOrders ? JSON.parse(savedOrders) : [];
+        } catch (_) {
+          orders = [];
+        }
+      }
+      renderOrders();
+      updateStats();
     }
 
     function updateStats() {
@@ -779,8 +868,101 @@
       document.getElementById('totalOrders').textContent = orders.length;
       const totalRevenue = orders
         .filter((order) => order.status === 'completed')
-        .reduce((sum, order) => sum + (order.total || 0), 0);
-      document.getElementById('totalRevenue').textContent = `${totalRevenue} TND`;
+        .reduce((sum, order) => sum + getOrderTotal(order), 0);
+      document.getElementById('totalRevenue').textContent = `${formatMoney(totalRevenue)} TND`;
+    }
+
+    function getOrderTotal(order) {
+      return Number(order?.totalPrice ?? order?.total) || 0;
+    }
+
+    function formatMoney(value) {
+      const amount = Number(value) || 0;
+      return Number.isInteger(amount) ? String(amount) : amount.toFixed(2);
+    }
+
+    function formatDateTime(value) {
+      const date = new Date(value);
+      return Number.isNaN(date.getTime()) ? '-' : date.toLocaleString();
+    }
+
+    function formatAddress(customer = {}) {
+      return [customer.address, customer.city, customer.postalCode].filter(Boolean).join(', ') || '-';
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function renderOrders() {
+      const tableBody = document.getElementById('ordersTableBody');
+      if (!tableBody) return;
+
+      if (!orders.length) {
+        tableBody.innerHTML = '<tr><td class="orders-empty" colspan="10">No orders yet</td></tr>';
+        return;
+      }
+
+      const sortedOrders = [...orders].sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
+      tableBody.innerHTML = sortedOrders.map((order) => {
+        const customer = order?.customer || {};
+        const product = order?.product || {};
+        const orderId = String(order?.orderId || '');
+        const currentStatus = ORDER_STATUSES.includes(order?.status) ? order.status : 'pending';
+        const statusOptions = ORDER_STATUSES
+          .map((status) => {
+            const label = status.charAt(0).toUpperCase() + status.slice(1);
+            return `<option value="${status}" ${status === currentStatus ? 'selected' : ''}>${label}</option>`;
+          })
+          .join('');
+
+        return `
+          <tr>
+            <td>${escapeHtml(orderId || '-')}</td>
+            <td>${escapeHtml(formatDateTime(order.orderDate))}</td>
+            <td>${escapeHtml(customer.name || '-')}</td>
+            <td>${escapeHtml(customer.phone || '-')}</td>
+            <td>${escapeHtml(customer.email || '-')}</td>
+            <td>${escapeHtml(product.name || '-')}</td>
+            <td>${Number(order.quantity) || 1}</td>
+            <td>${escapeHtml(formatMoney(getOrderTotal(order)))} TND</td>
+            <td>${escapeHtml(formatAddress(customer))}</td>
+            <td>
+              <select class="order-status" onchange="updateOrderStatus('${encodeURIComponent(orderId)}', this.value)" ${orderId ? '' : 'disabled'}>
+                ${statusOptions}
+              </select>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    async function refreshOrders() {
+      await loadOrders();
+      showNotification('Orders refreshed');
+    }
+
+    async function updateOrderStatus(encodedOrderId, status) {
+      const orderId = decodeURIComponent(encodedOrderId || '');
+      if (!orderId) return;
+
+      try {
+        await api(`/api/orders/${encodeURIComponent(orderId)}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status })
+        }, true);
+        await loadOrders();
+        showNotification(`Order ${orderId} updated`);
+      } catch (error) {
+        alert(error.message || 'Failed to update order status');
+        await loadOrders();
+      }
     }
 
     async function saveSitePatch(patch, message) {
