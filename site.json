@@ -6,15 +6,21 @@
   "header": {
     "logoText": "WATEN",
     "navLinks": [
-      { "label": "COLLECTION", "href": "#collection" },
-      { "label": "INVEST", "href": "#invest" }
+      {
+        "label": "COLLECTION",
+        "href": "#collection"
+      },
+      {
+        "label": "INVEST",
+        "href": "#invest"
+      }
     ]
   },
   "hero": {
     "title": "WATEN",
     "tagline": "Built for global dominance",
     "ctaText": "Shop Now",
-    "backgroundImage": "https://images.unsplash.com/photo-1520975922284-1a7d61c2f6b5"
+    "backgroundImage": "3d_clothing_bg.png"
   },
   "collection": {
     "heading": "New Drop",
@@ -35,8 +41,14 @@
     "logoText": "WATEN",
     "tagline": "Premium streetwear. Limited drops. Global reach.",
     "links": [
-      { "label": "Collection", "href": "#collection" },
-      { "label": "Invest", "href": "#invest" }
+      {
+        "label": "Collection",
+        "href": "#collection"
+      },
+      {
+        "label": "Invest",
+        "href": "#invest"
+      }
     ],
     "copyright": "© 2026 WATEN — Global Streetwear"
   }
