@@ -7,218 +7,176 @@
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { 
-      font-family: 'DM Sans', sans-serif; 
-      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%); 
-      color: #f5f5f5; 
-      min-height: 100vh; 
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+      color: #f5f5f5;
+      min-height: 100vh;
     }
-    .container { 
-      max-width: 1200px; 
-      margin: 0 auto; 
-      padding: 2rem; 
-    }
-    h1 { 
-      font-size: 2rem; 
-      margin-bottom: 2rem; 
-      letter-spacing: 0.1em; 
-      background: linear-gradient(135deg, #c9a227, #d4af37); 
-      -webkit-background-clip: text; 
-      -webkit-text-fill-color: transparent; 
-      background-clip: text; 
-      text-align: center;
-    }
-    .header { 
-      display: flex; 
-      justify-content: space-between; 
-      align-items: center; 
-      margin-bottom: 3rem; 
-      padding-bottom: 1rem; 
-      border-bottom: 1px solid rgba(201,162,39,0.2);
-    }
-    .header a { 
-      color: #c9a227; 
-      text-decoration: none; 
-      font-size: 1rem; 
-      font-weight: 500;
-    }
-    .login-box {
-      max-width: 400px; 
-      margin: 4rem auto; 
-      padding: 2.5rem; 
-      background: rgba(26,26,26,0.95); 
-      border: 1px solid rgba(201,162,39,0.3);
-      border-radius: 12px;
-      backdrop-filter: blur(20px); 
-      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
-    }
-    .login-box h2 { 
-      font-size: 1.2rem; 
-      margin-bottom: 1.5rem; 
-      font-weight: 600;
-      text-align: center;
-    }
-    input[type="password"] {
-      width: 100%; 
-      padding: 1rem; 
-      background: rgba(10,10,10,0.8); 
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff; 
-      font-size: 1rem; 
-      margin-bottom: 1.5rem; 
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-    input[type="password"]:focus { 
-      outline: none; 
-      border-color: #c9a227; 
-      box-shadow: 0 0 0 3px rgba(201,162,39,0.3);
-    }
-    .btn {
-      padding: 1rem 2rem; 
-      background: linear-gradient(135deg, #c9a227, #d4af37); 
-      color: #0a0a0a; 
-      border: none; 
-      font-weight: 600; 
-      cursor: pointer; 
-      font-size: 1rem; 
-      letter-spacing: 0.05em;
-      border-radius: 8px; 
-      transition: all 0.3s ease; 
-      box-shadow: 0 6px 20px rgba(201,162,39,0.3);
-      text-transform: uppercase;
-    }
-    .btn:hover { 
-      background: linear-gradient(135deg, #d4af37, #c9a227); 
-      transform: translateY(-2px); 
-      box-shadow: 0 8px 30px rgba(201,162,39,0.4);
-    }
-    .btn:active {
-      transform: translateY(0);
-    }
-    .error { 
-      color: #ff6b6b; 
-      font-size: 0.9rem; 
-      margin-top: 1rem; 
-      text-align: center;
-      font-weight: 500;
-    }
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 2rem;
-      margin-bottom: 3rem;
-    }
-    .product-card {
-      background: rgba(26,26,26,0.9);
-      border: 1px solid rgba(255,255,255,0.1);
-      border-radius: 12px;
+    .container {
+      max-width: 1240px;
+      margin: 0 auto;
       padding: 2rem;
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
     }
-    .product-card:hover {
-      border-color: rgba(201,162,39,0.4);
-      background: rgba(30,30,30,0.95);
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(0,0,0,0.3);
+    h1 {
+      font-size: 2rem;
+      letter-spacing: 0.06em;
+      background: linear-gradient(135deg, #c9a227, #d4af37);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
-    .product-image {
-      width: 100%;
-      height: 250px;
-      object-fit: cover;
-      border-radius: 8px;
-      margin-bottom: 1.5rem;
-      background: #1a1a1a;
-    }
-    .product-info {
-      margin-bottom: 1.5rem;
-    }
-    .product-name {
-      font-size: 1.3rem;
-      font-weight: 600;
-      margin-bottom: 0.5rem;
-      color: #fff;
-    }
-    .product-price {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: #c9a227;
+    h2 {
+      font-size: 1.2rem;
       margin-bottom: 1rem;
     }
-    .product-actions {
+    .header {
       display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid rgba(201, 162, 39, 0.2);
       gap: 1rem;
       flex-wrap: wrap;
     }
-    .add-product-form {
-      background: rgba(26,26,26,0.9);
-      border: 1px solid rgba(255,255,255,0.1);
+    .header-actions {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+    }
+    .header-link {
+      color: #c9a227;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .login-box {
+      max-width: 420px;
+      margin: 4rem auto;
+      padding: 2.4rem;
+      background: rgba(26, 26, 26, 0.95);
+      border: 1px solid rgba(201, 162, 39, 0.3);
       border-radius: 12px;
-      padding: 2.5rem;
-      margin-bottom: 3rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
     }
-    .form-group {
-      margin-bottom: 1.5rem;
+    .login-box p {
+      text-align: center;
+      margin: 0.8rem 0 1.4rem;
+      color: rgba(255, 255, 255, 0.8);
     }
-    .form-group label {
-      display: block;
-      font-size: 0.9rem;
-      margin-bottom: 0.5rem;
-      color: rgba(255,255,255,0.8);
-      font-weight: 500;
-    }
-    .form-group input {
+    input[type="password"],
+    input[type="text"],
+    input[type="number"],
+    input[type="email"],
+    input[type="tel"],
+    input[type="date"],
+    textarea,
+    select {
       width: 100%;
-      padding: 1rem;
-      background: rgba(10,10,10,0.8);
-      border: 1px solid rgba(255,255,255,0.2);
+      padding: 0.9rem;
+      background: rgba(10, 10, 10, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: #fff;
-      font-size: 1rem;
+      font-size: 0.95rem;
       border-radius: 8px;
-      transition: all 0.3s ease;
+      transition: all 0.2s ease;
+      font-family: inherit;
     }
-    .form-group input:focus {
+    textarea {
+      min-height: 90px;
+      resize: vertical;
+    }
+    input:focus,
+    textarea:focus,
+    select:focus {
       outline: none;
       border-color: #c9a227;
-      box-shadow: 0 0 0 3px rgba(201,162,39,0.3);
+      box-shadow: 0 0 0 3px rgba(201, 162, 39, 0.25);
     }
-    .file-input {
-      position: relative;
-    }
-    .file-input input[type="file"] {
-      width: 100%;
-      padding: 1rem;
-      background: rgba(10,10,10,0.8);
-      border: 1px solid rgba(255,255,255,0.2);
-      color: #fff;
-      font-size: 0.9rem;
-      border-radius: 8px;
+    .btn {
+      padding: 0.9rem 1.5rem;
+      background: linear-gradient(135deg, #c9a227, #d4af37);
+      color: #0a0a0a;
+      border: none;
+      font-weight: 700;
       cursor: pointer;
+      font-size: 0.88rem;
+      letter-spacing: 0.04em;
+      border-radius: 8px;
+      text-transform: uppercase;
+      transition: all 0.2s ease;
+      box-shadow: 0 6px 20px rgba(201, 162, 39, 0.28);
+    }
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 28px rgba(201, 162, 39, 0.34);
+    }
+    .btn-secondary {
+      background: linear-gradient(135deg, #3f3f3f, #5f5f5f);
+      color: #f5f5f5;
+      box-shadow: none;
+    }
+    .btn-danger {
+      background: linear-gradient(135deg, #7d2632, #a03040);
+      color: #fff;
+      box-shadow: none;
+    }
+    .error {
+      color: #ff6b6b;
+      font-size: 0.9rem;
+      margin-top: 0.9rem;
+      text-align: center;
+      min-height: 1.2rem;
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1.5rem;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1rem;
       margin-bottom: 2rem;
     }
     .stat-card {
-      background: rgba(26,26,26,0.9);
-      border: 1px solid rgba(255,255,255,0.1);
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
-      padding: 1.5rem;
+      padding: 1.2rem;
       text-align: center;
     }
     .stat-number {
-      font-size: 2rem;
+      font-size: 1.7rem;
       font-weight: 700;
       color: #c9a227;
-      margin-bottom: 0.5rem;
+      margin-bottom: 0.4rem;
     }
     .stat-label {
-      font-size: 0.9rem;
-      color: rgba(255,255,255,0.7);
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.75);
+    }
+    .add-product-form {
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.8rem;
+      margin-bottom: 2rem;
+    }
+    .form-group {
+      margin-bottom: 1rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: rgba(255, 255, 255, 0.82);
+      font-size: 0.86rem;
+      font-weight: 600;
+    }
+    .form-hint {
+      color: rgba(255, 255, 255, 0.56);
+      font-size: 0.8rem;
+      margin-top: 0.35rem;
+    }
+    .field-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.9rem;
     }
     .orders-panel-header {
       display: flex;
@@ -228,106 +186,190 @@
       margin-bottom: 1rem;
       flex-wrap: wrap;
     }
+    .filters-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.8rem;
+      margin-bottom: 1rem;
+    }
     .orders-table-wrap {
       overflow-x: auto;
-      border: 1px solid rgba(255,255,255,0.1);
+      border: 1px solid rgba(255, 255, 255, 0.1);
       border-radius: 8px;
-      background: rgba(10,10,10,0.45);
+      background: rgba(10, 10, 10, 0.45);
     }
     .orders-table {
       width: 100%;
       border-collapse: collapse;
-      min-width: 1100px;
+      min-width: 1020px;
     }
     .orders-table th,
     .orders-table td {
-      padding: 0.75rem;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 0.72rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
       text-align: left;
       vertical-align: top;
-      font-size: 0.9rem;
+      font-size: 0.86rem;
     }
     .orders-table th {
-      font-size: 0.75rem;
+      font-size: 0.74rem;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       color: #c9a227;
-      background: rgba(10,10,10,0.8);
+      background: rgba(10, 10, 10, 0.8);
     }
     .orders-empty {
       text-align: center;
-      color: rgba(255,255,255,0.6);
+      color: rgba(255, 255, 255, 0.6);
       padding: 1.2rem;
     }
-    .order-status {
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+      gap: 1rem;
+    }
+    .product-card {
+      background: rgba(26, 26, 26, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      transition: all 0.2s ease;
+      position: relative;
+    }
+    .product-card:hover {
+      border-color: rgba(201, 162, 39, 0.42);
+      transform: translateY(-2px);
+    }
+    .product-image {
       width: 100%;
-      min-width: 130px;
-      padding: 0.45rem 0.6rem;
-      border-radius: 6px;
-      border: 1px solid rgba(255,255,255,0.25);
-      background: rgba(10,10,10,0.9);
-      color: #fff;
+      height: 220px;
+      border-radius: 8px;
+      overflow: hidden;
+      background: #1a1a1a;
+      margin-bottom: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .product-name {
+      font-size: 1.08rem;
+      font-weight: 700;
+      margin-bottom: 0.4rem;
+    }
+    .product-price {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #c9a227;
+      margin-bottom: 0.6rem;
+    }
+    .product-meta {
+      font-size: 0.82rem;
+      color: rgba(255, 255, 255, 0.72);
+      line-height: 1.45;
+      margin-bottom: 0.7rem;
+    }
+    .product-actions {
+      display: flex;
+      gap: 0.6rem;
+      flex-wrap: wrap;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      font-size: 0.74rem;
+      border-radius: 999px;
+      padding: 0.2rem 0.55rem;
+      font-weight: 700;
+      margin-right: 0.4rem;
+      margin-bottom: 0.4rem;
+    }
+    .pill-ok {
+      background: rgba(45, 170, 98, 0.15);
+      color: #65df94;
+      border: 1px solid rgba(45, 170, 98, 0.45);
+    }
+    .pill-low {
+      background: rgba(206, 71, 86, 0.12);
+      color: #ff7f8d;
+      border: 1px solid rgba(206, 71, 86, 0.45);
+    }
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.72);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 1rem;
+    }
+    .modal-card {
+      width: 100%;
+      max-width: 660px;
+      background: #121212;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 12px;
+      padding: 1.4rem;
+      max-height: 92vh;
+      overflow-y: auto;
     }
     .hidden { display: none !important; }
     .dashboard-btn {
       position: fixed;
-      bottom: 2rem;
-      right: 2rem;
+      bottom: 1.1rem;
+      right: 1.1rem;
       background: linear-gradient(135deg, #c9a227, #d4af37);
       color: #0a0a0a;
       border: none;
-      padding: 1rem 2rem;
-      border-radius: 50px;
-      font-weight: 600;
+      padding: 0.85rem 1.1rem;
+      border-radius: 999px;
+      font-weight: 700;
       cursor: pointer;
-      box-shadow: 0 8px 30px rgba(201,162,39,0.4);
+      box-shadow: 0 8px 26px rgba(201, 162, 39, 0.35);
       z-index: 1000;
-      transition: all 0.3s ease;
-    }
-    .dashboard-btn:hover {
-      background: linear-gradient(135deg, #d4af37, #c9a227);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 40px rgba(201,162,39,0.5);
     }
     @media (max-width: 768px) {
       .container { padding: 1rem; }
-      .products-grid { grid-template-columns: 1fr; }
-      .stats-grid { grid-template-columns: 1fr; }
-      .dashboard-btn { 
-        bottom: 1rem; 
-        right: 1rem; 
-        padding: 0.8rem 1.5rem;
-        font-size: 0.9rem;
-      }
+      .orders-table { min-width: 920px; }
+      .btn { width: 100%; }
+      .header-actions { width: 100%; }
     }
   </style>
 </head>
 <body>
   <div id="loginScreen" class="container">
     <div class="login-box">
-      <h2>🔐 WATEN ADMIN</h2>
-      <p style="text-align: center; margin-bottom: 2rem; color: rgba(255,255,255,0.8);">
-        Enter your admin password to access the dashboard
-      </p>
-      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+      <h2>WATEN Admin Access</h2>
+      <p>Sign in to manage products, orders, and published content.</p>
+      <label for="password" style="display:block;margin-bottom:0.4rem;color:rgba(255,255,255,0.82);font-size:0.86rem;font-weight:600;">Admin Password</label>
+      <input type="password" id="password" placeholder="Enter admin password" autocomplete="current-password">
       <div class="error" id="loginError"></div>
-      <button class="btn" onclick="login()">Access Dashboard</button>
+      <button class="btn" data-action="login">Access Dashboard</button>
     </div>
   </div>
 
   <div id="dashboardScreen" class="container hidden">
     <div class="header">
-      <h1>📊 WATEN DASHBOARD</h1>
-      <div>
-        <a href="/idex.html" target="_blank">🌐 View Site</a>
+      <h1>WATEN Dashboard</h1>
+      <div class="header-actions">
+        <a class="header-link" href="/idex.html" target="_blank" rel="noopener noreferrer">View Site</a>
+        <button class="btn btn-secondary" data-action="logout">Logout</button>
       </div>
     </div>
 
-    <!-- Statistics Overview -->
     <div class="stats-grid">
       <div class="stat-card">
         <div class="stat-number" id="totalProducts">0</div>
         <div class="stat-label">Total Products</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number" id="lowStockCount">0</div>
+        <div class="stat-label">Low Stock Products</div>
       </div>
       <div class="stat-card">
         <div class="stat-number" id="totalOrders">0</div>
@@ -335,15 +377,49 @@
       </div>
       <div class="stat-card">
         <div class="stat-number" id="totalRevenue">0 TND</div>
-        <div class="stat-label">Total Revenue</div>
+        <div class="stat-label">Revenue (Completed)</div>
       </div>
     </div>
 
-    <!-- Orders -->
     <div class="add-product-form">
       <div class="orders-panel-header">
         <h2>Orders</h2>
-        <button class="btn" onclick="refreshOrders()" style="padding: 0.6rem 1rem; font-size: 0.8rem;">Refresh Orders</button>
+        <div class="product-actions">
+          <button class="btn btn-secondary" data-action="refresh-orders">Refresh</button>
+          <button class="btn btn-secondary" data-action="export-orders-csv">Export CSV</button>
+        </div>
+      </div>
+      <div class="filters-grid">
+        <div class="form-group">
+          <label>Search</label>
+          <input type="text" id="orderSearch" placeholder="Order ID, customer, phone, email, product">
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="orderStatusFilter">
+            <option value="">All statuses</option>
+            <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>From Date</label>
+          <input type="date" id="orderFromDate">
+        </div>
+        <div class="form-group">
+          <label>To Date</label>
+          <input type="date" id="orderToDate">
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" data-action="apply-order-filters">Apply Filters</button>
+        </div>
+        <div class="form-group">
+          <label>&nbsp;</label>
+          <button class="btn btn-secondary" data-action="reset-order-filters">Reset</button>
+        </div>
       </div>
       <div class="orders-table-wrap">
         <table class="orders-table">
@@ -368,285 +444,313 @@
       </div>
     </div>
 
-    <!-- Site Management Panel -->
     <div class="add-product-form">
-      <h2>🌐 Official Site Management</h2>
-      
-      <!-- Hero Section -->
-      <div class="form-group">
-        <label>Hero Title</label>
-        <input type="text" id="heroTitle" placeholder="WATEN - Global Streetwear">
+      <div class="orders-panel-header">
+        <h2>Publishing Workflow</h2>
+        <button class="btn" data-action="publish-draft">Publish Draft</button>
       </div>
-      
-      <div class="form-group">
-        <label>Hero Tagline</label>
-        <input type="text" id="heroTagline" placeholder="Built for global dominance">
+      <div class="field-row">
+        <div class="form-group">
+          <label>Last Published</label>
+          <input type="text" id="lastPublishedAt" readonly value="Not published yet">
+        </div>
+        <div class="form-group">
+          <label>Rollback Version</label>
+          <select id="rollbackVersion">
+            <option value="">No versions available</option>
+          </select>
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label>Hero CTA Button</label>
-        <input type="text" id="heroButton" placeholder="Shop Now">
-      </div>
-      
-      <div class="form-group">
-        <label>Hero Background Image</label>
-        <input type="text" id="heroBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
-      </div>
-      
-      <button class="btn" onclick="saveHeroSection()">Save Hero Section</button>
+      <button class="btn btn-danger" data-action="rollback-version">Rollback Selected Version</button>
     </div>
 
-    <!-- Social Media -->
     <div class="add-product-form">
-      <h2>📱 Social Media Links</h2>
-      
-      <div class="form-group">
-        <label>Instagram</label>
-        <input type="text" id="instagramUrl" placeholder="https://instagram.com/waten">
+      <h2>Site Content Draft</h2>
+      <div class="field-row">
+        <div class="form-group">
+          <label>Hero Title</label>
+          <input type="text" id="heroTitle" placeholder="WATEN - Global Streetwear">
+        </div>
+        <div class="form-group">
+          <label>Hero Tagline</label>
+          <input type="text" id="heroTagline" placeholder="Built for global dominance">
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label>TikTok</label>
-        <input type="text" id="tiktokUrl" placeholder="https://tiktok.com/@waten">
+      <div class="field-row">
+        <div class="form-group">
+          <label>Hero CTA</label>
+          <input type="text" id="heroButton" placeholder="Shop Now">
+        </div>
+        <div class="form-group">
+          <label>Hero Background URL</label>
+          <input type="text" id="heroBackground" placeholder="https://... or /images/...">
+        </div>
       </div>
-      
-      <div class="form-group">
-        <label>Twitter</label>
-        <input type="text" id="twitterUrl" placeholder="https://twitter.com/waten">
-      </div>
-      
-      <div class="form-group">
-        <label>YouTube</label>
-        <input type="text" id="youtubeUrl" placeholder="https://youtube.com/waten">
-      </div>
-      
-      <div class="form-group">
-        <label>Facebook</label>
-        <input type="text" id="facebookUrl" placeholder="https://facebook.com/waten">
-      </div>
-      
-      <button class="btn" onclick="saveSocialMedia()">Save Social Media</button>
+      <button class="btn" data-action="save-hero">Save Hero Draft</button>
     </div>
 
-    <!-- Collection Section -->
     <div class="add-product-form">
-      <h2>📚 Collection Section</h2>
-      
-      <div class="form-group">
-        <label>Collection Heading</label>
-        <input type="text" id="collectionHeading" placeholder="Our Collection">
+      <h2>Social Media</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Instagram</label><input type="text" id="instagramUrl" placeholder="https://instagram.com/waten"></div>
+        <div class="form-group"><label>TikTok</label><input type="text" id="tiktokUrl" placeholder="https://tiktok.com/@waten"></div>
+        <div class="form-group"><label>Twitter</label><input type="text" id="twitterUrl" placeholder="https://twitter.com/waten"></div>
       </div>
-      
-      <div class="form-group">
-        <label>Collection Subtitle</label>
-        <input type="text" id="collectionSubtitle" placeholder="Discover our premium streetwear">
+      <div class="field-row">
+        <div class="form-group"><label>YouTube</label><input type="text" id="youtubeUrl" placeholder="https://youtube.com/waten"></div>
+        <div class="form-group"><label>Facebook</label><input type="text" id="facebookUrl" placeholder="https://facebook.com/waten"></div>
+        <div class="form-group"><label>Contact Email</label><input type="email" id="contactEmail" placeholder="contact@waten.com"></div>
       </div>
-      
-      <div class="form-group">
-        <label>Collection Background</label>
-        <input type="text" id="collectionBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
-      </div>
-      
-      <button class="btn" onclick="saveCollectionSection()">Save Collection</button>
+      <button class="btn" data-action="save-social">Save Social Draft</button>
     </div>
 
-    <!-- Footer Section -->
     <div class="add-product-form">
-      <h2>📄 Footer Section</h2>
-      
-      <div class="form-group">
-        <label>Footer Logo</label>
-        <input type="text" id="footerLogo" placeholder="WATEN">
+      <h2>Collection</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Heading</label><input type="text" id="collectionHeading" placeholder="Our Collection"></div>
+        <div class="form-group"><label>Subtitle</label><input type="text" id="collectionSubtitle" placeholder="Discover our premium streetwear"></div>
+        <div class="form-group"><label>Background URL</label><input type="text" id="collectionBackground" placeholder="https://... or /images/..."></div>
       </div>
-      
-      <div class="form-group">
-        <label>Footer Tagline</label>
-        <input type="text" id="footerTagline" placeholder="Global Streetwear">
-      </div>
-      
-      <div class="form-group">
-        <label>Footer Copyright</label>
-        <input type="text" id="footerCopyright" placeholder="© 2024 WATEN. All rights reserved.">
-      </div>
-      
-      <div class="form-group">
-        <label>Footer Background</label>
-        <input type="text" id="footerBackground" placeholder="https://images.unsplash.com/photo-1556821840-3a63f95609a7">
-      </div>
-      
-      <button class="btn" onclick="saveFooterSection()">Save Footer</button>
+      <button class="btn" data-action="save-collection">Save Collection Draft</button>
     </div>
 
-    <!-- SEO Settings -->
     <div class="add-product-form">
-      <h2>🔍 SEO Settings</h2>
-      
-      <div class="form-group">
-        <label>Meta Title</label>
-        <input type="text" id="metaTitle" placeholder="WATEN | Premium Streetwear">
+      <h2>Footer</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Logo Text</label><input type="text" id="footerLogo" placeholder="WATEN"></div>
+        <div class="form-group"><label>Tagline</label><input type="text" id="footerTagline" placeholder="Global Streetwear"></div>
       </div>
-      
+      <div class="field-row">
+        <div class="form-group"><label>Copyright</label><input type="text" id="footerCopyright" placeholder="© 2026 WATEN"></div>
+        <div class="form-group"><label>Background URL</label><input type="text" id="footerBackground" placeholder="https://... or /images/..."></div>
+      </div>
+      <button class="btn" data-action="save-footer">Save Footer Draft</button>
+    </div>
+
+    <div class="add-product-form">
+      <h2>SEO and Navigation</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Meta Title</label><input type="text" id="metaTitle" placeholder="WATEN | Premium Streetwear"></div>
+        <div class="form-group"><label>Meta Keywords</label><input type="text" id="metaKeywords" placeholder="streetwear, fashion, premium"></div>
+      </div>
       <div class="form-group">
         <label>Meta Description</label>
-        <textarea id="metaDescription" placeholder="WATEN — Premium streetwear built for global dominance" style="width: 100%; height: 80px; padding: 0.8rem; background: rgba(10,10,10,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+        <textarea id="metaDescription" placeholder="WATEN - Premium streetwear built for global dominance"></textarea>
       </div>
-      
       <div class="form-group">
-        <label>Meta Keywords</label>
-        <input type="text" id="metaKeywords" placeholder="streetwear, fashion, luxury, premium">
+        <label>Navigation Items (one per line: Label|URL)</label>
+        <textarea id="navigationItems" placeholder="Home|#home&#10;Collection|#collection"></textarea>
       </div>
-      
-      <button class="btn" onclick="saveSEOSettings()">Save SEO Settings</button>
+      <button class="btn" data-action="save-seo-nav">Save SEO + Navigation Draft</button>
     </div>
 
-    <!-- Navigation -->
     <div class="add-product-form">
-      <h2>🧭 Navigation Menu</h2>
-      
-      <div class="form-group">
-        <label>Navigation Items (one per line)</label>
-        <textarea id="navigationItems" placeholder="Home|Shop|About|Contact" style="width: 100%; height: 120px; padding: 0.8rem; background: rgba(10,10,10,0.8); border: 1px solid rgba(255,255,255,0.2); color: #fff; border-radius: 8px; font-family: inherit; resize: vertical;"></textarea>
+      <h2>Contact and Analytics</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Phone</label><input type="tel" id="contactPhone" placeholder="+216123456789"></div>
+        <div class="form-group"><label>Address</label><input type="text" id="contactAddress" placeholder="123 Fashion Street, Tunis"></div>
+        <div class="form-group"><label>Google Analytics</label><input type="text" id="googleAnalytics" placeholder="G-XXXXXXXXXX"></div>
       </div>
-      
-      <button class="btn" onclick="saveNavigation()">Save Navigation</button>
+      <div class="field-row">
+        <div class="form-group"><label>Facebook Pixel</label><input type="text" id="facebookPixel" placeholder="1234567890"></div>
+      </div>
+      <button class="btn" data-action="save-contact-analytics">Save Contact + Analytics Draft</button>
     </div>
 
-    <!-- Contact Info -->
     <div class="add-product-form">
-      <h2>📞 Contact Information</h2>
-      
-      <div class="form-group">
-        <label>Contact Email</label>
-        <input type="email" id="contactEmail" placeholder="contact@waten.com">
+      <h2>Add New Product</h2>
+      <div class="field-row">
+        <div class="form-group"><label>Product Name</label><input type="text" id="productName" placeholder="Black Essential Hoodie"></div>
+        <div class="form-group"><label>SKU</label><input type="text" id="productSku" placeholder="B-HOODIE-001"></div>
+        <div class="form-group"><label>Price (TND)</label><input type="number" id="productPrice" min="0" step="0.01" placeholder="120"></div>
       </div>
-      
-      <div class="form-group">
-        <label>Contact Phone</label>
-        <input type="tel" id="contactPhone" placeholder="+216123456789">
+      <div class="field-row">
+        <div class="form-group"><label>Stock Quantity</label><input type="number" id="productStock" min="0" step="1" placeholder="25"></div>
+        <div class="form-group"><label>Low Stock Threshold</label><input type="number" id="productLowStockThreshold" min="0" step="1" placeholder="5"></div>
       </div>
-      
-      <div class="form-group">
-        <label>Contact Address</label>
-        <input type="text" id="contactAddress" placeholder="123 Fashion Street, Tunis, Tunisia">
+      <div class="field-row">
+        <div class="form-group"><label>Sizes (comma separated)</label><input type="text" id="productSizes" placeholder="S, M, L, XL"></div>
+        <div class="form-group"><label>Colors (comma separated)</label><input type="text" id="productColors" placeholder="Black, White"></div>
       </div>
-      
-      <button class="btn" onclick="saveContactInfo()">Save Contact Info</button>
+      <div class="field-row">
+        <div class="form-group"><label>Product Image URL</label><input type="text" id="productImage" placeholder="https://... or /images/..."></div>
+        <div class="form-group">
+          <label>Or Upload Image</label>
+          <input type="file" id="productImageFile" accept="image/*">
+          <div class="form-hint">Images are resized and compressed before upload.</div>
+        </div>
+      </div>
+      <button class="btn" data-action="add-product">Add Product</button>
     </div>
 
-    <!-- Analytics -->
-    <div class="add-product-form">
-      <h2>📊 Analytics Settings</h2>
-      
-      <div class="form-group">
-        <label>Google Analytics ID</label>
-        <input type="text" id="googleAnalytics" placeholder="G-XXXXXXXXXX">
-      </div>
-      
-      <div class="form-group">
-        <label>Facebook Pixel ID</label>
-        <input type="text" id="facebookPixel" placeholder="XXXXXXXXXX">
-      </div>
-      
-      <button class="btn" onclick="saveAnalytics()">Save Analytics</button>
-    </div>
+    <div class="products-grid" id="productsGrid"></div>
+  </div>
 
-    <!-- Add Product Form -->
-    <div class="add-product-form">
-      <h2>➕ Add New Product</h2>
-      
-      <div class="form-group">
-        <label>Product Name</label>
-        <input type="text" id="productName" placeholder="Enter product name">
+  <div id="editProductModal" class="modal-backdrop hidden" role="dialog" aria-modal="true">
+    <div class="modal-card">
+      <div class="orders-panel-header">
+        <h2>Edit Product</h2>
+        <button class="btn btn-secondary" data-action="close-edit-modal">Close</button>
       </div>
-      
-      <div class="form-group">
-        <label>Product Price (TND)</label>
-        <input type="number" id="productPrice" placeholder="Enter price in TND">
+      <div class="field-row">
+        <div class="form-group"><label>Name</label><input type="text" id="editName"></div>
+        <div class="form-group"><label>SKU</label><input type="text" id="editSku"></div>
+        <div class="form-group"><label>Price (TND)</label><input type="number" id="editPrice" min="0" step="0.01"></div>
       </div>
-      
-      <div class="form-group">
-        <label>Product Image URL</label>
-        <input type="text" id="productImage" placeholder="Enter image URL or upload file">
+      <div class="field-row">
+        <div class="form-group"><label>Stock Quantity</label><input type="number" id="editStock" min="0" step="1"></div>
+        <div class="form-group"><label>Low Stock Threshold</label><input type="number" id="editThreshold" min="0" step="1"></div>
       </div>
-      
-      <div class="form-group file-input">
-        <label>Or Upload Image</label>
-        <input type="file" id="productImageFile" accept="image/*">
+      <div class="field-row">
+        <div class="form-group"><label>Sizes (comma separated)</label><input type="text" id="editSizes"></div>
+        <div class="form-group"><label>Colors (comma separated)</label><input type="text" id="editColors"></div>
       </div>
-      
-      <button class="btn" onclick="addProduct()">Add Product</button>
-    </div>
-
-    <!-- Products Grid -->
-    <div class="products-grid" id="productsGrid">
-      <!-- Products will be loaded here -->
+      <div class="field-row">
+        <div class="form-group"><label>Image URL</label><input type="text" id="editImage"></div>
+        <div class="form-group"><label>Or Upload New Image</label><input type="file" id="editImageFile" accept="image/*"></div>
+      </div>
+      <div class="product-actions">
+        <button class="btn" data-action="save-edited-product">Save Changes</button>
+        <button class="btn btn-secondary" data-action="close-edit-modal">Cancel</button>
+      </div>
     </div>
   </div>
 
-  <!-- Floating Dashboard Button -->
-  <button class="dashboard-btn" onclick="toggleDashboard()">
-    🎛 Dashboard
-  </button>
+  <button class="dashboard-btn" data-action="toggle-dashboard">Dashboard</button>
 
   <script>
-    const ADMIN_STORAGE_KEY = 'waten_admin_password';
     const PRODUCTS_STORAGE_KEY = 'waten_products';
     const ORDER_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
-    let adminPassword = '';
     let products = [];
-    let orders = [];
+    let allOrders = [];
+    let filteredOrders = [];
+    let siteVersions = [];
+    let editingProductId = '';
 
     document.addEventListener('DOMContentLoaded', () => {
       const passwordInput = document.getElementById('password');
-      passwordInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') login();
+      passwordInput.addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') login();
+      });
+
+      document.getElementById('orderSearch').addEventListener('keydown', (event) => {
+        if (event.key === 'Enter') applyOrderFilters(true);
+      });
+
+      document.addEventListener('click', (event) => {
+        const actionEl = event.target.closest('[data-action]');
+        if (!actionEl) return;
+        const { action } = actionEl.dataset;
+
+        switch (action) {
+          case 'login':
+            login();
+            break;
+          case 'logout':
+            logout();
+            break;
+          case 'refresh-orders':
+            refreshOrders();
+            break;
+          case 'export-orders-csv':
+            exportOrdersCsv();
+            break;
+          case 'apply-order-filters':
+            applyOrderFilters(true);
+            break;
+          case 'reset-order-filters':
+            resetOrderFilters();
+            break;
+          case 'publish-draft':
+            publishDraft();
+            break;
+          case 'rollback-version':
+            rollbackSelectedVersion();
+            break;
+          case 'save-hero':
+            saveHeroSection();
+            break;
+          case 'save-social':
+            saveSocialMedia();
+            break;
+          case 'save-collection':
+            saveCollectionSection();
+            break;
+          case 'save-footer':
+            saveFooterSection();
+            break;
+          case 'save-seo-nav':
+            saveSEOAndNavigation();
+            break;
+          case 'save-contact-analytics':
+            saveContactAndAnalytics();
+            break;
+          case 'add-product':
+            addProduct();
+            break;
+          case 'close-edit-modal':
+            closeEditModal();
+            break;
+          case 'save-edited-product':
+            saveEditedProduct();
+            break;
+          case 'toggle-dashboard':
+            toggleDashboard();
+            break;
+          case 'open-edit-modal':
+            openEditModal(actionEl.dataset.productId || '');
+            break;
+          case 'delete-product':
+            deleteProduct(actionEl.dataset.productId || '');
+            break;
+          default:
+            break;
+        }
+      });
+
+      document.addEventListener('change', (event) => {
+        const target = event.target;
+        if (!(target instanceof HTMLSelectElement)) return;
+        if (target.dataset.action !== 'update-order-status') return;
+        updateOrderStatus(target.dataset.orderId || '', target.value);
       });
       checkAuth();
     });
 
-    async function api(path, options = {}, needsAuth = true) {
+    async function api(path, options = {}) {
       const headers = { ...(options.headers || {}) };
       const isFormData = options.body instanceof FormData;
       if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-      if (needsAuth) headers['x-admin-password'] = adminPassword;
 
-      const response = await fetch(path, { ...options, headers });
+      const response = await fetch(path, {
+        credentials: 'include',
+        ...options,
+        headers
+      });
+
       if (!response.ok) {
         let message = `Request failed (${response.status})`;
         try {
-          const data = await response.json();
-          if (data?.error) message = data.error;
+          const payload = await response.json();
+          if (payload?.error) message = payload.error;
         } catch (_) {}
         throw new Error(message);
       }
-      try {
-        return await response.json();
-      } catch (_) {
-        return null;
-      }
+
+      const contentType = response.headers.get('content-type') || '';
+      if (contentType.includes('application/json')) return response.json();
+      if (contentType.includes('text/')) return response.text();
+      return null;
     }
 
     async function checkAuth() {
-      const savedPassword = localStorage.getItem(ADMIN_STORAGE_KEY);
-      if (!savedPassword) {
-        showLogin();
-        return;
-      }
       try {
-        const result = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: savedPassword })
-        }).then((res) => res.json());
-        if (result?.ok) {
-          adminPassword = savedPassword;
-          showDashboard();
-          await loadData();
-          return;
-        }
-      } catch (_) {}
-      localStorage.removeItem(ADMIN_STORAGE_KEY);
-      showLogin();
+        await api('/api/auth/me');
+        showDashboard();
+        await loadData();
+      } catch (_) {
+        showLogin();
+      }
     }
 
     async function login() {
@@ -658,20 +762,25 @@
       }
 
       try {
-        const result = await fetch('/api/login', {
+        const response = await fetch('/api/login', {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ password })
-        }).then((res) => res.json());
+        });
 
-        if (!result?.ok) {
-          errorDiv.textContent = 'Incorrect password';
+        const payload = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          if (response.status === 429 && payload?.retryAfter) {
+            errorDiv.textContent = `Too many attempts. Retry in ${payload.retryAfter}s.`;
+            return;
+          }
+          errorDiv.textContent = payload?.error || 'Invalid password';
           return;
         }
 
-        adminPassword = password;
-        localStorage.setItem(ADMIN_STORAGE_KEY, password);
         errorDiv.textContent = '';
+        document.getElementById('password').value = '';
         showDashboard();
         await loadData();
       } catch (_) {
@@ -679,19 +788,17 @@
       }
     }
 
-    function logout() {
-      localStorage.removeItem(ADMIN_STORAGE_KEY);
-      adminPassword = '';
+    async function logout() {
+      try {
+        await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+      } catch (_) {}
       showLogin();
-    }
-
-    function toggleDashboard() {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     function showLogin() {
       document.getElementById('loginScreen').classList.remove('hidden');
       document.getElementById('dashboardScreen').classList.add('hidden');
+      document.getElementById('loginError').textContent = '';
     }
 
     function showDashboard() {
@@ -699,20 +806,140 @@
       document.getElementById('dashboardScreen').classList.remove('hidden');
     }
 
+    function toggleDashboard() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
     async function loadData() {
-      await Promise.all([loadProducts(), loadSiteContentForEditing(), loadOrders()]);
+      await Promise.all([loadProducts(), loadOrders(), loadSiteContentForEditing()]);
       updateStats();
+    }
+
+    function sanitizeTextInput(value, maxLen = 180) {
+      return String(value || '')
+        .replace(/[\u0000-\u001F\u007F]/g, '')
+        .replace(/[<>]/g, '')
+        .trim()
+        .slice(0, maxLen);
+    }
+
+    function normalizeOptionalUrl(rawValue) {
+      const raw = String(rawValue || '').trim();
+      if (!raw) return { ok: true, value: '' };
+      const normalized = raw.replace(/\\/g, '/');
+      const isRelative =
+        normalized.startsWith('#') ||
+        normalized.startsWith('/') ||
+        normalized.startsWith('./') ||
+        /^uploads\//i.test(normalized) ||
+        /^images\//i.test(normalized) ||
+        /^[A-Za-z0-9_\-./]+\.(png|jpg|jpeg|webp|gif|avif)$/i.test(normalized);
+      if (isRelative && !normalized.includes('..')) return { ok: true, value: normalized };
+      try {
+        const parsed = new URL(raw);
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          return { ok: true, value: parsed.toString() };
+        }
+      } catch (_) {}
+      return { ok: false, value: '' };
+    }
+
+    function getValidatedOptionalUrl(inputId, label) {
+      const input = document.getElementById(inputId);
+      const normalized = normalizeOptionalUrl(input?.value || '');
+      if (!normalized.ok) {
+        alert(`${label} must be a valid URL or safe relative path`);
+        return null;
+      }
+      return normalized.value;
+    }
+
+    function parseVariantList(raw) {
+      const seen = new Set();
+      return String(raw || '')
+        .split(',')
+        .map((item) => sanitizeTextInput(item, 32))
+        .filter((item) => {
+          if (!item) return false;
+          const key = item.toLowerCase();
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .slice(0, 20);
+    }
+
+    function validateProductPayload(payload) {
+      if (!payload.name) return 'Product name is required.';
+      if (!Number.isFinite(payload.price) || payload.price < 0) return 'Price must be zero or greater.';
+      if (!Number.isFinite(payload.stock) || payload.stock < 0) return 'Stock must be zero or greater.';
+      if (!Number.isFinite(payload.lowStockThreshold) || payload.lowStockThreshold < 0) {
+        return 'Low stock threshold must be zero or greater.';
+      }
+      if (payload.sku && !/^[A-Za-z0-9_.-]+$/.test(payload.sku)) {
+        return 'SKU can only use letters, numbers, dash, underscore, and dot.';
+      }
+      return '';
+    }
+
+    async function optimizeImageFile(file) {
+      if (!file || !file.type.startsWith('image/')) return file;
+      const objectUrl = URL.createObjectURL(file);
+      try {
+        const image = await new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = objectUrl;
+        });
+
+        const maxSize = 1400;
+        let width = image.naturalWidth;
+        let height = image.naturalHeight;
+        if (width > maxSize || height > maxSize) {
+          const ratio = Math.min(maxSize / width, maxSize / height);
+          width = Math.round(width * ratio);
+          height = Math.round(height * ratio);
+        }
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const context = canvas.getContext('2d');
+        context.drawImage(image, 0, 0, width, height);
+
+        const blob = await new Promise((resolve) => canvas.toBlob(resolve, 'image/webp', 0.82));
+        if (!blob) return file;
+        return new File([blob], `${file.name.replace(/\.[^/.]+$/, '') || 'image'}.webp`, { type: 'image/webp' });
+      } catch (_) {
+        return file;
+      } finally {
+        URL.revokeObjectURL(objectUrl);
+      }
+    }
+
+    async function uploadImageIfNeeded(fileInputId) {
+      const input = document.getElementById(fileInputId);
+      const file = input?.files?.[0];
+      if (!file) return '';
+
+      const optimized = await optimizeImageFile(file);
+      const form = new FormData();
+      form.append('image', optimized);
+      const result = await api('/api/upload', { method: 'POST', body: form });
+      return result?.path || '';
     }
 
     async function loadProducts() {
       try {
-        const data = await api('/api/products', {}, false);
+        const data = await api('/api/products');
         products = Array.isArray(data) ? data : [];
       } catch (_) {
         products = [];
       }
       syncProductsLocally();
       renderProducts();
+      updateStats();
     }
 
     function syncProductsLocally() {
@@ -724,149 +951,337 @@
       }
     }
 
+    function isLowStock(product) {
+      const stock = Number(product?.stock) || 0;
+      const threshold = Number(product?.lowStockThreshold) || 0;
+      return stock <= threshold;
+    }
+
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
-
       if (!products.length) {
-        grid.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: rgba(255,255,255,0.6);">
-            <h3>No products yet</h3>
-            <p>Add your first product to get started</p>
-          </div>
-        `;
+        grid.innerHTML = '<div class="add-product-form"><p style="color:rgba(255,255,255,0.7)">No products yet.</p></div>';
         return;
       }
 
-      grid.innerHTML = products.map((product) => `
-        <div class="product-card">
-          <div class="product-image">
-            ${product.image
-              ? `<img src="${product.image}" alt="${product.name}">`
-              : `<div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #2a2a2a; color: #666;">No Image</div>`
-            }
-          </div>
-          <div class="product-info">
-            <div class="product-name">${product.name || ''}</div>
-            <div class="product-price">${Number(product.price) || 0} TND</div>
-          </div>
-          <div class="product-actions">
-            <button class="btn" onclick="editProduct('${String(product.id).replace(/'/g, "\\'")}')" style="padding: 0.5rem 1rem; font-size: 0.8rem;">Edit</button>
-            <button class="btn" onclick="deleteProduct('${String(product.id).replace(/'/g, "\\'")}')" style="background: linear-gradient(135deg, #8b2635, #a02d3f); padding: 0.5rem 1rem; font-size: 0.8rem;">Delete</button>
-          </div>
-        </div>
-      `).join('');
+      grid.innerHTML = products
+        .map((product) => {
+          const productId = encodeURIComponent(String(product.id || ''));
+          const safeName = escapeHtml(product.name || '');
+          const safeSku = escapeHtml(product.sku || '-');
+          const safePrice = formatMoney(Number(product.price) || 0);
+          const safeStock = Number(product.stock) || 0;
+          const safeThreshold = Number(product.lowStockThreshold) || 0;
+          const image = escapeAttr(product.image || '');
+          const sizes = (product?.variants?.sizes || []).map((value) => escapeHtml(value)).join(', ') || '-';
+          const colors = (product?.variants?.colors || []).map((value) => escapeHtml(value)).join(', ') || '-';
+
+          return `
+            <div class="product-card">
+              <div class="product-image">
+                ${
+                  image
+                    ? `<img src="${image}" alt="${escapeAttr(product.name || 'Product image')}">`
+                    : '<span style="color:rgba(255,255,255,0.55)">No Image</span>'
+                }
+              </div>
+              <div class="product-name">${safeName}</div>
+              <div class="product-price">${safePrice} TND</div>
+              <div class="product-meta">
+                <div><strong>SKU:</strong> ${safeSku}</div>
+                <div><strong>Sizes:</strong> ${sizes}</div>
+                <div><strong>Colors:</strong> ${colors}</div>
+                <div><strong>Threshold:</strong> ${safeThreshold}</div>
+              </div>
+              <div>
+                <span class="pill ${isLowStock(product) ? 'pill-low' : 'pill-ok'}">${isLowStock(product) ? 'Low Stock' : 'In Stock'}</span>
+                <span class="pill ${isLowStock(product) ? 'pill-low' : 'pill-ok'}">Qty ${safeStock}</span>
+              </div>
+              <div class="product-actions">
+                <button class="btn btn-secondary" data-action="open-edit-modal" data-product-id="${productId}">Edit</button>
+                <button class="btn btn-danger" data-action="delete-product" data-product-id="${productId}">Delete</button>
+              </div>
+            </div>
+          `;
+        })
+        .join('');
     }
 
-    async function uploadImageIfNeeded() {
-      const fileInput = document.getElementById('productImageFile');
-      const imageFile = fileInput.files?.[0];
-      if (!imageFile) return '';
+    function collectAddProductPayload() {
+      return {
+        name: sanitizeTextInput(document.getElementById('productName').value, 120),
+        sku: sanitizeTextInput(document.getElementById('productSku').value, 48).toUpperCase(),
+        price: Number(document.getElementById('productPrice').value) || 0,
+        stock: Number.parseInt(document.getElementById('productStock').value, 10) || 0,
+        lowStockThreshold: Number.parseInt(document.getElementById('productLowStockThreshold').value, 10) || 0,
+        image: document.getElementById('productImage').value.trim(),
+        variants: {
+          sizes: parseVariantList(document.getElementById('productSizes').value),
+          colors: parseVariantList(document.getElementById('productColors').value)
+        }
+      };
+    }
 
-      const form = new FormData();
-      form.append('image', imageFile);
-      const result = await api('/api/upload', { method: 'POST', body: form }, true);
-      return result?.path || '';
+    function collectEditProductPayload() {
+      return {
+        name: sanitizeTextInput(document.getElementById('editName').value, 120),
+        sku: sanitizeTextInput(document.getElementById('editSku').value, 48).toUpperCase(),
+        price: Number(document.getElementById('editPrice').value) || 0,
+        stock: Number.parseInt(document.getElementById('editStock').value, 10) || 0,
+        lowStockThreshold: Number.parseInt(document.getElementById('editThreshold').value, 10) || 0,
+        image: document.getElementById('editImage').value.trim(),
+        variants: {
+          sizes: parseVariantList(document.getElementById('editSizes').value),
+          colors: parseVariantList(document.getElementById('editColors').value)
+        }
+      };
     }
 
     async function addProduct() {
-      const name = document.getElementById('productName').value.trim();
-      const price = Number(document.getElementById('productPrice').value) || 0;
-      const imageUrl = document.getElementById('productImage').value.trim();
+      const payload = collectAddProductPayload();
+      const imageUrl = getValidatedOptionalUrl('productImage', 'Product image URL');
+      if (imageUrl === null) return;
+      payload.image = imageUrl;
 
-      if (!name) {
-        alert('Please enter a product name');
+      const validationError = validateProductPayload(payload);
+      if (validationError) {
+        alert(validationError);
         return;
       }
 
       try {
-        const uploadedImage = await uploadImageIfNeeded();
-        await api('/api/products', {
-          method: 'POST',
-          body: JSON.stringify({
-            name,
-            price,
-            image: uploadedImage || imageUrl
-          })
-        }, true);
-        clearForm();
+        const uploadedImage = await uploadImageIfNeeded('productImageFile');
+        if (uploadedImage) payload.image = uploadedImage;
+        await api('/api/products', { method: 'POST', body: JSON.stringify(payload) });
+        clearAddProductForm();
         await loadProducts();
-        updateStats();
-        showNotification('Product added successfully');
+        showNotification('Product added.');
       } catch (error) {
         alert(error.message || 'Failed to add product');
       }
     }
 
-    async function editProduct(id) {
-      const product = products.find((p) => String(p.id) === String(id));
+    function clearAddProductForm() {
+      document.getElementById('productName').value = '';
+      document.getElementById('productSku').value = '';
+      document.getElementById('productPrice').value = '';
+      document.getElementById('productStock').value = '';
+      document.getElementById('productLowStockThreshold').value = '';
+      document.getElementById('productSizes').value = '';
+      document.getElementById('productColors').value = '';
+      document.getElementById('productImage').value = '';
+      document.getElementById('productImageFile').value = '';
+    }
+
+    function openEditModal(encodedId) {
+      const id = decodeURIComponent(encodedId || '');
+      const product = products.find((item) => String(item.id) === String(id));
       if (!product) return;
 
-      const newName = prompt('Edit product name:', product.name || '');
-      if (newName === null) return;
-      const newPrice = prompt('Edit product price (TND):', String(product.price || 0));
-      if (newPrice === null) return;
-      const newImage = prompt('Edit product image URL:', product.image || '');
-      if (newImage === null) return;
+      editingProductId = id;
+      document.getElementById('editName').value = product.name || '';
+      document.getElementById('editSku').value = product.sku || '';
+      document.getElementById('editPrice').value = Number(product.price) || 0;
+      document.getElementById('editStock').value = Number(product.stock) || 0;
+      document.getElementById('editThreshold').value = Number(product.lowStockThreshold) || 0;
+      document.getElementById('editSizes').value = (product?.variants?.sizes || []).join(', ');
+      document.getElementById('editColors').value = (product?.variants?.colors || []).join(', ');
+      document.getElementById('editImage').value = product.image || '';
+      document.getElementById('editImageFile').value = '';
+      document.getElementById('editProductModal').classList.remove('hidden');
+    }
+
+    function closeEditModal() {
+      editingProductId = '';
+      document.getElementById('editProductModal').classList.add('hidden');
+    }
+
+    async function saveEditedProduct() {
+      if (!editingProductId) return;
+      const payload = collectEditProductPayload();
+      const imageUrl = getValidatedOptionalUrl('editImage', 'Edit image URL');
+      if (imageUrl === null) return;
+      payload.image = imageUrl;
+
+      const validationError = validateProductPayload(payload);
+      if (validationError) {
+        alert(validationError);
+        return;
+      }
 
       try {
-        await api(`/api/products/${encodeURIComponent(id)}`, {
+        const uploadedImage = await uploadImageIfNeeded('editImageFile');
+        if (uploadedImage) payload.image = uploadedImage;
+        await api(`/api/products/${encodeURIComponent(editingProductId)}`, {
           method: 'PUT',
-          body: JSON.stringify({
-            name: newName.trim(),
-            price: Number(newPrice) || 0,
-            image: newImage.trim()
-          })
-        }, true);
+          body: JSON.stringify(payload)
+        });
+        closeEditModal();
         await loadProducts();
-        showNotification('Product updated');
+        showNotification('Product updated.');
       } catch (error) {
         alert(error.message || 'Failed to update product');
       }
     }
 
-    async function deleteProduct(id) {
-      const product = products.find((p) => String(p.id) === String(id));
+    async function deleteProduct(encodedId) {
+      const id = decodeURIComponent(encodedId || '');
+      const product = products.find((item) => String(item.id) === String(id));
       if (!product) return;
       if (!confirm(`Delete "${product.name}"?`)) return;
 
       try {
-        await api(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' }, true);
+        await api(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
         await loadProducts();
-        updateStats();
-        showNotification('Product deleted');
+        showNotification('Product deleted.');
       } catch (error) {
         alert(error.message || 'Failed to delete product');
       }
     }
 
-    function clearForm() {
-      document.getElementById('productName').value = '';
-      document.getElementById('productPrice').value = '';
-      document.getElementById('productImage').value = '';
-      document.getElementById('productImageFile').value = '';
-    }
-
     async function loadOrders() {
       try {
         const data = await api('/api/orders');
-        orders = Array.isArray(data) ? data : [];
-        localStorage.setItem('watenOrders', JSON.stringify(orders));
+        allOrders = Array.isArray(data) ? data : [];
+        localStorage.setItem('watenOrders', JSON.stringify(allOrders));
       } catch (_) {
         try {
-          const savedOrders = localStorage.getItem('watenOrders');
-          orders = savedOrders ? JSON.parse(savedOrders) : [];
+          const saved = localStorage.getItem('watenOrders');
+          allOrders = saved ? JSON.parse(saved) : [];
         } catch (_) {
-          orders = [];
+          allOrders = [];
         }
       }
-      renderOrders();
+      applyOrderFilters(false);
       updateStats();
+    }
+
+    function applyOrderFilters(showMessage = false) {
+      const status = document.getElementById('orderStatusFilter').value;
+      const query = sanitizeTextInput(document.getElementById('orderSearch').value, 120).toLowerCase();
+      const fromDate = document.getElementById('orderFromDate').value;
+      const toDate = document.getElementById('orderToDate').value;
+      const fromTime = fromDate ? new Date(`${fromDate}T00:00:00`).getTime() : null;
+      const toTime = toDate ? new Date(`${toDate}T23:59:59.999`).getTime() : null;
+
+      filteredOrders = allOrders
+        .filter((order) => {
+          if (status && order.status !== status) return false;
+
+          if (query) {
+            const customer = order.customer || {};
+            const product = order.product || {};
+            const text = [
+              order.orderId,
+              customer.name,
+              customer.phone,
+              customer.email,
+              product.name
+            ]
+              .map((value) => String(value || '').toLowerCase())
+              .join(' ');
+            if (!text.includes(query)) return false;
+          }
+
+          const orderTime = Date.parse(order.orderDate || '');
+          if (fromTime && Number.isFinite(orderTime) && orderTime < fromTime) return false;
+          if (toTime && Number.isFinite(orderTime) && orderTime > toTime) return false;
+          return true;
+        })
+        .sort((a, b) => Date.parse(b.orderDate || 0) - Date.parse(a.orderDate || 0));
+
+      renderOrders();
+      if (showMessage) showNotification(`Showing ${filteredOrders.length} order(s).`);
+    }
+
+    function resetOrderFilters() {
+      document.getElementById('orderSearch').value = '';
+      document.getElementById('orderStatusFilter').value = '';
+      document.getElementById('orderFromDate').value = '';
+      document.getElementById('orderToDate').value = '';
+      applyOrderFilters(true);
+    }
+
+    function exportOrdersCsv() {
+      const params = new URLSearchParams();
+      const status = document.getElementById('orderStatusFilter').value;
+      const query = sanitizeTextInput(document.getElementById('orderSearch').value, 120);
+      const from = document.getElementById('orderFromDate').value;
+      const to = document.getElementById('orderToDate').value;
+      if (status) params.set('status', status);
+      if (query) params.set('q', query);
+      if (from) params.set('from', from);
+      if (to) params.set('to', to);
+      const url = params.toString() ? `/api/orders/export.csv?${params.toString()}` : '/api/orders/export.csv';
+      window.open(url, '_blank');
+    }
+
+    function renderOrders() {
+      const tableBody = document.getElementById('ordersTableBody');
+      if (!filteredOrders.length) {
+        tableBody.innerHTML = '<tr><td class="orders-empty" colspan="10">No matching orders</td></tr>';
+        return;
+      }
+
+      tableBody.innerHTML = filteredOrders
+        .map((order) => {
+          const customer = order.customer || {};
+          const product = order.product || {};
+          const orderId = String(order.orderId || '');
+          const currentStatus = ORDER_STATUSES.includes(order.status) ? order.status : 'pending';
+          const statusOptions = ORDER_STATUSES.map((status) => {
+            const label = status.charAt(0).toUpperCase() + status.slice(1);
+            return `<option value="${status}" ${status === currentStatus ? 'selected' : ''}>${label}</option>`;
+          }).join('');
+
+          return `
+            <tr>
+              <td>${escapeHtml(orderId || '-')}</td>
+              <td>${escapeHtml(formatDateTime(order.orderDate))}</td>
+              <td>${escapeHtml(customer.name || '-')}</td>
+              <td>${escapeHtml(customer.phone || '-')}</td>
+              <td>${escapeHtml(customer.email || '-')}</td>
+              <td>${escapeHtml(product.name || '-')}</td>
+              <td>${Number(order.quantity) || 1}</td>
+              <td>${escapeHtml(formatMoney(getOrderTotal(order)))} TND</td>
+              <td>${escapeHtml(formatAddress(customer))}</td>
+              <td>
+                <select data-action="update-order-status" data-order-id="${encodeURIComponent(orderId)}" ${orderId ? '' : 'disabled'}>
+                  ${statusOptions}
+                </select>
+              </td>
+            </tr>
+          `;
+        })
+        .join('');
+    }
+
+    async function refreshOrders() {
+      await loadOrders();
+      showNotification('Orders refreshed.');
+    }
+
+    async function updateOrderStatus(encodedOrderId, status) {
+      const orderId = decodeURIComponent(encodedOrderId || '');
+      if (!orderId) return;
+      try {
+        await api(`/api/orders/${encodeURIComponent(orderId)}/status`, {
+          method: 'PUT',
+          body: JSON.stringify({ status })
+        });
+        await loadOrders();
+        showNotification(`Order ${orderId} updated.`);
+      } catch (error) {
+        alert(error.message || 'Failed to update order status');
+        await loadOrders();
+      }
     }
 
     function updateStats() {
       document.getElementById('totalProducts').textContent = products.length;
-      document.getElementById('totalOrders').textContent = orders.length;
-      const totalRevenue = orders
+      document.getElementById('lowStockCount').textContent = products.filter((product) => isLowStock(product)).length;
+      document.getElementById('totalOrders').textContent = allOrders.length;
+      const totalRevenue = allOrders
         .filter((order) => order.status === 'completed')
         .reduce((sum, order) => sum + getOrderTotal(order), 0);
       document.getElementById('totalRevenue').textContent = `${formatMoney(totalRevenue)} TND`;
@@ -890,191 +1305,232 @@
       return [customer.address, customer.city, customer.postalCode].filter(Boolean).join(', ') || '-';
     }
 
-    function escapeHtml(value) {
-      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#39;'
-      }[char]));
+    function parseNavigationItems(rawValue) {
+      const lines = String(rawValue || '')
+        .split('\n')
+        .map((line) => line.trim())
+        .filter(Boolean);
+      const navLinks = [];
+      for (const line of lines) {
+        const [labelRaw, hrefRaw] = line.split('|').map((part) => part.trim());
+        const label = sanitizeTextInput(labelRaw, 60);
+        const hrefResult = normalizeOptionalUrl(hrefRaw || '#');
+        if (!label || !hrefResult.ok) {
+          return { ok: false, value: [] };
+        }
+        navLinks.push({ label, href: hrefResult.value || '#' });
+      }
+      return { ok: true, value: navLinks };
     }
 
-    function renderOrders() {
-      const tableBody = document.getElementById('ordersTableBody');
-      if (!tableBody) return;
+    function updatePublishingInfo(payload = {}) {
+      const lastPublishedAt = payload?.lastPublishedAt;
+      const input = document.getElementById('lastPublishedAt');
+      input.value = lastPublishedAt ? new Date(lastPublishedAt).toLocaleString() : 'Not published yet';
 
-      if (!orders.length) {
-        tableBody.innerHTML = '<tr><td class="orders-empty" colspan="10">No orders yet</td></tr>';
+      siteVersions = Array.isArray(payload?.versions) ? payload.versions : [];
+      const select = document.getElementById('rollbackVersion');
+      if (!siteVersions.length) {
+        select.innerHTML = '<option value="">No versions available</option>';
         return;
       }
-
-      const sortedOrders = [...orders].sort((a, b) => new Date(b.orderDate || 0) - new Date(a.orderDate || 0));
-      tableBody.innerHTML = sortedOrders.map((order) => {
-        const customer = order?.customer || {};
-        const product = order?.product || {};
-        const orderId = String(order?.orderId || '');
-        const currentStatus = ORDER_STATUSES.includes(order?.status) ? order.status : 'pending';
-        const statusOptions = ORDER_STATUSES
-          .map((status) => {
-            const label = status.charAt(0).toUpperCase() + status.slice(1);
-            return `<option value="${status}" ${status === currentStatus ? 'selected' : ''}>${label}</option>`;
+      select.innerHTML = ['<option value="">Select version</option>']
+        .concat(
+          siteVersions.map((item) => {
+            const stamp = item.createdAt ? new Date(item.createdAt).toLocaleString() : 'Unknown date';
+            const note = item.note ? ` - ${escapeHtml(item.note)}` : '';
+            return `<option value="${escapeAttr(item.versionId || '')}">${escapeHtml(stamp)}${note}</option>`;
           })
-          .join('');
-
-        return `
-          <tr>
-            <td>${escapeHtml(orderId || '-')}</td>
-            <td>${escapeHtml(formatDateTime(order.orderDate))}</td>
-            <td>${escapeHtml(customer.name || '-')}</td>
-            <td>${escapeHtml(customer.phone || '-')}</td>
-            <td>${escapeHtml(customer.email || '-')}</td>
-            <td>${escapeHtml(product.name || '-')}</td>
-            <td>${Number(order.quantity) || 1}</td>
-            <td>${escapeHtml(formatMoney(getOrderTotal(order)))} TND</td>
-            <td>${escapeHtml(formatAddress(customer))}</td>
-            <td>
-              <select class="order-status" onchange="updateOrderStatus('${encodeURIComponent(orderId)}', this.value)" ${orderId ? '' : 'disabled'}>
-                ${statusOptions}
-              </select>
-            </td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    async function refreshOrders() {
-      await loadOrders();
-      showNotification('Orders refreshed');
-    }
-
-    async function updateOrderStatus(encodedOrderId, status) {
-      const orderId = decodeURIComponent(encodedOrderId || '');
-      if (!orderId) return;
-
-      try {
-        await api(`/api/orders/${encodeURIComponent(orderId)}/status`, {
-          method: 'PUT',
-          body: JSON.stringify({ status })
-        }, true);
-        await loadOrders();
-        showNotification(`Order ${orderId} updated`);
-      } catch (error) {
-        alert(error.message || 'Failed to update order status');
-        await loadOrders();
-      }
+        )
+        .join('');
     }
 
     async function saveSitePatch(patch, message) {
       try {
-        await api('/api/site', {
+        const result = await api('/api/site/draft', {
           method: 'PUT',
           body: JSON.stringify(patch)
-        }, true);
-        const cachedSite = JSON.parse(localStorage.getItem('watenSiteContent') || '{}');
-        localStorage.setItem('watenSiteContent', JSON.stringify({ ...cachedSite, ...patch }));
-        if (typeof BroadcastChannel !== 'undefined') {
-          const channel = new BroadcastChannel('waten_dashboard');
-          channel.postMessage({ type: 'site_updated' });
-          channel.close();
-        }
+        });
+        localStorage.setItem('watenSiteDraftContent', JSON.stringify(result?.draft || {}));
+        updatePublishingInfo(result || {});
         showNotification(message);
       } catch (error) {
-        alert(error.message || 'Failed to save site content');
+        alert(error.message || 'Failed to save draft');
       }
     }
 
     function saveHeroSection() {
-      saveSitePatch({
-        hero: {
-          title: document.getElementById('heroTitle').value.trim(),
-          tagline: document.getElementById('heroTagline').value.trim(),
-          ctaText: document.getElementById('heroButton').value.trim(),
-          backgroundImage: document.getElementById('heroBackground').value.trim()
-        }
-      }, 'Hero section saved');
+      const backgroundImage = getValidatedOptionalUrl('heroBackground', 'Hero background URL');
+      if (backgroundImage === null) return;
+      saveSitePatch(
+        {
+          hero: {
+            title: sanitizeTextInput(document.getElementById('heroTitle').value, 120),
+            tagline: sanitizeTextInput(document.getElementById('heroTagline').value, 220),
+            ctaText: sanitizeTextInput(document.getElementById('heroButton').value, 80),
+            backgroundImage
+          }
+        },
+        'Hero draft saved.'
+      );
     }
 
     function saveSocialMedia() {
-      saveSitePatch({
-        social: {
-          instagram: document.getElementById('instagramUrl').value.trim(),
-          tiktok: document.getElementById('tiktokUrl').value.trim(),
-          twitter: document.getElementById('twitterUrl').value.trim(),
-          youtube: document.getElementById('youtubeUrl').value.trim(),
-          facebook: document.getElementById('facebookUrl').value.trim()
-        }
-      }, 'Social media saved');
+      const instagram = getValidatedOptionalUrl('instagramUrl', 'Instagram URL');
+      if (instagram === null) return;
+      const tiktok = getValidatedOptionalUrl('tiktokUrl', 'TikTok URL');
+      if (tiktok === null) return;
+      const twitter = getValidatedOptionalUrl('twitterUrl', 'Twitter URL');
+      if (twitter === null) return;
+      const youtube = getValidatedOptionalUrl('youtubeUrl', 'YouTube URL');
+      if (youtube === null) return;
+      const facebook = getValidatedOptionalUrl('facebookUrl', 'Facebook URL');
+      if (facebook === null) return;
+      const email = sanitizeTextInput(document.getElementById('contactEmail').value, 180).toLowerCase();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Contact email must be valid.');
+        return;
+      }
+
+      saveSitePatch(
+        {
+          social: {
+            instagram,
+            tiktok,
+            twitter,
+            youtube,
+            facebook,
+            email
+          }
+        },
+        'Social draft saved.'
+      );
     }
 
     function saveCollectionSection() {
-      saveSitePatch({
-        collection: {
-          heading: document.getElementById('collectionHeading').value.trim(),
-          subtitle: document.getElementById('collectionSubtitle').value.trim(),
-          backgroundImage: document.getElementById('collectionBackground').value.trim()
-        }
-      }, 'Collection section saved');
+      const backgroundImage = getValidatedOptionalUrl('collectionBackground', 'Collection background URL');
+      if (backgroundImage === null) return;
+      saveSitePatch(
+        {
+          collection: {
+            heading: sanitizeTextInput(document.getElementById('collectionHeading').value, 120),
+            subtitle: sanitizeTextInput(document.getElementById('collectionSubtitle').value, 220),
+            backgroundImage
+          }
+        },
+        'Collection draft saved.'
+      );
     }
 
     function saveFooterSection() {
-      saveSitePatch({
-        footer: {
-          logoText: document.getElementById('footerLogo').value.trim(),
-          tagline: document.getElementById('footerTagline').value.trim(),
-          copyright: document.getElementById('footerCopyright').value.trim(),
-          backgroundImage: document.getElementById('footerBackground').value.trim()
-        }
-      }, 'Footer section saved');
-    }
-
-    function saveSEOSettings() {
-      saveSitePatch({
-        meta: {
-          title: document.getElementById('metaTitle').value.trim(),
-          description: document.getElementById('metaDescription').value.trim(),
-          keywords: document.getElementById('metaKeywords').value.trim()
-        }
-      }, 'SEO settings saved');
-    }
-
-    function saveNavigation() {
-      const navLinks = document.getElementById('navigationItems').value
-        .split('\n')
-        .map((line) => line.trim())
-        .filter(Boolean)
-        .map((line) => {
-          const [label, href] = line.split('|').map((p) => p.trim());
-          return { label: label || '', href: href || '#' };
-        });
-
-      saveSitePatch({ header: { navLinks } }, 'Navigation saved');
-    }
-
-    function saveContactInfo() {
-      const email = document.getElementById('contactEmail').value.trim();
-      saveSitePatch({
-        contact: {
-          email,
-          phone: document.getElementById('contactPhone').value.trim(),
-          address: document.getElementById('contactAddress').value.trim()
+      const backgroundImage = getValidatedOptionalUrl('footerBackground', 'Footer background URL');
+      if (backgroundImage === null) return;
+      saveSitePatch(
+        {
+          footer: {
+            logoText: sanitizeTextInput(document.getElementById('footerLogo').value, 40),
+            tagline: sanitizeTextInput(document.getElementById('footerTagline').value, 220),
+            copyright: sanitizeTextInput(document.getElementById('footerCopyright').value, 180),
+            backgroundImage
+          }
         },
-        social: { email }
-      }, 'Contact info saved');
+        'Footer draft saved.'
+      );
     }
 
-    function saveAnalytics() {
-      saveSitePatch({
-        analytics: {
-          googleAnalytics: document.getElementById('googleAnalytics').value.trim(),
-          facebookPixel: document.getElementById('facebookPixel').value.trim()
-        }
-      }, 'Analytics saved');
+    function saveSEOAndNavigation() {
+      const nav = parseNavigationItems(document.getElementById('navigationItems').value);
+      if (!nav.ok) {
+        alert('Navigation lines must be "Label|URL", with a valid URL/anchor.');
+        return;
+      }
+      saveSitePatch(
+        {
+          meta: {
+            title: sanitizeTextInput(document.getElementById('metaTitle').value, 140),
+            description: sanitizeTextInput(document.getElementById('metaDescription').value, 320),
+            keywords: sanitizeTextInput(document.getElementById('metaKeywords').value, 260)
+          },
+          header: { navLinks: nav.value }
+        },
+        'SEO and navigation draft saved.'
+      );
+    }
+
+    function saveContactAndAnalytics() {
+      const email = sanitizeTextInput(document.getElementById('contactEmail').value, 180).toLowerCase();
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        alert('Contact email must be valid.');
+        return;
+      }
+
+      saveSitePatch(
+        {
+          contact: {
+            email,
+            phone: sanitizeTextInput(document.getElementById('contactPhone').value, 32),
+            address: sanitizeTextInput(document.getElementById('contactAddress').value, 180)
+          },
+          analytics: {
+            googleAnalytics: sanitizeTextInput(document.getElementById('googleAnalytics').value, 40),
+            facebookPixel: sanitizeTextInput(document.getElementById('facebookPixel').value, 40)
+          }
+        },
+        'Contact and analytics draft saved.'
+      );
+    }
+
+    async function publishDraft() {
+      try {
+        const result = await api('/api/site/publish', {
+          method: 'POST',
+          body: JSON.stringify({ note: 'Dashboard publish' })
+        });
+        localStorage.setItem('watenSiteContent', JSON.stringify(result?.published || {}));
+        broadcastSiteUpdate();
+        updatePublishingInfo(result || {});
+        showNotification('Draft published to live site.');
+      } catch (error) {
+        alert(error.message || 'Failed to publish draft');
+      }
+    }
+
+    async function rollbackSelectedVersion() {
+      const versionId = document.getElementById('rollbackVersion').value;
+      if (!versionId) {
+        alert('Select a version to rollback.');
+        return;
+      }
+      if (!confirm('Rollback live site to the selected version?')) return;
+
+      try {
+        const result = await api('/api/site/rollback', {
+          method: 'POST',
+          body: JSON.stringify({ versionId })
+        });
+        localStorage.setItem('watenSiteContent', JSON.stringify(result?.published || {}));
+        broadcastSiteUpdate();
+        updatePublishingInfo(result || {});
+        await loadSiteContentForEditing();
+        showNotification('Rollback completed.');
+      } catch (error) {
+        alert(error.message || 'Failed to rollback site content');
+      }
+    }
+
+    function broadcastSiteUpdate() {
+      if (typeof BroadcastChannel !== 'undefined') {
+        const channel = new BroadcastChannel('waten_dashboard');
+        channel.postMessage({ type: 'site_updated' });
+        channel.close();
+      }
     }
 
     async function loadSiteContentForEditing() {
       try {
-        const content = await api('/api/site', {}, false) || {};
+        const payload = await api('/api/site/draft');
+        const content = payload?.draft || {};
+
         if (content.hero) {
           document.getElementById('heroTitle').value = content.hero.title || '';
           document.getElementById('heroTagline').value = content.hero.tagline || '';
@@ -1087,6 +1543,7 @@
           document.getElementById('twitterUrl').value = content.social.twitter || '';
           document.getElementById('youtubeUrl').value = content.social.youtube || '';
           document.getElementById('facebookUrl').value = content.social.facebook || '';
+          if (content.social.email) document.getElementById('contactEmail').value = content.social.email;
         }
         if (content.collection) {
           document.getElementById('collectionHeading').value = content.collection.heading || '';
@@ -1110,7 +1567,7 @@
             .join('\n');
         }
         if (content.contact) {
-          document.getElementById('contactEmail').value = content.contact.email || '';
+          document.getElementById('contactEmail').value = content.contact.email || document.getElementById('contactEmail').value || '';
           document.getElementById('contactPhone').value = content.contact.phone || '';
           document.getElementById('contactAddress').value = content.contact.address || '';
         }
@@ -1118,23 +1575,46 @@
           document.getElementById('googleAnalytics').value = content.analytics.googleAnalytics || '';
           document.getElementById('facebookPixel').value = content.analytics.facebookPixel || '';
         }
+
+        updatePublishingInfo(payload || {});
       } catch (error) {
-        console.error('Failed to load site content:', error);
+        console.error('Failed to load draft site content:', error);
       }
+    }
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>"']/g, (char) => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[char]));
+    }
+
+    function escapeAttr(value) {
+      return escapeHtml(value).replace(/`/g, '&#96;');
     }
 
     function showNotification(message) {
       const notification = document.createElement('div');
       notification.style.cssText = `
-        position: fixed; top: 20px; right: 20px; background: #c9a227; color: #0a0a0a;
-        padding: 15px 20px; border-radius: 8px; z-index: 10000; max-width: 350px;
-        box-shadow: 0 4px 20px rgba(201, 162, 39, 0.4); font-weight: 600;
+        position: fixed;
+        top: 18px;
+        right: 18px;
+        background: #c9a227;
+        color: #0a0a0a;
+        padding: 12px 14px;
+        border-radius: 8px;
+        z-index: 3000;
+        max-width: 340px;
+        box-shadow: 0 6px 20px rgba(201, 162, 39, 0.45);
+        font-weight: 700;
       `;
-      notification.innerHTML = `<div style="font-size: 14px; font-weight: 500;">${message}</div>`;
+      notification.textContent = message;
       document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 2500);
+      setTimeout(() => notification.remove(), 2400);
     }
   </script>
 </body>
 </html>
-
