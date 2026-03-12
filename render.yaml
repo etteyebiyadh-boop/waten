@@ -4,3 +4,11 @@ services:
     env: node
     buildCommand: npm install
     startCommand: npm start
+    # Uncomment the following lines to persist data if using a PAID Render plan:
+    # disk:
+    #   name: data
+    #   mountPath: /data
+    #   sizeGB: 1
+    # envVars:
+    #   - key: DATA_DIR
+    #     value: /data

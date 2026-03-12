@@ -2,6 +2,8 @@ const express = require('express');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const nodemailer = require('nodemailer');
+const https = require('https');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -197,6 +199,79 @@ app.post('/api/login', (req, res) => {
   res.json({ ok });
 });
 
+// Notification Helpers
+function sendWhatsAppNotification(message) {
+  const config = getConfig();
+  const phone = config.whatsappNumber;
+  const apiKey = config.whatsappApiKey;
+  
+  if (!phone || !apiKey || phone === '+21600000000' || apiKey === 'YOUR_CALLMEBOT_API_KEY') {
+    return;
+  }
+
+  const encodedMessage = encodeURIComponent(message);
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${encodeURIComponent(phone)}&text=${encodedMessage}&apikey=${encodeURIComponent(apiKey)}`;
+
+  https.get(url, (res) => {
+    let data = '';
+    res.on('data', chunk => data += chunk);
+    res.on('end', () => console.log('WhatsApp notification sent'));
+  }).on('error', (err) => {
+    console.error('WhatsApp notification failed:', err.message);
+  });
+}
+
+function sendEmailNotification(subject, text) {
+  const config = getConfig();
+  const user = config.smtpUser;
+  const pass = config.smtpPass;
+  const toEmail = config.adminEmail;
+
+  if (!user || user === 'your-email@gmail.com' || !pass || pass === 'your-app-password') {
+    return;
+  }
+
+  const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: { user, pass }
+  });
+
+  const mailOptions = { from: user, to: toEmail, subject, text };
+
+  transporter.sendMail(mailOptions, (error, info) => {
+    if (error) console.log('Error sending email:', error);
+    else console.log('Email sent:', info.response);
+  });
+}
+
+function notifyAdmin(order, isUpdate = false) {
+  let message = '';
+  if (isUpdate) {
+    message = `🔄 WATEN ORDER UPDATE!
+Order ID: ${order.orderId}
+New Status: ${order.status.toUpperCase()}
+Customer: ${order.customer.name}
+Total: ${order.totalPrice} TND
+`;
+  } else {
+    message = `🎯 NEW WATEN ORDER!
+Order ID: ${order.orderId}
+Product: ${order.product.name} (x${order.quantity})
+Total: ${order.totalPrice} TND
+
+Customer: ${order.customer.name}
+Phone: ${order.customer.phone}
+Address: ${order.customer.address}, ${order.customer.city}
+`;
+  }
+  
+  sendWhatsAppNotification(message);
+  sendEmailNotification(
+    isUpdate ? `Waten Order Update ${order.orderId}` : `New Waten Order ${order.orderId}`,
+    message
+  );
+}
+
 // API: Create order (public)
 app.post('/api/orders', (req, res) => {
   try {
@@ -211,6 +286,10 @@ app.post('/api/orders', (req, res) => {
     }
     orders.push(newOrder);
     saveOrders(orders);
+    
+    // Trigger Notifications!
+    notifyAdmin(newOrder, false);
+
     res.status(201).json({ ok: true, order: newOrder });
   } catch (e) {
     res.status(500).json({ error: 'Failed to save order' });
@@ -242,6 +321,10 @@ app.put('/api/orders/:orderId/status', (req, res) => {
 
     orders[index] = { ...orders[index], status };
     saveOrders(orders);
+    
+    // Notify on status update
+    notifyAdmin(orders[index], true);
+    
     res.json(orders[index]);
   } catch (e) {
     res.status(500).json({ error: 'Failed to update order status' });

@@ -43,7 +43,21 @@ git push
 3. **Open in browser**
    - **Site:** http://localhost:3000/idex.html
    - **Dashboard:** http://localhost:3000/admin.html
-   - **Password:** `waten2026` (change in `config.json`)
+   - **Password:** use your configured admin password (`ADMIN_PASSWORD` on first run, or current dashboard password)
+
+## Run tests
+
+```bash
+npm test
+```
+
+## Environment variables
+
+- `DATA_DIR`: path for runtime data (`products.json`, `orders.json`, `users.json`, `config.json`)
+- `ADMIN_PASSWORD`: initial admin password used when creating a fresh config
+- `ADMIN_PASSWORD_HASH`: optional bcrypt hash override for admin login
+- `REQUEST_LOGS`: set to `false` to disable request logs
+- `SESSION_COOKIE_SECURE`: `true` or `false` override for secure admin cookies
 
 ## Dashboard
 
@@ -56,4 +70,4 @@ Changes appear on the site immediately.
 
 ## Change password
 
-Edit `config.json` and set your own `adminPassword`.
+Use Dashboard settings to update the admin password. It is stored as `adminPasswordHash` in config.
