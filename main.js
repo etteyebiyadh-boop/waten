@@ -1822,15 +1822,25 @@ function animate() {
   renderer.render(scene, camera);
 }
 
-// Initialize when page loads
-window.addEventListener('load', function() {
-  console.log('Page loaded, starting premium 3D...');
+// Initialize as fast as possible
+function startPremium3D() {
+  if (window._waten_3d_started) return;
   if (typeof THREE !== 'undefined') {
+    window._waten_3d_started = true;
+    console.log('Starting premium 3D instantly...');
     init3DBackground();
   } else {
-    console.error('Three.js not loaded!');
+    console.error('Three.js not strictly loaded yet!');
   }
-});
+}
+
+if (document.readyState !== 'loading') {
+  startPremium3D();
+} else {
+  document.addEventListener('DOMContentLoaded', startPremium3D);
+}
+// Fallback
+window.addEventListener('load', startPremium3D);
 
 // Fashion Template Mouse Interactions
 const cursor = document.querySelector('.cursor');
