@@ -39,7 +39,7 @@ function getConfig() {
     return JSON.parse(fs.readFileSync(configPath, 'utf8'));
   } catch (e) {
     const defaultConfig = {
-      adminPassword: "admin",
+      adminPassword: "fubisra06",
       fallbackImage: "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
     };
     try {
