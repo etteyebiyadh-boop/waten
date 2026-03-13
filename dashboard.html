@@ -550,6 +550,38 @@
       <button class="btn" onclick="saveAnalytics()">Save Analytics</button>
     </div>
 
+    <!-- Notifications Settings -->
+    <div class="add-product-form">
+      <h2>🔔 Notification Settings</h2>
+      
+      <div class="form-group">
+        <label>Admin Email (For Order Alerts)</label>
+        <input type="email" id="adminEmailConfig" placeholder="etteyebiyadh@gmail.com">
+      </div>
+      
+      <div class="form-group">
+        <label>SMTP User (Your Gmail)</label>
+        <input type="email" id="smtpUserConfig" placeholder="etteyebiyadh@gmail.com">
+      </div>
+      
+      <div class="form-group">
+        <label>SMTP App Password</label>
+        <input type="password" id="smtpPassConfig" placeholder="Your Google App Password">
+      </div>
+      
+      <div class="form-group" style="margin-top: 2rem;">
+        <label>WhatsApp Number</label>
+        <input type="text" id="whatsappNumberConfig" placeholder="+21612345678">
+      </div>
+      
+      <div class="form-group">
+        <label>CallMeBot API Key (WhatsApp)</label>
+        <input type="password" id="whatsappApiKeyConfig" placeholder="YOUR_CALLMEBOT_API_KEY">
+      </div>
+      
+      <button class="btn" onclick="saveNotifications()">Save Notifications</button>
+    </div>
+
     <!-- Add Product Form -->
     <div class="add-product-form">
       <h2>➕ Add New Product</h2>
@@ -1072,6 +1104,24 @@
       }, 'Analytics saved');
     }
 
+    async function saveNotifications() {
+      try {
+        await api('/api/config', {
+          method: 'PUT',
+          body: JSON.stringify({
+            adminEmail: document.getElementById('adminEmailConfig').value.trim(),
+            smtpUser: document.getElementById('smtpUserConfig').value.trim(),
+            smtpPass: document.getElementById('smtpPassConfig').value.trim(),
+            whatsappNumber: document.getElementById('whatsappNumberConfig').value.trim(),
+            whatsappApiKey: document.getElementById('whatsappApiKeyConfig').value.trim()
+          })
+        }, true);
+        showNotification('Notification settings saved securely');
+      } catch (error) {
+        alert(error.message || 'Failed to save notification settings');
+      }
+    }
+
     async function loadSiteContentForEditing() {
       try {
         const content = await api('/api/site', {}, false) || {};
@@ -1120,6 +1170,17 @@
         }
       } catch (error) {
         console.error('Failed to load site content:', error);
+      }
+      
+      try {
+        const configParams = await api('/api/config', {}, true) || {};
+        document.getElementById('adminEmailConfig').value = configParams.adminEmail || '';
+        document.getElementById('smtpUserConfig').value = configParams.smtpUser || '';
+        document.getElementById('smtpPassConfig').value = configParams.smtpPass || '';
+        document.getElementById('whatsappNumberConfig').value = configParams.whatsappNumber || '';
+        document.getElementById('whatsappApiKeyConfig').value = configParams.whatsappApiKey || '';
+      } catch (error) {
+        console.error('Failed to load private config variables for notifications:', error);
       }
     }
 

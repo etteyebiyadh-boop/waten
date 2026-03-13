@@ -373,6 +373,11 @@ app.put('/api/config', (req, res) => {
     const config = getConfig();
     if (req.body.adminPassword != null) config.adminPassword = req.body.adminPassword;
     if (req.body.fallbackImage != null) config.fallbackImage = req.body.fallbackImage;
+    if (req.body.whatsappNumber != null) config.whatsappNumber = req.body.whatsappNumber;
+    if (req.body.whatsappApiKey != null) config.whatsappApiKey = req.body.whatsappApiKey;
+    if (req.body.adminEmail != null) config.adminEmail = req.body.adminEmail;
+    if (req.body.smtpUser != null) config.smtpUser = req.body.smtpUser;
+    if (req.body.smtpPass != null) config.smtpPass = req.body.smtpPass;
     fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(config, null, 2));
     res.json({ ok: true });
   } catch (e) {
@@ -380,12 +385,19 @@ app.put('/api/config', (req, res) => {
   }
 });
 
-// API: Get config (admin only — for dashboard, non-sensitive fields)
+// API: Get config (admin only)
 app.get('/api/config', (req, res) => {
   if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
   try {
     const config = getConfig();
-    res.json({ fallbackImage: config.fallbackImage || '' });
+    res.json({ 
+      fallbackImage: config.fallbackImage || '',
+      whatsappNumber: config.whatsappNumber || '',
+      whatsappApiKey: config.whatsappApiKey || '',
+      adminEmail: config.adminEmail || '',
+      smtpUser: config.smtpUser || '',
+      smtpPass: config.smtpPass || '' // Returned safely since it's admin-only
+    });
   } catch (e) {
     res.status(500).json({ error: 'Failed to load config' });
   }
