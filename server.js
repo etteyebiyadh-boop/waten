@@ -34,7 +34,19 @@ function saveProducts(products) {
 }
 
 function getConfig() {
-  return JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'config.json'), 'utf8'));
+  const configPath = path.join(DATA_DIR, 'config.json');
+  try {
+    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
+  } catch (e) {
+    const defaultConfig = {
+      adminPassword: "admin",
+      fallbackImage: "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
+    };
+    try {
+      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+    } catch(err) {} // ignore write error on readonly fs
+    return defaultConfig;
+  }
 }
 
 function getSitePath() {
