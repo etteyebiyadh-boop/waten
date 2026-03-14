@@ -9,7 +9,7 @@
 3. **New** → **Web Service** → Connect your GitHub repo.
 4. Render auto-detects Node.js. Click **Create Web Service**.
 5. Your site goes live at `https://your-app-name.onrender.com`.
-6. **Important:** Change the admin password in `config.json` before pushing.
+6. **Important:** Set `JWT_SECRET` and `ADMIN_PASSWORD` (or `ADMIN_PASSWORD_HASH`) as environment variables on your host (don't commit passwords).
 7. **Note:** On Render's free tier, product edits may reset when the service restarts. For persistent storage, consider adding a database later.
 
 **To update the live site:** push to GitHub and Render will redeploy automatically.
@@ -53,7 +53,7 @@ npm test
 
 ## Environment variables
 
-- `DATA_DIR`: path for runtime data (`products.json`, `orders.json`, `users.json`, `config.json`)
+- `DATA_DIR`: path for runtime data (defaults to `./data`)
 - `ADMIN_PASSWORD`: initial admin password used when creating a fresh config
 - `ADMIN_PASSWORD_HASH`: optional bcrypt hash override for admin login
 - `REQUEST_LOGS`: set to `false` to disable request logs

@@ -5,7 +5,8 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "node server.js",
+    "test": "jest --runInBand --passWithNoTests"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",

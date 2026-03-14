@@ -625,6 +625,8 @@
     const PRODUCTS_STORAGE_KEY = 'waten_products';
     const ORDER_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
     let adminPassword = '';
+    let wadminpwd = localStorage.getItem('wadminpwd') || '';
+    let wadmintoken = localStorage.getItem('wadmintoken') || '';
     let products = [];
     let orders = [];
 
@@ -640,9 +642,10 @@
       const headers = { ...(options.headers || {}) };
       const isFormData = options.body instanceof FormData;
       if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-      if (needsAuth) headers['x-admin-password'] = adminPassword; // This line will be effectively unused if all calls switch to fetchWithAuth
 
-      const response = await fetch(path, { ...options, headers });
+      const response = needsAuth
+        ? await fetchWithAuth(path, { ...options, headers })
+        : await fetch(path, { ...options, headers });
       if (!response.ok) {
         let message = `Request failed (${response.status})`;
         try {
@@ -656,6 +659,28 @@
       } catch (_) {
         return null;
       }
+    }
+
+    async function fetchWithAuth(path, options = {}) {
+      if (!wadmintoken) {
+        const error = new Error('Not authenticated');
+        error.code = 'NO_TOKEN';
+        throw error;
+      }
+
+      const headers = { ...(options.headers || {}) };
+      headers['Authorization'] = `Bearer ${wadmintoken}`;
+      const response = await fetch(path, { ...options, headers });
+
+      if (response.status === 401 || response.status === 403) {
+        // Token expired/invalid; clear and force a fresh login.
+        localStorage.removeItem('wadminpwd');
+        localStorage.removeItem('wadmintoken');
+        wadminpwd = '';
+        wadmintoken = '';
+      }
+
+      return response;
     }
 
     async function checkAuth() {

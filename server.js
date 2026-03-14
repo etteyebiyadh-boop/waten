@@ -8,14 +8,32 @@ const jwt = require('jsonwebtoken');
 const { z } = require('zod');
 require('dotenv').config();
 
-const db = require('./db.js');
-
 const app = express();
 const PORT = process.env.PORT || 3000;
-const DATA_DIR = __dirname;
-const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 
+const APP_DIR = __dirname;
+const PUBLIC_DIR = path.join(APP_DIR, 'public');
+const DATA_DIR = process.env.DATA_DIR || path.join(APP_DIR, 'data');
+
+// Keep db.js and the server aligned on the same runtime data directory.
+if (!process.env.DATA_DIR) process.env.DATA_DIR = DATA_DIR;
+if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
+
+// One-time migration: if an older DB exists in the app root, copy it into DATA_DIR.
+const legacyDbPath = path.join(APP_DIR, 'database.sqlite');
+const dataDbPath = path.join(DATA_DIR, 'database.sqlite');
+if (!fs.existsSync(dataDbPath) && fs.existsSync(legacyDbPath)) {
+  try {
+    fs.copyFileSync(legacyDbPath, dataDbPath);
+  } catch (_) {
+    // If migration fails, db.js will create a fresh DB.
+  }
+}
+
+const UPLOADS_DIR = path.join(DATA_DIR, 'uploads');
 if (!fs.existsSync(UPLOADS_DIR)) fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+
+const db = require('./db.js');
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => cb(null, UPLOADS_DIR),
@@ -27,21 +45,44 @@ const storage = multer.diskStorage({
 const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5MB
 
 app.use(express.json());
-app.use(express.static(DATA_DIR));
+app.use(express.static(PUBLIC_DIR));
+app.use('/uploads', express.static(UPLOADS_DIR));
 
 // Configuration and secrets moved to SQLite & .env when possible
 function getConfig() {
   const configPath = path.join(DATA_DIR, 'config.json');
+  const legacyConfigPath = path.join(APP_DIR, 'config.json');
+  const defaultConfig = {
+    fallbackImage: "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
+  };
+
+  let legacyConfig = null;
   try {
-    return JSON.parse(fs.readFileSync(configPath, 'utf8'));
-  } catch (e) {
-    const defaultConfig = {
-      fallbackImage: "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
-    };
+    if (fs.existsSync(legacyConfigPath)) {
+      legacyConfig = JSON.parse(fs.readFileSync(legacyConfigPath, 'utf8'));
+    }
+  } catch (_) {
+    legacyConfig = null;
+  }
+
+  try {
+    const currentConfig = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+    const merged = { ...defaultConfig, ...(legacyConfig || {}), ...(currentConfig || {}) };
+    delete merged.adminPassword;
+
+    // Opportunistically persist merged legacy keys into DATA_DIR.
     try {
-      fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
+      if (legacyConfig) fs.writeFileSync(configPath, JSON.stringify(merged, null, 2));
+    } catch (_) {}
+
+    return merged;
+  } catch (e) {
+    const merged = { ...defaultConfig, ...(legacyConfig || {}) };
+    delete merged.adminPassword;
+    try {
+      fs.writeFileSync(configPath, JSON.stringify(merged, null, 2));
     } catch(err) {} 
-    return defaultConfig;
+    return merged;
   }
 }
 
@@ -187,19 +228,48 @@ app.post('/api/upload', authenticateToken, (req, res, next) => {
 
 // API: Login generate JWT
 const bcrypt = require('bcryptjs');
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '$2b$10$megTbXM/XS6FIXgqxcI9ou9X6f.cQivtS6DVsGbUlQ4Tbac3Fz3t6';
+
+function getAdminPasswordHash() {
+  const config = getConfig() || {};
+  const fromConfig = config.adminPasswordHash;
+  if (typeof fromConfig === 'string' && fromConfig.trim()) return fromConfig.trim();
+
+  const fromEnvHash = process.env.ADMIN_PASSWORD_HASH;
+  if (typeof fromEnvHash === 'string' && fromEnvHash.trim()) return fromEnvHash.trim();
+
+  const fromEnvPassword = process.env.ADMIN_PASSWORD;
+  if (typeof fromEnvPassword === 'string' && fromEnvPassword.trim()) {
+    const hash = bcrypt.hashSync(fromEnvPassword.trim(), 10);
+    try {
+      const nextConfig = { ...config, adminPasswordHash: hash };
+      delete nextConfig.adminPassword;
+      fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(nextConfig, null, 2));
+    } catch (_) {}
+    return hash;
+  }
+
+  return '';
+}
 
 app.post('/api/login', (req, res) => {
-  const pwd = req.body.password;
+  const pwd = toSafeString(req.body?.password);
   if (!pwd) return res.status(400).json({ error: 'Password required' });
 
+  const adminPasswordHash = getAdminPasswordHash();
+  if (!adminPasswordHash) return res.status(500).json({ error: 'Admin password not configured' });
+
   // Use dotenv for the new hashed password validation logic
-  if (bcrypt.compareSync(pwd, ADMIN_PASSWORD_HASH)) {
+  if (bcrypt.compareSync(pwd, adminPasswordHash)) {
     const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ ok: true, token });
   } else {
     res.status(401).json({ ok: false, error: 'Unauthorized' });
   }
+});
+
+// API: Validate token (admin)
+app.post('/api/login/check', authenticateToken, (req, res) => {
+  res.json({ ok: true });
 });
 
 // Notification Helpers
@@ -415,13 +485,17 @@ app.put('/api/site', authenticateToken, (req, res) => {
 app.put('/api/config', authenticateToken, (req, res) => {
   try {
     const config = getConfig();
-    if (req.body.adminPassword != null) config.adminPassword = req.body.adminPassword;
+    if (req.body.adminPassword != null) {
+      const nextPassword = toSafeString(req.body.adminPassword);
+      if (nextPassword) config.adminPasswordHash = bcrypt.hashSync(nextPassword, 10);
+    }
     if (req.body.fallbackImage != null) config.fallbackImage = req.body.fallbackImage;
     if (req.body.whatsappNumber != null) config.whatsappNumber = req.body.whatsappNumber;
     if (req.body.whatsappApiKey != null) config.whatsappApiKey = req.body.whatsappApiKey;
     if (req.body.adminEmail != null) config.adminEmail = req.body.adminEmail;
     if (req.body.smtpUser != null) config.smtpUser = req.body.smtpUser;
     if (req.body.smtpPass != null) config.smtpPass = req.body.smtpPass;
+    delete config.adminPassword;
     fs.writeFileSync(path.join(DATA_DIR, 'config.json'), JSON.stringify(config, null, 2));
     res.json({ ok: true });
   } catch (e) {
