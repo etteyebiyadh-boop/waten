@@ -7,3 +7,7 @@ config.json
 patch.js
 extract.js
 add_filters.js
+
+# Database and migrations
+*.sqlite
+*.migrated

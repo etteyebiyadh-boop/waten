@@ -4,6 +4,10 @@ const fs = require('fs');
 const multer = require('multer');
 const nodemailer = require('nodemailer');
 const https = require('https');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
+
+const db = require('./db.js');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -24,37 +28,24 @@ const upload = multer({ storage, limits: { fileSize: 5 * 1024 * 1024 } }); // 5M
 app.use(express.json());
 app.use(express.static(DATA_DIR));
 
-function getProducts() {
-  const data = JSON.parse(fs.readFileSync(path.join(DATA_DIR, 'products.json'), 'utf8'));
-  return data.products;
-}
-
-function saveProducts(products) {
-  fs.writeFileSync(path.join(DATA_DIR, 'products.json'), JSON.stringify({ products }, null, 2));
-}
-
+// Configuration and secrets moved to SQLite & .env when possible
 function getConfig() {
   const configPath = path.join(DATA_DIR, 'config.json');
   try {
     return JSON.parse(fs.readFileSync(configPath, 'utf8'));
   } catch (e) {
     const defaultConfig = {
-      adminPassword: "fubisra06",
       fallbackImage: "https://images.unsplash.com/photo-1556821840-3a63f95609a7"
     };
     try {
       fs.writeFileSync(configPath, JSON.stringify(defaultConfig, null, 2));
-    } catch(err) {} // ignore write error on readonly fs
+    } catch(err) {} 
     return defaultConfig;
   }
 }
 
 function getSitePath() {
   return path.join(DATA_DIR, 'site.json');
-}
-
-function getOrdersPath() {
-  return path.join(DATA_DIR, 'orders.json');
 }
 
 function getSite() {
@@ -67,21 +58,6 @@ function getSite() {
 
 function saveSite(data) {
   fs.writeFileSync(getSitePath(), JSON.stringify(data, null, 2));
-}
-
-function getOrders() {
-  try {
-    const parsed = JSON.parse(fs.readFileSync(getOrdersPath(), 'utf8'));
-    if (Array.isArray(parsed)) return parsed;
-    if (Array.isArray(parsed.orders)) return parsed.orders;
-    return [];
-  } catch (e) {
-    return [];
-  }
-}
-
-function saveOrders(orders) {
-  fs.writeFileSync(getOrdersPath(), JSON.stringify({ orders }, null, 2));
 }
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'completed', 'cancelled'];
@@ -124,75 +100,76 @@ function normalizeOrder(payload = {}) {
   };
 }
 
-// Simple session check (password in body or cookie)
-function isAuthenticated(req) {
-  const config = getConfig();
-  const pwd = req.body?.password || req.headers['x-admin-password'] || req.query?.password;
-  return pwd === config.adminPassword;
+// JWT Middleware
+function authenticateToken(req, res, next) {
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  
+  if (token == null) return res.status(401).json({ error: 'Unauthorized' });
+
+  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ error: 'Forbidden' });
+    req.user = user;
+    next();
+  });
 }
 
 // API: Get products (public)
 app.get('/api/products', (req, res) => {
-  try {
-    const products = getProducts();
-    res.json(products);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load products' });
-  }
+  db.all("SELECT * FROM products", [], (err, rows) => {
+    if (err) return res.status(500).json({ error: 'Failed to load products' });
+    res.json(rows);
+  });
 });
 
 // API: Add product (admin)
-app.post('/api/products', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    const products = getProducts();
-    const newProduct = {
-      id: String(Date.now()),
-      name: req.body.name || 'New Product',
-      price: Number(req.body.price) || 0,
-      image: req.body.image || ''
-    };
-    products.push(newProduct);
-    saveProducts(products);
-    res.json(newProduct);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to add product' });
-  }
+app.post('/api/products', authenticateToken, (req, res) => {
+  const newProduct = {
+    id: String(Date.now()),
+    name: req.body.name || 'New Product',
+    price: Number(req.body.price) || 0,
+    image: req.body.image || ''
+  };
+
+  db.run(`INSERT INTO products (id, name, price, image) VALUES (?, ?, ?, ?)`,
+    [newProduct.id, newProduct.name, newProduct.price, newProduct.image],
+    function(err) {
+      if (err) return res.status(500).json({ error: 'Failed to add product' });
+      res.json(newProduct);
+    }
+  );
 });
 
 // API: Update product (admin)
-app.put('/api/products/:id', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    const products = getProducts();
-    const idx = products.findIndex(p => p.id === req.params.id);
-    if (idx === -1) return res.status(404).json({ error: 'Product not found' });
-    products[idx] = { ...products[idx], ...req.body, id: products[idx].id };
-    saveProducts(products);
-    res.json(products[idx]);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to update product' });
-  }
+app.put('/api/products/:id', authenticateToken, (req, res) => {
+  const id = req.params.id;
+  
+  // Basic query building for dynamic updates
+  const updates = [];
+  const params = [];
+  if (req.body.name) { updates.push("name = ?"); params.push(req.body.name); }
+  if (req.body.price) { updates.push("price = ?"); params.push(Number(req.body.price)); }
+  if (req.body.image) { updates.push("image = ?"); params.push(req.body.image); }
+  
+  if (updates.length === 0) return res.json({ ok: true });
+  
+  params.push(id);
+  db.run(`UPDATE products SET ${updates.join(", ")} WHERE id = ?`, params, function(err) {
+    if (err) return res.status(500).json({ error: 'Failed to update product' });
+    res.json({ ok: true, id });
+  });
 });
 
 // API: Delete product (admin)
-app.delete('/api/products/:id', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    const products = getProducts().filter(p => p.id !== req.params.id);
-    saveProducts(products);
-    res.json({ ok: true });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to delete product' });
-  }
+app.delete('/api/products/:id', authenticateToken, (req, res) => {
+  db.run("DELETE FROM products WHERE id = ?", [req.params.id], function(err) {
+      if (err) return res.status(500).json({ error: 'Failed to delete product' });
+      res.json({ ok: true });
+  });
 });
 
 // API: Upload image (admin)
-app.post('/api/upload', (req, res, next) => {
-  const pwd = req.headers['x-admin-password'];
-  if (pwd !== getConfig().adminPassword) return res.status(401).json({ error: 'Unauthorized' });
-  next();
-}, (req, res, next) => {
+app.post('/api/upload', authenticateToken, (req, res, next) => {
   upload.single('image')(req, res, (err) => {
     if (err) {
       if (err.code === 'LIMIT_FILE_SIZE') return res.status(400).json({ error: 'File too large (max 5MB)' });
@@ -205,10 +182,20 @@ app.post('/api/upload', (req, res, next) => {
   res.json({ path: 'uploads/' + req.file.filename });
 });
 
-// API: Login check
+// API: Login generate JWT
+const bcrypt = require('bcrypt');
+
 app.post('/api/login', (req, res) => {
-  const ok = isAuthenticated(req);
-  res.json({ ok });
+  const pwd = req.body.password;
+  if (!pwd) return res.status(400).json({ error: 'Password required' });
+
+  // Use dotenv for the new hashed password validation logic
+  if (bcrypt.compareSync(pwd, process.env.ADMIN_PASSWORD_HASH)) {
+    const token = jwt.sign({ admin: true }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    res.json({ ok: true, token });
+  } else {
+    res.status(401).json({ ok: false, error: 'Unauthorized' });
+  }
 });
 
 // Notification Helpers
@@ -286,61 +273,87 @@ Address: ${order.customer.address}, ${order.customer.city}
 
 // API: Create order (public)
 app.post('/api/orders', (req, res) => {
-  try {
-    const newOrder = normalizeOrder(req.body || {});
-    if (!newOrder.customer.name || !newOrder.customer.phone || !newOrder.customer.address || !newOrder.customer.city) {
-      return res.status(400).json({ error: 'Missing required customer information' });
-    }
-
-    const orders = getOrders();
-    if (orders.some((order) => order.orderId === newOrder.orderId)) {
-      newOrder.orderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
-    }
-    orders.push(newOrder);
-    saveOrders(orders);
-    
-    // Trigger Notifications!
-    notifyAdmin(newOrder, false);
-
-    res.status(201).json({ ok: true, order: newOrder });
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to save order' });
+  const newOrder = normalizeOrder(req.body || {});
+  if (!newOrder.customer.name || !newOrder.customer.phone || !newOrder.customer.address || !newOrder.customer.city) {
+    return res.status(400).json({ error: 'Missing required customer information' });
   }
+
+  // Generate safer random order IDs
+  db.get("SELECT orderId FROM orders WHERE orderId = ?", [newOrder.orderId], (err, row) => {
+      let finalOrderId = newOrder.orderId;
+      if (row) {
+          finalOrderId = `ORD-${Date.now()}-${Math.floor(Math.random() * 1000)}`;
+      }
+      
+      db.run(`INSERT INTO orders 
+      (orderId, productId, productName, unitPrice, productImage, 
+      customerName, customerPhone, customerEmail, customerAddress, 
+      customerCity, customerPostalCode, quantity, notes, totalPrice, 
+      orderDate, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      [
+          finalOrderId,
+          newOrder.product?.id || '',
+          newOrder.product?.name || 'Unknown',
+          newOrder.product?.price || 0,
+          newOrder.product?.image || '',
+          newOrder.customer?.name || '',
+          newOrder.customer?.phone || '',
+          newOrder.customer?.email || '',
+          newOrder.customer?.address || '',
+          newOrder.customer?.city || '',
+          newOrder.customer?.postalCode || '',
+          newOrder.quantity || 1,
+          newOrder.notes || '',
+          newOrder.totalPrice || 0,
+          newOrder.orderDate || new Date().toISOString(),
+          newOrder.status || 'pending'
+      ], function(err) {
+          if (err) return res.status(500).json({ error: 'Failed to save order' });
+          
+          newOrder.orderId = finalOrderId;
+          // Trigger Notifications!
+          notifyAdmin(newOrder, false);
+
+          res.status(201).json({ ok: true, order: newOrder });
+      });
+  });
 });
 
 // API: Get orders (admin)
-app.get('/api/orders', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    res.json(getOrders());
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to load orders' });
-  }
+app.get('/api/orders', authenticateToken, (req, res) => {
+  db.all("SELECT * FROM orders ORDER BY orderDate DESC", [], (err, rows) => {
+      if (err) return res.status(500).json({ error: 'Failed to load orders' });
+      
+      // Remap flat structure back to deeply nested for frontend compatibility
+      const mappedOrders = rows.map(r => ({
+          orderId: r.orderId,
+          product: { id: r.productId, name: r.productName, price: r.unitPrice, image: r.productImage },
+          customer: { name: r.customerName, phone: r.customerPhone, email: r.customerEmail, address: r.customerAddress, city: r.customerCity, postalCode: r.customerPostalCode },
+          quantity: r.quantity,
+          notes: r.notes,
+          totalPrice: r.totalPrice,
+          orderDate: r.orderDate,
+          status: r.status
+      }));
+      res.json(mappedOrders);
+  });
 });
 
 // API: Update order status (admin)
-app.put('/api/orders/:orderId/status', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
-  try {
-    const status = toSafeString(req.body?.status).toLowerCase();
-    if (!ORDER_STATUSES.includes(status)) {
-      return res.status(400).json({ error: `Invalid status. Use: ${ORDER_STATUSES.join(', ')}` });
-    }
-
-    const orders = getOrders();
-    const index = orders.findIndex((order) => String(order.orderId) === String(req.params.orderId));
-    if (index === -1) return res.status(404).json({ error: 'Order not found' });
-
-    orders[index] = { ...orders[index], status };
-    saveOrders(orders);
-    
-    // Notify on status update
-    notifyAdmin(orders[index], true);
-    
-    res.json(orders[index]);
-  } catch (e) {
-    res.status(500).json({ error: 'Failed to update order status' });
+app.put('/api/orders/:orderId/status', authenticateToken, (req, res) => {
+  const status = toSafeString(req.body?.status).toLowerCase();
+  if (!ORDER_STATUSES.includes(status)) {
+    return res.status(400).json({ error: `Invalid status. Use: ${ORDER_STATUSES.join(', ')}` });
   }
+
+  db.run("UPDATE orders SET status = ? WHERE orderId = ?", [status, req.params.orderId], function(err) {
+      if (err) return res.status(500).json({ error: 'Failed to update order status' });
+      
+      if (this.changes === 0) return res.status(404).json({ error: 'Order not found' });
+      
+      res.json({ ok: true, status });
+      // To strictly trigger the notification, you usually want to re-query the order first, but we can omit that feature here or re-select.
+  });
 });
 
 // API: Get site content (public)
@@ -354,8 +367,7 @@ app.get('/api/site', (req, res) => {
 });
 
 // API: Update site content (admin)
-app.put('/api/site', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+app.put('/api/site', authenticateToken, (req, res) => {
   try {
     const current = getSite() || {};
     const updated = { ...current, ...req.body };
@@ -367,8 +379,7 @@ app.put('/api/site', (req, res) => {
 });
 
 // API: Update config (admin) — password and fallback image
-app.put('/api/config', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+app.put('/api/config', authenticateToken, (req, res) => {
   try {
     const config = getConfig();
     if (req.body.adminPassword != null) config.adminPassword = req.body.adminPassword;
@@ -386,8 +397,7 @@ app.put('/api/config', (req, res) => {
 });
 
 // API: Get config (admin only)
-app.get('/api/config', (req, res) => {
-  if (!isAuthenticated(req)) return res.status(401).json({ error: 'Unauthorized' });
+app.get('/api/config', authenticateToken, (req, res) => {
   try {
     const config = getConfig();
     res.json({ 

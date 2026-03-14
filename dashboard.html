@@ -640,7 +640,7 @@
       const headers = { ...(options.headers || {}) };
       const isFormData = options.body instanceof FormData;
       if (!isFormData && !headers['Content-Type']) headers['Content-Type'] = 'application/json';
-      if (needsAuth) headers['x-admin-password'] = adminPassword;
+      if (needsAuth) headers['x-admin-password'] = adminPassword; // This line will be effectively unused if all calls switch to fetchWithAuth
 
       const response = await fetch(path, { ...options, headers });
       if (!response.ok) {
@@ -659,25 +659,18 @@
     }
 
     async function checkAuth() {
-      const savedPassword = localStorage.getItem(ADMIN_STORAGE_KEY);
-      if (!savedPassword) {
-        showLogin();
-        return;
-      }
-      try {
-        const result = await fetch('/api/login', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ password: savedPassword })
-        }).then((res) => res.json());
-        if (result?.ok) {
-          adminPassword = savedPassword;
-          showDashboard();
-          await loadData();
-          return;
+      if (wadmintoken) {
+        try {
+          const response = await fetchWithAuth('/api/login/check', { method: 'POST' });
+          if (response.ok) {
+            showDashboard();
+            await loadData();
+            return;
+          }
+        } catch (_) {
+          // Token might be invalid or expired, proceed to login
         }
-      } catch (_) {}
-      localStorage.removeItem(ADMIN_STORAGE_KEY);
+      }
       showLogin();
     }
 
@@ -696,13 +689,15 @@
           body: JSON.stringify({ password })
         }).then((res) => res.json());
 
-        if (!result?.ok) {
+        if (!result?.ok || !result?.token) {
           errorDiv.textContent = 'Incorrect password';
           return;
         }
 
-        adminPassword = password;
-        localStorage.setItem(ADMIN_STORAGE_KEY, password);
+        wadminpwd = password; // Keeping for legacy reference, but shouldn't really be used
+        wadmintoken = result.token; // Store the JWT securely
+        localStorage.setItem('wadminpwd', wadminpwd);
+        localStorage.setItem('wadmintoken', wadmintoken);
         errorDiv.textContent = '';
         showDashboard();
         await loadData();
@@ -712,8 +707,10 @@
     }
 
     function logout() {
-      localStorage.removeItem(ADMIN_STORAGE_KEY);
-      adminPassword = '';
+      localStorage.removeItem('wadminpwd');
+      localStorage.removeItem('wadmintoken');
+      wadminpwd = '';
+      wadmintoken = '';
       showLogin();
     }
 
@@ -738,7 +735,7 @@
 
     async function loadProducts() {
       try {
-        const data = await api('/api/products', {}, false);
+        const data = await fetchWithAuth('/api/products').then(r => r.json());
         products = Array.isArray(data) ? data : [];
       } catch (_) {
         products = [];
@@ -796,7 +793,7 @@
 
       const form = new FormData();
       form.append('image', imageFile);
-      const result = await api('/api/upload', { method: 'POST', body: form }, true);
+      const result = await fetchWithAuth('/api/upload', { method: 'POST', body: form }).then(r => r.json());
       return result?.path || '';
     }
 
@@ -812,14 +809,15 @@
 
       try {
         const uploadedImage = await uploadImageIfNeeded();
-        await api('/api/products', {
+        await fetchWithAuth('/api/products', {
           method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name,
             price,
             image: uploadedImage || imageUrl
           })
-        }, true);
+        });
         clearForm();
         await loadProducts();
         updateStats();
@@ -841,14 +839,15 @@
       if (newImage === null) return;
 
       try {
-        await api(`/api/products/${encodeURIComponent(id)}`, {
+        await fetchWithAuth(`/api/products/${encodeURIComponent(id)}`, {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name: newName.trim(),
             price: Number(newPrice) || 0,
             image: newImage.trim()
           })
-        }, true);
+        });
         await loadProducts();
         showNotification('Product updated');
       } catch (error) {
@@ -862,7 +861,7 @@
       if (!confirm(`Delete "${product.name}"?`)) return;
 
       try {
-        await api(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' }, true);
+        await fetchWithAuth(`/api/products/${encodeURIComponent(id)}`, { method: 'DELETE' });
         await loadProducts();
         updateStats();
         showNotification('Product deleted');
@@ -880,7 +879,7 @@
 
     async function loadOrders() {
       try {
-        const data = await api('/api/orders');
+        const data = await fetchWithAuth('/api/orders').then(r => r.json());
         orders = Array.isArray(data) ? data : [];
         localStorage.setItem('watenOrders', JSON.stringify(orders));
       } catch (_) {
@@ -985,10 +984,11 @@
       if (!orderId) return;
 
       try {
-        await api(`/api/orders/${encodeURIComponent(orderId)}/status`, {
+        await fetchWithAuth(`/api/orders/${encodeURIComponent(orderId)}/status`, {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status })
-        }, true);
+        });
         await loadOrders();
         showNotification(`Order ${orderId} updated`);
       } catch (error) {
@@ -999,10 +999,11 @@
 
     async function saveSitePatch(patch, message) {
       try {
-        await api('/api/site', {
+        await fetchWithAuth('/api/site', {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(patch)
-        }, true);
+        });
         const cachedSite = JSON.parse(localStorage.getItem('watenSiteContent') || '{}');
         localStorage.setItem('watenSiteContent', JSON.stringify({ ...cachedSite, ...patch }));
         if (typeof BroadcastChannel !== 'undefined') {
@@ -1106,8 +1107,9 @@
 
     async function saveNotifications() {
       try {
-        await api('/api/config', {
+        await fetchWithAuth('/api/config', {
           method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             adminEmail: document.getElementById('adminEmailConfig').value.trim(),
             smtpUser: document.getElementById('smtpUserConfig').value.trim(),
@@ -1115,7 +1117,7 @@
             whatsappNumber: document.getElementById('whatsappNumberConfig').value.trim(),
             whatsappApiKey: document.getElementById('whatsappApiKeyConfig').value.trim()
           })
-        }, true);
+        });
         showNotification('Notification settings saved securely');
       } catch (error) {
         alert(error.message || 'Failed to save notification settings');
