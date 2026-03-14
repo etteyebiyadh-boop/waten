@@ -2,7 +2,7 @@ services:
   - type: web
     name: waten
     env: node
-    buildCommand: npm install --no-package-lock
+    buildCommand: npm install && npm run postinstall
     startCommand: node server.js
     # Uncomment the following lines to persist data if using a PAID Render plan:
     # disk:
