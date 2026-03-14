@@ -2,7 +2,7 @@ services:
   - type: web
     name: waten
     env: node
-    buildCommand: npm install && npm run postinstall
+    buildCommand: npm install
     startCommand: node server.js
     # Uncomment the following lines to persist data if using a PAID Render plan:
     # disk:
