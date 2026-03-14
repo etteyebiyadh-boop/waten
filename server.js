@@ -5,6 +5,7 @@ const multer = require('multer');
 const nodemailer = require('nodemailer');
 const https = require('https');
 const jwt = require('jsonwebtoken');
+const { z } = require('zod');
 require('dotenv').config();
 
 const db = require('./db.js');
@@ -271,8 +272,37 @@ Address: ${order.customer.address}, ${order.customer.city}
   );
 }
 
+// Input Validation Schemas
+const orderSchema = z.object({
+  product: z.object({
+    id: z.string().optional(),
+    name: z.string(),
+    price: z.number().min(0).or(z.string().regex(/^\d+(\.\d{1,2})?$/).transform(Number)),
+    image: z.string().optional()
+  }).optional(),
+  customer: z.object({
+    name: z.string().min(1, 'Name is required').max(100),
+    phone: z.string().min(8, 'Phone is required').max(20),
+    email: z.string().email('Invalid email').optional().or(z.literal('')),
+    address: z.string().min(5, 'Address is required').max(250),
+    city: z.string().min(2, 'City is required').max(50),
+    postalCode: z.string().optional()
+  }),
+  quantity: z.number().int().min(1).max(100).or(z.string().regex(/^\d+$/).transform(Number)),
+  notes: z.string().max(500).optional()
+}).passthrough();
+
 // API: Create order (public)
 app.post('/api/orders', (req, res) => {
+  // Validate request
+  const validationResult = orderSchema.safeParse(req.body);
+  if (!validationResult.success) {
+      return res.status(400).json({ 
+          error: 'Validation failed', 
+          details: validationResult.error.errors 
+      });
+  }
+
   const newOrder = normalizeOrder(req.body || {});
   if (!newOrder.customer.name || !newOrder.customer.phone || !newOrder.customer.address || !newOrder.customer.city) {
     return res.status(400).json({ error: 'Missing required customer information' });
