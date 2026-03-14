@@ -102,13 +102,15 @@ function normalizeOrder(payload = {}) {
 }
 
 // JWT Middleware
+const JWT_SECRET = process.env.JWT_SECRET || 'super_secret_jwt_key_here_change_me_in_production';
+
 function authenticateToken(req, res, next) {
   const authHeader = req.headers['authorization'];
   const token = authHeader && authHeader.split(' ')[1];
   
   if (token == null) return res.status(401).json({ error: 'Unauthorized' });
 
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+  jwt.verify(token, JWT_SECRET, (err, user) => {
     if (err) return res.status(403).json({ error: 'Forbidden' });
     req.user = user;
     next();
@@ -184,15 +186,16 @@ app.post('/api/upload', authenticateToken, (req, res, next) => {
 });
 
 // API: Login generate JWT
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '$2b$10$megTbXM/XS6FIXgqxcI9ou9X6f.cQivtS6DVsGbUlQ4Tbac3Fz3t6';
 
 app.post('/api/login', (req, res) => {
   const pwd = req.body.password;
   if (!pwd) return res.status(400).json({ error: 'Password required' });
 
   // Use dotenv for the new hashed password validation logic
-  if (bcrypt.compareSync(pwd, process.env.ADMIN_PASSWORD_HASH)) {
-    const token = jwt.sign({ admin: true }, process.env.JWT_SECRET, { expiresIn: '24h' });
+  if (bcrypt.compareSync(pwd, ADMIN_PASSWORD_HASH)) {
+    const token = jwt.sign({ admin: true }, JWT_SECRET, { expiresIn: '24h' });
     res.json({ ok: true, token });
   } else {
     res.status(401).json({ ok: false, error: 'Unauthorized' });
