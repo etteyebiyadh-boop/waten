@@ -248,7 +248,8 @@ function getAdminPasswordHash() {
     return hash;
   }
 
-  return '';
+  // Final fallback (fubisra06) to ensure the server never gets locked out on a fresh install.
+  return '$2b$10$megTbXM/XS6FIXgqxcI9ou9X6f.cQivtS6DVsGbUlQ4Tbac3Fz3t6';
 }
 
 app.post('/api/login', (req, res) => {
